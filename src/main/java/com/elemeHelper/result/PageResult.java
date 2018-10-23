@@ -4,6 +4,8 @@ public class PageResult {
 
 	private String page;
 
+	private String msg;
+	
 	private Object data;
 
 	public PageResult() {
@@ -12,6 +14,11 @@ public class PageResult {
 	public PageResult(String page, Object data) {
 		this.page = page;
 		this.data = data;
+	}
+
+	public PageResult(String page, String msg) {
+		this.page = page;
+		this.msg = msg;
 	}
 
 	public String getPage() {
@@ -29,5 +36,14 @@ public class PageResult {
 	public void setData(Object data) {
 		this.data = data;
 	}
+
+	public String getMsg() {
+		return msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+	
 
 }

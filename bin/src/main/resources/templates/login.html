@@ -5,8 +5,7 @@
 <title>登录</title>
 </head>
 <body>
-	<h2>登录</h2>
-	<span id="msg" th:text="${error?.msg}">msg</span>
+	<span style="color:red;" th:text="${result?.data}"></span>
 	<form action="/login" method="POST">
 		用户名：<input type="text" name="name" placeholder="请输入用户名" th:value="${user?.name}" required="required"/><br /> 密码：<input
 			type="text" name="pass" placeholder="请输入密码" /><br /> <input type="submit"
