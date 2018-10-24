@@ -18,13 +18,13 @@ public class Token {
 	private Date createDate;
 	private int type;
 	private Date overDate;
-	private int creatorId;
+	private Long creatorId;
 	private int datalevel;
 	
 	public Token() {
 	}
 	
-	public Token(String token, Date createDate, int creatorId, int datalevel, int type) {
+	public Token(String token, Date createDate, Long creatorId, int datalevel, int type) {
 		this.token = token;
 		this.createDate = createDate;
 		this.creatorId = creatorId;
@@ -56,10 +56,10 @@ public class Token {
 	public void setOverDate(Date overDate) {
 		this.overDate = overDate;
 	}
-	public int getCreatorId() {
+	public long getCreatorId() {
 		return creatorId;
 	}
-	public void setCreatorId(int creatorId) {
+	public void setCreatorId(long creatorId) {
 		this.creatorId = creatorId;
 	}
 	public int getDatalevel() {

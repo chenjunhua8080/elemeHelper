@@ -15,5 +15,7 @@ public interface UserDao extends JpaRepository<User, Long>{
 	public User getByName(String name);
 	
 	public User getByNameAndPassAndType(String name,String pass,int type);
+	
+	public User getByNameAndPassAndTypeAndCreatorId(String name,String pass,int type,Long creatorId);
 
 }

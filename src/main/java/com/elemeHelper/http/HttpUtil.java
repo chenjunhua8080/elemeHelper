@@ -25,7 +25,7 @@ public class HttpUtil {
 		postRequest("https://www.cnblogs.com/112313", true, null, null);
 	}
 
-	public static String getRequest(String url,boolean defaultHeader,Map<String, String> header) {
+	public static String getRequest(String url) {
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpGet get = new HttpGet(url);
 		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
@@ -33,10 +33,40 @@ public class HttpUtil {
 		get.setHeader("Accept", "text/plain;charset=utf-8");
 		get.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
 		get.setHeader("user-agent", "Mozilla/5.0 (Linux; Android 5.1; OPPO R9tm Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 V1_AND_SQ_7.0.0_676_YYB_D PA QQ/7.0.0.3135 NetType/4G WebP/0.3.0 Pixel/1080");
-		if (!defaultHeader) {
-			for (String key : header.keySet()) {
-				get.setHeader(key, header.get(key));
+
+		HttpResponse response = null;
+		try {
+			response = client.execute(get);
+			Header[] headers = response.getAllHeaders();
+			for (int i = 0; i < headers.length; i++) {
+				System.err.println(headers[i].getName() + "----" + headers[i].getValue());
 			}
+			HttpEntity entity = response.getEntity();
+			String resp = EntityUtils.toString(entity,"utf-8");
+			System.out.println(resp);
+			return resp;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	public static String getRequest(String url,Map<String, String> header) {
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpGet get = new HttpGet(url);
+		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
+		get.setConfig(config);
+		get.setHeader("Accept", "text/plain;charset=utf-8");
+		get.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+		get.setHeader("user-agent", "Mozilla/5.0 (Linux; Android 5.1; OPPO R9tm Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 V1_AND_SQ_7.0.0_676_YYB_D PA QQ/7.0.0.3135 NetType/4G WebP/0.3.0 Pixel/1080");
+		for (String key : header.keySet()) {
+			get.setHeader(key, header.get(key));
 		}
 		HttpResponse response = null;
 		try {

@@ -18,7 +18,7 @@ public class User {
 	private String pass;
 	private int type;
 	private Date createDate;
-	private int creatorId;
+	private Long creatorId;
 	private int datalevel;
 
 	public User() {
@@ -88,11 +88,11 @@ public class User {
 		this.createDate = createDate;
 	}
 
-	public int getCreatorId() {
+	public Long getCreatorId() {
 		return creatorId;
 	}
 
-	public void setCreatorId(int creatorId) {
+	public void setCreatorId(Long creatorId) {
 		this.creatorId = creatorId;
 	}
 

@@ -14,6 +14,28 @@ function logout(){
 		data:userName
 	});
 }
+function bwmLogin(){
+	var bwmUser=$('#bwmUser').val();
+	var bwmPass=$('#bwmPass').val();
+	$.ajax({
+		type:"post",
+		url:"/bwmLogin",
+		data:{name:bwmUser,pass:bwmPass},
+		success:function(result){
+			var data=result;
+			var bwmMsg=$('#bwmMsg').text(data);
+		}
+	});
+}
+function lzLogin(){
+	var userName=$('#lzUser').val();
+	var userName=$('#lzPass').val();
+	$.ajax({
+		type:"post",
+		url:"/lzLogin",
+		data:userName
+	});
+}
 </script>
 <style type="text/css">
 *{margin: 0;padding: 0;}
@@ -28,19 +50,19 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 </style>
 </head>
 <body>
-	<p>hello!<span id="userName" th:text="*{user?.name}">name</span><span><a href="/logout">退出</a></span></p>
+	<p>hello!<span id="userName" th:text="${user?.name}">name</span><span><a href="/logout">退出</a></span></p>
 	<ul>
 		<li>
 			<table border="1" class="bwmTable">
 				<caption>百万码</caption>
 				<tr>
-					<td>用户名：</td><td><input id="bwmUser" class="bwmInput"/></td><td colspan="2" rowspan="3" class="bwmMsg">信息</td>
+					<td>用户名：</td><td><input id="bwmUser" class="bwmInput"/></td><td colspan="2" rowspan="3" class="bwmMsg" id="bwmMsg">信息</td>
 				</tr>
 				<tr>
 					<td>密码：</td><td><input id="bwmPass" type="password" class="bwmInput"/></td>
 				</tr>
 				<tr>
-					<td colspan="2"><button class="bwmLogin">登录</button></td>
+					<td colspan="2"><button id="bwmLogin" class="bwmLogin" onclick="bwmLogin()">登录</button></td>
 				</tr>
 			</table>
 		</li>
@@ -54,7 +76,7 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 					<td>密码：</td><td><input id="lzPass" type="password" class="lzInput"/></td>
 				</tr>
 				<tr>
-					<td colspan="2"><button class="lzLogin">登录</button></td>
+					<td colspan="2"><button id="lzLogin" class="lzLogin" onclick="lzLogin()">登录</button></td>
 				</tr>
 			</table>
 		</li>

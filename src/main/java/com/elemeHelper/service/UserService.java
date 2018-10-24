@@ -41,7 +41,6 @@ public class UserService {
 			return new PageResult(PageUtil.user_register, "用户名已注册");
 		}
 		user.setCreateDate(new Date());
-		user.setCreatorId(0);
 		user.setDatalevel(0);
 		user.setType(0);
 		user = userDao.save(user);

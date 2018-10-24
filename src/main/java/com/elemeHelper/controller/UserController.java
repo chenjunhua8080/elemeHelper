@@ -27,12 +27,11 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public String login(User user,HttpServletRequest request,RedirectAttributes redirect) {
+	public String login(User user,HttpServletRequest request) {
 		PageResult result = userService.login(user);
 		if (result.getPage().equals(PageUtil.index)) {
-			redirect.addFlashAttribute("user", user);
-//			request.getSession().setAttribute("user", user);
-			return "redirect:/page/"+result.getPage();
+			request.getSession().setAttribute("user", user);
+//			return "redirect:/page/"+result.getPage();
 		}else {
 			request.setAttribute("error", result);
 		}
