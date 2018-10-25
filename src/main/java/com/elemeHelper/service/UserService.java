@@ -3,6 +3,8 @@ package com.elemeHelper.service;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +24,8 @@ public class UserService {
 	private UserDao userDao;
 	@Autowired
 	private BindDao bindDao;
-	
-	public PageResult register(User user,String email) {
+
+	public PageResult register(User user, String email) {
 		String name = user.getName();
 		String pass = user.getPass();
 		if (!Pattern.matches("^[A-z,0-9]{6,11}$", name)) {
@@ -44,38 +46,48 @@ public class UserService {
 		user.setDatalevel(0);
 		user.setType(0);
 		user = userDao.save(user);
-		if (user==null) {
+		if (user == null) {
 			return new PageResult(PageUtil.user_register, "注册失败");
 		}
 		Bind bind = new Bind();
 		bind.setAccount(email);
-		bind.setCreatorId(user.getId());;
-		//邮箱
+		bind.setCreatorId(user.getId());
+		;
+		// 邮箱
 		bind.setType(0);
-		bind.setCreateDate(new Date());;
+		bind.setCreateDate(new Date());
+		;
 		bind.setDatalevel(0);
-		bind=bindDao.save(bind);
-		if (bind==null) {
+		bind = bindDao.save(bind);
+		if (bind == null) {
 			return new PageResult(PageUtil.user_register, "邮箱绑定失败");
 		}
-	    return new PageResult(PageUtil.user_login,user);
+		return new PageResult(PageUtil.user_login, user);
 	}
-	
-	public PageResult login(User user) {
+
+	public PageResult login(User user, HttpServletRequest request) {
+		PageResult result = null;
 		String name = user.getName();
 		String pass = user.getPass();
 		if (!Pattern.matches("^[A-z,0-9]{6,11}$", name)) {
-			return new PageResult(PageUtil.user_login, "用户名格式不正确");
+			result = new PageResult(PageUtil.user_login, "用户名格式不正确");
+		} else if (!Pattern.matches("^\\d{6}$", pass)) {
+			result = new PageResult(PageUtil.user_login, "密码不正确");
+		} 
+		if (result!=null) {
+			request.setAttribute("error", result);
+			return result;
 		}
-		if (!Pattern.matches("^\\d{6}$", pass)) {
-			return new PageResult(PageUtil.user_login,"密码不正确");
-		}
-		User login = userDao.getByNameAndPassAndType(name, pass,0);
+		User login = userDao.getByNameAndPassAndType(name, pass, 0);
 		if (login == null) {
 			// 登录失败
-			return new PageResult(PageUtil.user_login, "登录失败，用户名或密码错误");
+			result = new PageResult(PageUtil.user_login, "登录失败，用户名或密码错误");
+			request.setAttribute("error", result);
+		}else {
+			request.getSession().setAttribute("user", login);
+			result=new PageResult(PageUtil.index, user);
 		}
-		return new PageResult(PageUtil.index,user);
+		return result;
 	}
 
 }

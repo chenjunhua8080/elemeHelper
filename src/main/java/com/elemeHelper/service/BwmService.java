@@ -36,17 +36,24 @@ public class BwmService {
 		if (sessionUser==null) {
 			return new Result(-1, "请重新登录系统");
 		}
-		Long userId = sessionUser.getId();
-		User bwmUser = userDao.getByNameAndPassAndTypeAndCreatorId(name, pass, 1,userId);
-		if (bwmUser==null) {
-			user.setType(1);
-			user.setId(userId);
-			user.setCreateDate(new Date());
-			user.setDatalevel(0);
-			userDao.save(user);
+		String info = login(user);
+		String[] split = info.split("&");
+		if (split.length==1) {
+			return new Result(-1,"登录失败："+info);
+		}else {
+			User isBind = userDao.getByNameAndPassAndTypeAndCreatorId(name, pass, 1, sessionUser.getId());
+			if (isBind==null) {
+				user.setType(1);
+				user.setCreatorId(sessionUser.getId());
+				user.setCreateDate(new Date());
+				user.setDatalevel(0);
+				userDao.save(user);
+			}
+			String token = split[0];
+			//....
+			tokenDao.save(new Token(token,new Date(),user.getId(),0,1));
 		}
-		String[] info = login(user);
-		return new Result(info);
+		return new Result("登录成功，账户余额："+split[1]);
 	}
 	
 	private String getOpenId(String userName) {
@@ -58,19 +65,14 @@ public class BwmService {
 		return resp;
 	}
 
-	private String[] login(User user){
+	private String login(User user){
 		String openId = getOpenId(user.getName());
 		url = url_login.replace("USER", user.getName()).replace("PASS", user.getPass()).replace("OPENID", openId);
 		String resp = HttpUtil.getRequest(url);
 		if (resp==null) {
 			System.err.println("bwm 登录失败");
 		}
-		String[] result = resp.split("&");
-		if (result.length > 0) {
-			String token = result[0];
-			tokenDao.save(new Token(token,new Date(),user.getId(),0,1));
-		}
-		return result;
+		return resp;
 	}
 	
 

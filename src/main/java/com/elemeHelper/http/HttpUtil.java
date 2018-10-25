@@ -22,7 +22,7 @@ import org.apache.http.util.EntityUtils;
 public class HttpUtil {
 
 	public static void main(String[] args) {
-		postRequest("https://www.cnblogs.com/112313", true, null, null);
+		postRequest("https://www.cnblogs.com/112313", null);
 	}
 
 	public static String getRequest(String url) {
@@ -42,7 +42,7 @@ public class HttpUtil {
 				System.err.println(headers[i].getName() + "----" + headers[i].getValue());
 			}
 			HttpEntity entity = response.getEntity();
-			String resp = EntityUtils.toString(entity,"utf-8");
+			String resp = EntityUtils.toString(entity,"gbk");
 			System.out.println(resp);
 			return resp;
 		} catch (IOException e) {
@@ -90,8 +90,7 @@ public class HttpUtil {
 		}
 		return null;
 	}
-	
-	public static String postRequest(String url,boolean defaultHeader,Map<String, String> header,Map<String, String> param) {
+	public static String postRequest(String url,Map<String, String> param) {
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);
 		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
@@ -99,10 +98,53 @@ public class HttpUtil {
 		post.setHeader("Accept", "text/plain;charset=utf-8");
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
 		post.setHeader("user-agent", "Mozilla/5.0 (Linux; Android 5.1; OPPO R9tm Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 V1_AND_SQ_7.0.0_676_YYB_D PA QQ/7.0.0.3135 NetType/4G WebP/0.3.0 Pixel/1080");
-		if (!defaultHeader) {
-			for (String key : header.keySet()) {
-				post.setHeader(key, header.get(key));
+		if (param!=null) {
+			UrlEncodedFormEntity paramEntity=null;
+			List<NameValuePair> paramList=new ArrayList<>();
+			BasicNameValuePair paramItem=null;
+			for (String key : param.keySet()) {
+				paramItem = new BasicNameValuePair(key, param.get(key));
+				paramList.add(paramItem);
 			}
+			try {
+				paramEntity=new UrlEncodedFormEntity(paramList);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			post.setEntity(paramEntity);
+		}
+		HttpResponse response = null;
+		try {
+			response = client.execute(post);
+			Header[] headers = response.getAllHeaders();
+			for (int i = 0; i < headers.length; i++) {
+				System.err.println(headers[i].getName() + "----" + headers[i].getValue());
+			}
+			HttpEntity entity = response.getEntity();
+			String resp = EntityUtils.toString(entity,"utf-8");
+			System.out.println(resp);
+			return resp;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	public static String postRequest(String url,Map<String, String> header,Map<String, String> param) {
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpPost post = new HttpPost(url);
+		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
+		post.setConfig(config);
+		post.setHeader("Accept", "text/plain;charset=utf-8");
+		post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+		post.setHeader("user-agent", "Mozilla/5.0 (Linux; Android 5.1; OPPO R9tm Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 V1_AND_SQ_7.0.0_676_YYB_D PA QQ/7.0.0.3135 NetType/4G WebP/0.3.0 Pixel/1080");
+		for (String key : header.keySet()) {
+			post.setHeader(key, header.get(key));
 		}
 		if (param!=null) {
 			UrlEncodedFormEntity paramEntity=null;
