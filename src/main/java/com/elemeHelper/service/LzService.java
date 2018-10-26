@@ -6,6 +6,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,17 +40,19 @@ public class LzService {
 		if (sessionUser == null) {
 			return new Result(-1, "请重新登录系统");
 		}
-		Long userId = sessionUser.getId();
-		User lzUser = userDao.getByNameAndPassAndTypeAndCreatorId(name, pass, 2, userId);
-		if (lzUser == null) {
-			user.setType(2);
-			user.setCreatorId(userId);
-			user.setCreateDate(new Date());
-			user.setDatalevel(0);
-			userDao.save(user);
+		Result checkPoints = checkPoints(user);
+		if (checkPoints.getCode()==0) {
+			Long userId = sessionUser.getId();
+			User lzUser = userDao.getByNameAndPassAndTypeAndCreatorId(name, pass, 2, userId);
+			if (lzUser == null) {
+				user.setType(2);
+				user.setCreatorId(userId);
+				user.setCreateDate(new Date());
+				user.setDatalevel(0);
+				userDao.save(user);
+			}
 		}
-		String info = checkPoints(user);
-		return new Result(info);
+		return checkPoints;
 	}
 
 	public Result upload(String base64, HttpServletRequest request) throws Exception {
@@ -64,8 +69,20 @@ public class LzService {
 		param.put("password", lzUser.getPass());
 		param.put("captchaData", base64);
 		param.put("captchaType", captchaType);
-		String resp = HttpUtil.postRequest(url_upload, param);
-		return new Result(resp);
+		String resp = HttpUtil.postJsonRequest(url_upload, param);
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObject = null;
+		try {
+			jsonObject = (JSONObject) parser.parse(resp);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		String msg = jsonObject.get("message").toString();
+		String code = jsonObject.get("code").toString();
+		if (!code.equals("0")) {
+			new Result(-1, msg);
+		}
+		return new Result(msg);
 	}
 
 	public Result reportError(String captchaId, HttpServletRequest request) throws Exception {
@@ -82,18 +99,59 @@ public class LzService {
 		param.put("password", lzUser.getPass());
 		param.put("captchaId", captchaId);
 		param.put("captchaType", captchaType);
-		String resp = HttpUtil.postRequest(url_report_error, param);
-		return new Result(resp);
+		String resp = HttpUtil.postJsonRequest(url_report_error, param);
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObject = null;
+		try {
+			jsonObject = (JSONObject) parser.parse(resp);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		String msg = jsonObject.get("message").toString();
+		String code = jsonObject.get("code").toString();
+		if (!code.equals("0")) {
+			new Result(-1, msg);
+		}
+		return new Result(msg);
 	}
 
-	public String checkPoints(User user) {
+	public Result checkPoints(User user) {
 		Map<String, String> map = new HashMap<>();
 		map.put("softwareId", softwareId);
 		map.put("softwareSecret", softwareSecret);
 		map.put("username", user.getName());
 		map.put("password", user.getPass());
-		String resp = HttpUtil.postRequest(url_check_points, map);
-		return resp;
+		String resp = HttpUtil.postJsonRequest(url_check_points, map);
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObject = null;
+		try {
+			jsonObject = (JSONObject) parser.parse(resp);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		String msg = jsonObject.get("message").toString();
+		String code = jsonObject.get("code").toString();
+		Object data = jsonObject.get("data");
+		if (!code.equals("0")&&data==null) {
+			return new Result(-1, msg);
+		}
+		try {
+			jsonObject = (JSONObject) parser.parse(data.toString());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		String availablePoints = jsonObject.get("availablePoints").toString();
+		return new Result("登录成功，可用点数："+availablePoints);
+	}
+
+	public static String unicode2String(String unicode) {
+		StringBuffer string = new StringBuffer();
+		String[] hex = unicode.split("\\\\u");
+		for (int i = 1; i < hex.length; i++) {
+			int data = Integer.parseInt(hex[i], 16);
+			string.append((char) data);
+		}
+		return string.toString();
 	}
 
 }

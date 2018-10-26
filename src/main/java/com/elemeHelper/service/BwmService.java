@@ -47,11 +47,11 @@ public class BwmService {
 				user.setCreatorId(sessionUser.getId());
 				user.setCreateDate(new Date());
 				user.setDatalevel(0);
-				userDao.save(user);
+				isBind=userDao.save(user);
 			}
 			String token = split[0];
 			//....
-			tokenDao.save(new Token(token,new Date(),user.getId(),0,1));
+			tokenDao.save(new Token(token,new Date(),isBind.getId(),0,1));
 		}
 		return new Result("登录成功，账户余额："+split[1]);
 	}

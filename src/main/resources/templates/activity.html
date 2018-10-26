@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<title>39-15</title>
+<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+function logout(){
+	var userName=$('#userName').val();
+	$.ajax({
+		async:false,
+		type:"get",
+		url:"/logout",
+		data:userName
+	});
+}
+var a=0;
+function bwmClick(){
+	if(a%2==0){
+		bwmLogin();	
+	}else{
+		bwmChange();
+	}
+}
+function bwmChange(){
+	var bwmUser=$('#bwmUser');
+	var bwmPass=$('#bwmPass');
+	var bwmLogin=$('#bwmLogin');
+	bwmUser.removeAttr("disabled");
+	bwmPass.removeAttr("disabled");
+	bwmUser.val("");
+	bwmPass.val("");
+	bwmLogin.text("登录");
+	$('#bwmMsg').text("");
+	a++;
+}
+function bwmLogin(){
+	var bwmUser=$('#bwmUser');
+	var bwmPass=$('#bwmPass');
+	var bwmLogin=$('#bwmLogin');
+	$.ajax({
+		type:"post",
+		url:"/bwmLogin",
+		data:{name:bwmUser.val(),pass:bwmPass.val()},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				data=result.data;
+				bwmUser.attr("disabled","disabled");
+				bwmPass.attr("disabled","disabled");
+				bwmLogin.text("切换账号");
+				a++;
+			}else{
+				data=result.msg;
+			}
+			var bwmMsg=$('#bwmMsg').text(data);
+		}
+	});
+}
+var b=0;
+function lzClick(){
+	if(b%2==0){
+		lzLogin();	
+	}else{
+		lzChange();
+	}
+}
+function lzChange(){
+	var lzUser=$('#lzUser');
+	var lzPass=$('#lzPass');
+	var lzLogin=$('#lzLogin');
+	lzUser.removeAttr("disabled");
+	lzPass.removeAttr("disabled");
+	lzUser.val("");
+	lzPass.val("");
+	lzLogin.text("登录");
+	$('#lzMsg').text("");
+	b++;
+}
+function lzLogin(){
+	var lzUser=$('#lzUser');
+	var lzPass=$('#lzPass');
+	var lzLogin=$('#lzLogin');
+	$.ajax({
+		type:"post",
+		url:"/lzLogin",
+		data:{name:lzUser.val(),pass:lzPass.val()},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				data=result.data;
+				lzUser.attr("disabled","disabled");
+				lzPass.attr("disabled","disabled");
+				lzLogin.text("切换账号");
+				b++;
+			}else{
+				data=result.msg;
+			}
+			var lzMsg=$('#lzMsg').text(data);
+		}
+	});
+}
+</script>
+<style type="text/css">
+*{margin: 0;padding: 0;}
+ul,li{list-style: none;}
+table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
+.bwmMsg{width: 300px;text-align: center;}
+.bwmInput{width: 100px;}
+.bwmLogin{width: 100%;}
+.lzMsg{width: 300px;text-align: center;}
+.lzInput{width: 100px;}
+.lzLogin{width: 100%;}
+</style>
+</head>
+<body>
+	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span><span><a href="../page/index">首页</a></span></p>
+	<ul>
+		<li>
+			<table border="1" class="bwmTable">
+				<caption>百万码</caption>
+				<tr>
+					<td>用户名：</td><td><input id="bwmUser" class="bwmInput"/></td><td colspan="2" rowspan="3" class="bwmMsg" id="bwmMsg">信息</td>
+				</tr>
+				<tr>
+					<td>密码：</td><td><input id="bwmPass" type="password" class="bwmInput"/></td>
+				</tr>
+				<tr>
+					<td colspan="2"><button id="bwmLogin" class="bwmLogin" onclick="bwmClick()">登录</button></td>
+				</tr>
+			</table>
+		</li>
+		<li>
+			<table border="1" class="lzTable">
+				<caption>联众</caption>
+				<tr>
+					<td>用户名：</td><td><input id="lzUser" class="lzInput"/></td><td colspan="2" rowspan="3" class="lzMsg" id="lzMsg">信息</td>
+				</tr>
+				<tr>
+					<td>密码：</td><td><input id="lzPass" type="password" class="lzInput"/></td>
+				</tr>
+				<tr>
+					<td colspan="2"><button id="lzLogin" class="lzLogin" onclick="lzClick()">登录</button></td>
+				</tr>
+			</table>
+		</li>
+	</ul>
+</body>
+</html>

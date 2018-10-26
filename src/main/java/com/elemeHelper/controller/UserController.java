@@ -37,7 +37,7 @@ public class UserController {
 		if (user!=null) {
 			session.removeAttribute("user");
 		}
-		return PageUtil.user_login;
+		return PageUtil.redirect_login;
 	}
 	
 }

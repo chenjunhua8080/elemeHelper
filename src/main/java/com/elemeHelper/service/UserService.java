@@ -85,7 +85,7 @@ public class UserService {
 			request.setAttribute("error", result);
 		}else {
 			request.getSession().setAttribute("user", login);
-			result=new PageResult(PageUtil.index, user);
+			result=new PageResult(PageUtil.redirect_index, user);
 		}
 		return result;
 	}

@@ -14,10 +14,12 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONObject;
 
 public class HttpUtil {
 
@@ -135,6 +137,43 @@ public class HttpUtil {
 		}
 		return null;
 	}
+	
+	public static String postJsonRequest(String url,Map<String, String> param) {
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpPost post = new HttpPost(url);
+		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
+		post.setConfig(config);
+		post.setHeader("Accept", "application/json;charset=utf-8");
+		post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+		post.setHeader("user-agent", "Mozilla/5.0 (Linux; Android 5.1; OPPO R9tm Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 V1_AND_SQ_7.0.0_676_YYB_D PA QQ/7.0.0.3135 NetType/4G WebP/0.3.0 Pixel/1080");
+		if (param!=null) {
+			String jsonParam = JSONObject.toJSONString(param);
+			StringEntity paramEntity=new StringEntity(jsonParam.toString(),"utf-8");
+			post.setEntity(paramEntity);
+		}
+		HttpResponse response = null;
+		try {
+			response = client.execute(post);
+			Header[] headers = response.getAllHeaders();
+			for (int i = 0; i < headers.length; i++) {
+				System.err.println(headers[i].getName() + "----" + headers[i].getValue());
+			}
+			HttpEntity entity = response.getEntity();
+			String resp = EntityUtils.toString(entity,"utf-8");
+			System.out.println(resp);
+			return resp;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
 	public static String postRequest(String url,Map<String, String> header,Map<String, String> param) {
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);

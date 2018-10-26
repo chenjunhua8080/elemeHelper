@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<title>cookie</title>
+<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
+<style type="text/css">
+*{margin: 0;padding: 0;}
+ul,li{list-style: none;}
+table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
+.cookieMsg{width: 300px;text-align: center;}
+.cookieInputTd{text-align: center;}
+.cookieInput{width: 200px;}
+.cookieOpen{width: 100%;}
+</style>
+<script type="text/javascript">
+function logout(){
+	var userName=$('#userName').val();
+	$.ajax({
+		async:false,
+		type:"get",
+		url:"/logout",
+		data:userName
+	});
+}
+function cookieClick(){
+	var cookieLink=$('#cookieLink');
+	$.ajax({
+		type:"post",
+		url:"/openRedpacket",
+		data:{link:cookieLink.val()},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				data=result.data;
+			}else{
+				data=result.msg;
+			}
+			var cookieMsg=$('#cookieMsg').text(data);
+		}
+	});
+}
+</script>
+</head>
+<body>
+	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span></p>
+	<p>
+		<span><a href="../page/index">首页</a></span>
+		<span><a href="../page/luck">拼手气</a></span>
+		<span><a href="../page/cookie/upload">上传cookie</a></span>
+	</p>
+	<table border="1" class="cookieTable">
+		<caption>cookie</caption>
+		<thead>
+			<tr>
+				<th>#</th><th>cookie</th><th>上传时间</th><th>删除</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="cookie,cookieStatus${cookies}">
+				<td><span th:text="${cookieStatus.count}">1</span></td>
+				<td><span th:text="${cookie.cookie}">cookie</span></td>
+				<td><span th:text="${cookie.createDate}">删除</span></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

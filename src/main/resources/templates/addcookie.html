@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<title>luck</title>
+<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
+<style type="text/css">
+*{margin: 0;padding: 0;}
+ul,li{list-style: none;}
+table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
+.luckMsg{width: 300px;text-align: center;}
+.luckInputTd{text-align: center;}
+.luckInput{width: 200px;}
+.luckOpen{width: 100%;}
+</style>
+<script type="text/javascript">
+function logout(){
+	var userName=$('#userName').val();
+	$.ajax({
+		async:false,
+		type:"get",
+		url:"/logout",
+		data:userName
+	});
+}
+function luckClick(){
+	var luckLink=$('#luckLink');
+	$.ajax({
+		type:"post",
+		url:"/openRedpacket",
+		data:{link:luckLink.val()},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				data=result.data;
+			}else{
+				data=result.msg;
+			}
+			var luckMsg=$('#luckMsg').text(data);
+		}
+	});
+}
+</script>
+</head>
+<body>
+	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span><span><a href="../page/index">首页</a></span></p>
+	<table border="1" class="luckTable">
+		<caption>拼手气最大包</caption>
+		<tr>
+			<td>红包链接:</td><td class="luckInputTd"><input id="luckLink" class="luckInput"/></td>
+		</tr>
+		<tr>
+			<td colspan="2"><button id="luckOpen" class="luckOpen" onclick="luckClick()">领取</button></td>
+		</tr>
+		<tr>
+			<td colspan="2" rowspan="3" class="luckMsg" id="luckMsg">信息</td>
+		</tr>
+	</table>
+</body>
+</html>
