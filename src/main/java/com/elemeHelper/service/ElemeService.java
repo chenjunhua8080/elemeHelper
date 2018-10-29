@@ -2,6 +2,7 @@ package com.elemeHelper.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.elemeHelper.dao.CookieDao;
+import com.elemeHelper.dao.LogRedpacketDao;
 import com.elemeHelper.entity.Cookie;
 import com.elemeHelper.entity.User;
+import com.elemeHelper.entity.logRedpacket;
 import com.elemeHelper.http.HttpUtil;
 import com.elemeHelper.result.PageResult;
 import com.elemeHelper.result.Result;
@@ -30,10 +33,13 @@ public class ElemeService {
 
 	private static final String url_openRedpacket = "https://h5.ele.me/restapi/marketing/promotion/weixin/OPENID";
 	private static final String url_getLuckyNumber = "https://h5.ele.me/restapi/marketing/themes/3289/group_sns/REDPACKETID";
+	private static final String url_checkCookie = "https://h5.ele.me/restapi/traffic/redpacket/check";
 	private static String url=null;
 	
 	@Autowired
 	private CookieDao cookieDao;
+	@Autowired
+	private LogRedpacketDao logDao;
 
 	public Result openRedpacket(String redpacketLink,HttpServletRequest request){
 		if (redpacketLink==null||!Pattern.matches("^https?://.*?&sn=.*?$", redpacketLink)) {
@@ -62,7 +68,7 @@ public class ElemeService {
 		int openCount=0;
 		boolean success=false;
 		for (Cookie cookie : cookies) {
-			cookieStr=cookie.getCookie();
+			cookieStr=cookie.getValue();
 			sign = getSign(cookieStr);
 			trackId = getTrackId(cookieStr);
 			mapHeader.put("cookie", cookieStr);
@@ -91,7 +97,14 @@ public class ElemeService {
 					e.printStackTrace();
 				}
 				JSONArray promotion_records = (JSONArray) jsonObject.get("promotion_records");
-				openCount= promotion_records.size();
+				if (promotion_records!=null) {
+					openCount= promotion_records.size();
+					List<logRedpacket> log = logDao.getListByRedpacketIdAndOpenId(redpacketId, cookie.getUserId());
+					if (log==null||log.size()==0) {
+						logDao.save(new logRedpacket(redpacketId,"",cookie.getUserId(),cookie.getPhone(),"",0,sessionUser.getId()));
+						cookieDao.use(cookie.getId());
+					}
+				}
 			}
 			if (luckyNumber-1==openCount) {
 				success=true;
@@ -183,6 +196,40 @@ public class ElemeService {
 		}
 		return null;
 	}
+	
+	public static String getRedpackId(String str){
+		try {
+			str = URLDecoder.decode(str, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		Pattern p = Pattern.compile("\"packet_id\":\"(.*?)\"");
+		Matcher m = p.matcher(str);
+		String result = null;
+		if (m.find()) {
+			result = m.group(1);
+			System.out.println(result);
+			return result;
+		}
+		return null;
+	}
+	
+	public static String getUserId(String cookie){
+		try {
+			cookie = URLDecoder.decode(cookie, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		Pattern p = Pattern.compile("USERID=(.*?);");
+		Matcher m = p.matcher(cookie);
+		String result = null;
+		if (m.find()) {
+			result = m.group(1);
+			System.out.println(result);
+			return result;
+		}
+		return null;
+	}
 
 
 	public static boolean isNewUser(String param, String cookie) throws Exception {
@@ -207,18 +254,55 @@ public class ElemeService {
 	}
 
 
-	public Result addCookie(String cookie, HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	public Result delCookie(Long cookie, HttpServletRequest request) {
+	public Result addCookie(Cookie cookie, HttpServletRequest request) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser==null) {
 			return new Result(-1,"登录失效，请重新登录");
 		}
-		return null;
+		String cookieStr = cookie.getValue();
+		String userId = getUserId(cookieStr);
+		if (userId==null) {
+			return new Result(-1,"无效cookie");
+		}
+		List<Cookie> list = cookieDao.getByDatalevelNotAndUserId(-1, userId);
+		if (list!=null&&list.size()>0) {
+			return new Result(-1,"这个cookie已经上传过了,换一个吧");
+		}
+		Map<String, String> head=new HashMap<>();
+		head.put("cookie", cookieStr);
+		Map<String, String> param=new HashMap<>();
+		param.put("user_id", userId);
+		param.put("packet_id", "0");
+		param.put("lat", "");
+		param.put("lng", "");
+		String resp = HttpUtil.postRequest(url_checkCookie, head, param);
+		if (resp==null||getRedpackId(resp)==null) {
+			return new Result(-1,"无效cookie");
+		}
+		cookie.setUserId(userId);
+		cookie.setDatalevel(0);
+		cookie.setCreateDate(new Date());
+		cookie.setCount(0);
+		cookie.setCreatorId(sessionUser.getId());
+		cookie.setType(0);
+		Cookie save = cookieDao.save(cookie);
+		if (save==null) {
+			return new Result(-1,"上传失败");
+		}
+		return new Result("上传成功");
+	}
+
+
+	public Result delCookie(Long cookieId, HttpServletRequest request) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser==null) {
+			return new Result(-1,"登录失效，请重新登录");
+		}
+		int i=cookieDao.del(cookieId);
+		if (i==0) {
+			return new Result(-1,"删除失败");
+		}
+		return new Result("删除成功!");
 	}
 	
 	public PageResult list(HttpServletRequest request) {
@@ -226,8 +310,8 @@ public class ElemeService {
 		if (sessionUser==null) {
 			return new PageResult(PageUtil.redirect_login,"登录失效，请重新登录");
 		}
-		Long creatorId = null;
-		List<Cookie> cookies = cookieDao.getAllByDatalevelNotAndCreatorId(0, creatorId);
+		Long creatorId = sessionUser.getId();
+		List<Cookie> cookies = cookieDao.getAllByDatalevelNotAndCreatorId(-1, creatorId);
 		request.setAttribute("cookies", cookies);
 		return new PageResult(PageUtil.eleme_cookie_list,null);
 	}

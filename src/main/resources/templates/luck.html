@@ -12,6 +12,8 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 .luckInputTd{text-align: center;}
 .luckInput{width: 200px;}
 .luckOpen{width: 100%;}
+.body{position: relative;}
+.loading{position: absolute;display: none;padding:20px 120px;}
 </style>
 <script type="text/javascript">
 function logout(){
@@ -24,12 +26,14 @@ function logout(){
 	});
 }
 function luckClick(){
+	$('.loading').toggle();
 	var luckLink=$('#luckLink');
 	$.ajax({
 		type:"post",
 		url:"/openRedpacket",
 		data:{link:luckLink.val()},
 		success:function(result){
+			$('.loading').toggle();
 			var data=null;
 			var code=result.code;
 			if(code==0){
@@ -49,17 +53,20 @@ function luckClick(){
 		<span><a href="../page/index">首页</a></span>
 		<span><a href="../page/cookie">cookie</a></span>
 	</p>
-	<table border="1" class="luckTable">
-		<caption>拼手气最大包</caption>
-		<tr>
-			<td>红包链接:</td><td class="luckInputTd"><input id="luckLink" class="luckInput"/></td>
-		</tr>
-		<tr>
-			<td colspan="2"><button id="luckOpen" class="luckOpen" onclick="luckClick()">领取</button></td>
-		</tr>
-		<tr>
-			<td colspan="2" rowspan="3" class="luckMsg" id="luckMsg">信息</td>
-		</tr>
-	</table>
+	<div class="body">
+		<img class="loading" alt="加载zhong..." src="../loading.gif" />
+		<table border="1" class="luckTable">
+			<caption>拼手气最大包</caption>
+			<tr>
+				<td>红包链接:</td><td class="luckInputTd"><input id="luckLink" class="luckInput"/></td>
+			</tr>
+			<tr>
+				<td colspan="2"><button id="luckOpen" class="luckOpen" onclick="luckClick()">领取</button></td>
+			</tr>
+			<tr>
+				<td colspan="2" rowspan="3" class="luckMsg" id="luckMsg">信息</td>
+			</tr>
+		</table>
+	</div>
 </body>
 </html>

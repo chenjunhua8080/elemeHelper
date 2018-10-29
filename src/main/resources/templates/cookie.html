@@ -12,32 +12,24 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 .cookieInputTd{text-align: center;}
 .cookieInput{width: 200px;}
 .cookieOpen{width: 100%;}
+.cookieValue{width:300px;display:inline-block;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
 </style>
 <script type="text/javascript">
-function logout(){
-	var userName=$('#userName').val();
-	$.ajax({
-		async:false,
-		type:"get",
-		url:"/logout",
-		data:userName
-	});
-}
-function cookieClick(){
-	var cookieLink=$('#cookieLink');
+function del(id){
 	$.ajax({
 		type:"post",
-		url:"/openRedpacket",
-		data:{link:cookieLink.val()},
+		url:"/cookie/del",
+		data:{cookieId:id},
 		success:function(result){
 			var data=null;
 			var code=result.code;
 			if(code==0){
 				data=result.data;
+				$('#cookie_'+id).toggle(500,function(){$('#cookie_'+id).remove()});
 			}else{
 				data=result.msg;
+				alert(data);
 			}
-			var cookieMsg=$('#cookieMsg').text(data);
 		}
 	});
 }
@@ -48,20 +40,22 @@ function cookieClick(){
 	<p>
 		<span><a href="../page/index">首页</a></span>
 		<span><a href="../page/luck">拼手气</a></span>
-		<span><a href="../page/cookie/upload">上传cookie</a></span>
+		<span><a href="../page/cookie/add">上传cookie</a></span>
 	</p>
 	<table border="1" class="cookieTable">
 		<caption>cookie</caption>
 		<thead>
 			<tr>
-				<th>#</th><th>cookie</th><th>上传时间</th><th>删除</th>
+				<th>#</th><th>eleme用户</th><th>cookie</th><th>上传时间</th><th>删除</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="cookie,cookieStatus${cookies}">
+			<tr th:id="'cookie_'+${cookie.id}" th:each="cookie,cookieStatus:${cookies}">
 				<td><span th:text="${cookieStatus.count}">1</span></td>
-				<td><span th:text="${cookie.cookie}">cookie</span></td>
-				<td><span th:text="${cookie.createDate}">删除</span></td>
+				<td><span th:text="${cookie.userId}">userId</span></td>
+				<td><span class="cookieValue" th:text="${cookie.value}" th:title="${cookie.value}">cookie</span></td>
+				<td><span th:text="${cookie.createDate}">上传时间</span></td>
+				<td><button th:onclick="'del('+${cookie.id}+')'">删除</button></td>
 			</tr>
 		</tbody>
 	</table>

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.elemeHelper.entity.Cookie;
 import com.elemeHelper.result.Result;
 import com.elemeHelper.service.ElemeService;
 
@@ -21,13 +22,13 @@ public class ElemeController {
 		return result;
 	}
 	@PostMapping("/cookie/add")
-	public Result addCookie(String cookie, HttpServletRequest request) {
+	public Result addCookie(Cookie cookie, HttpServletRequest request) {
 		Result result = elemeService.addCookie(cookie,request);
 		return result;
 	}
 	@PostMapping("/cookie/del")
-	public Result delCookie(Long cookie, HttpServletRequest request) {
-		Result result = elemeService.delCookie(cookie,request);
+	public Result delCookie(Long cookieId, HttpServletRequest request) {
+		Result result = elemeService.delCookie(cookieId,request);
 		return result;
 	}
 	

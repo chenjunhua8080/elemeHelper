@@ -2,33 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8"/>
-<title>luck</title>
-<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
+<title>cookie</title>
+<script type="text/javascript" src="../../jquery-2.1.0.min.js"></script>
 <style type="text/css">
 *{margin: 0;padding: 0;}
+i{color: red;}
 ul,li{list-style: none;}
 table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
-.luckMsg{width: 300px;text-align: center;}
-.luckInputTd{text-align: center;}
-.luckInput{width: 200px;}
-.luckOpen{width: 100%;}
+.cookieMsg{width: 300px;text-align: center;}
+.cookieInputTd{text-align: center;}
+.cookieInput{width: 200px;}
+.cookieUpload{width: 100%;}
 </style>
 <script type="text/javascript">
-function logout(){
-	var userName=$('#userName').val();
-	$.ajax({
-		async:false,
-		type:"get",
-		url:"/logout",
-		data:userName
-	});
-}
-function luckClick(){
-	var luckLink=$('#luckLink');
+function cookieClick(){
+	var cookie=$('#cookie');
+	var account=$('#account');
+	var phone=$('#phone');
 	$.ajax({
 		type:"post",
-		url:"/openRedpacket",
-		data:{link:luckLink.val()},
+		url:"/cookie/add",
+		data:{account:account.val(),phone:phone.val(),value:cookie.val()},
 		success:function(result){
 			var data=null;
 			var code=result.code;
@@ -37,24 +31,35 @@ function luckClick(){
 			}else{
 				data=result.msg;
 			}
-			var luckMsg=$('#luckMsg').text(data);
+			var cookieMsg=$('#cookieMsg').text(data);
 		}
 	});
 }
 </script>
 </head>
 <body>
-	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span><span><a href="../page/index">首页</a></span></p>
-	<table border="1" class="luckTable">
-		<caption>拼手气最大包</caption>
+	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span></p>
+	<p>
+		<span><a href="../../page/index">首页</a></span>
+		<span><a href="../../page/luck">拼手气</a></span>
+		<span><a href="../../page/cookie">cookie</a></span>
+	</p>
+	<table border="1" class="cookieTable">
+		<caption>上传cookie</caption>
 		<tr>
-			<td>红包链接:</td><td class="luckInputTd"><input id="luckLink" class="luckInput"/></td>
+			<td><i>*</i>cookie:</td><td class="cookieInputTd"><input id="cookie" class="cookieInput" type="text" /></td>
 		</tr>
 		<tr>
-			<td colspan="2"><button id="luckOpen" class="luckOpen" onclick="luckClick()">领取</button></td>
+			<td>qq/微信:</td><td class="cookieInputTd"><input id="account" class="cookieInput"/></td>
 		</tr>
 		<tr>
-			<td colspan="2" rowspan="3" class="luckMsg" id="luckMsg">信息</td>
+			<td>手机号:</td><td class="cookieInputTd"><input id="phone" class="cookieInput"/></td>
+		</tr>
+		<tr>
+			<td colspan="2"><button id="cookieUpload" class="cookieUpload" onclick="cookieClick()">上传</button></td>
+		</tr>
+		<tr>
+			<td colspan="2" rowspan="3" class="cookieMsg" id="cookieMsg">信息</td>
 		</tr>
 	</table>
 </body>

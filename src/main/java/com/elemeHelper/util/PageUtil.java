@@ -11,5 +11,6 @@ public class PageUtil {
 	public static final String eleme_activity="activity";
 	public static final String redirect_login="redirect:page/login";
 	public static final String eleme_cookie_list = "cookie";
+	public static final String eleme_cookie_add = "addcookie";
 
 }

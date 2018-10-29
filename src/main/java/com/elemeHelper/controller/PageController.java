@@ -52,4 +52,9 @@ public class PageController {
 		return list.getPage();
 	}
 	
+	@GetMapping("/page/cookie/add")
+	public String addCookie(HttpServletRequest request) {
+		return PageUtil.eleme_cookie_add;
+	}
+	
 }
