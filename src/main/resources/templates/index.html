@@ -12,9 +12,27 @@
 		box-shadow: #ccc 5px 5px 5px;
 	}
 </style>
+<script type="text/javascript">
+
+function run(){
+	$.ajax({
+		type:"get",
+		url:"/run",
+		success:function(result){
+			console.log(result);
+		}
+	});
+}
+</script>
 </head>
 <body>
 	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span><span><a href="/logout">退出</a></span></p>
-	<p><a href="../page/activity" class="btn">39-15</a><a href="../page/luck" class="btn">拼手气</a></p>
+	<p>
+		<a href="../page/activity" class="btn">39-15</a>
+		<a href="../page/luck" class="btn">拼手气</a>
+	</p>
+	<p>
+		<a onclick="run()" class="btn">测试</a>
+	</p>
 </body>
 </html>

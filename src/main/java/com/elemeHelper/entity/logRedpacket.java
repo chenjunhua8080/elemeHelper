@@ -18,7 +18,6 @@ public class logRedpacket {
 	private String fromId;
 	private String openId;
 	private String phone;
-	private String money;
 	private int type;
 	private Date createDate;
 	private Long creatorId;
@@ -27,12 +26,11 @@ public class logRedpacket {
 	public logRedpacket() {
 	}
 	
-	public logRedpacket(String redpacketId,String fromId, String openId, String phone, String money, int type, Long creatorId) {
+	public logRedpacket(String redpacketId,String fromId, String openId, String phone,int type, Long creatorId) {
 		this.redpacketId=redpacketId;
 		this.fromId = fromId;
 		this.openId = openId;
 		this.phone = phone;
-		this.money = money;
 		this.type = type;
 		this.creatorId = creatorId;
 		this.createDate=new Date();
@@ -73,12 +71,6 @@ public class logRedpacket {
 	}
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-	public String getMoney() {
-		return money;
-	}
-	public void setMoney(String money) {
-		this.money = money;
 	}
 	public int getType() {
 		return type;

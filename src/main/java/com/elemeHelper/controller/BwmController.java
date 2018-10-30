@@ -1,6 +1,7 @@
 package com.elemeHelper.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,12 @@ public class BwmController {
 	@PostMapping("/bwmLogin")
 	public Result login(User user,HttpServletRequest request,RedirectAttributes redirect) {
 		Result result = bwmService.login(user,request);
+		return result;
+	}
+	
+	@PostMapping("/bwmLogout")
+	public Result logout(HttpSession session) {
+		Result result = bwmService.logout(session);
 		return result;
 	}
 	

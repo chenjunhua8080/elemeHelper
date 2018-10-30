@@ -67,6 +67,29 @@ function luckClick(){
 				<td colspan="2" rowspan="3" class="luckMsg" id="luckMsg">信息</td>
 			</tr>
 		</table>
+		
+		<table border="1" class="luckTable">
+			<caption>领取记录</caption>
+			<thead>
+				<tr>
+					<th>#</th><th>来源</th><th>机器人</th><th>类型</th><th>金额</th><th>领取时间</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:id="'promotion_'+${promotion.id}" th:each="promotion,promotionStatus:${promotions}">
+					<td><span th:text="${promotionStatus.count}">1</span></td>
+					<td><span th:text="${promotion.logRedpacketId}">LogRedpacketId</span></td>
+					<td><span>***</span></td>
+					<td><span th:text="${promotion.name}">name</span></td>
+					<td>
+						<span th:text="${promotion.sum_condition}">sum_condition</span>
+						-
+						<span th:text="${promotion.amount}">amount</span>
+					</td>
+					<td><span th:text="${promotion.createDate}">上传时间</span></td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </body>
 </html>

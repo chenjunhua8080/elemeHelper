@@ -23,6 +23,13 @@ function bwmClick(){
 	}
 }
 function bwmChange(){
+	$.ajax({
+		type:"post",
+		url:"/bwmLogout",
+		success:function(result){
+			console.log(result);
+		}
+	});
 	var bwmUser=$('#bwmUser');
 	var bwmPass=$('#bwmPass');
 	var bwmLogin=$('#bwmLogin');
@@ -102,7 +109,20 @@ function lzLogin(){
 		}
 	});
 }
+function init(obj,user,info,i){
+	$('#'+obj+'User').attr("disabled","disabled");
+	$('#'+obj+'User').val(user);
+	$('#'+obj+'Pass').attr("disabled","disabled");
+	$('#'+obj+'Login').text("切换账号");
+	$('#'+obj+'Msg').text(info);
+	if(i=='a'){
+		a++;
+	}else{
+		b++;
+	}
+}
 </script>
+
 <style type="text/css">
 *{margin: 0;padding: 0;}
 ul,li{list-style: none;}
@@ -116,13 +136,19 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 </style>
 </head>
 <body>
-	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span><span><a href="../page/index">首页</a></span></p>
+	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span></p>
+	<p>
+		<span><a href="../page/index">首页</a></span>
+		<span><a href="../page/luck">拼手气</a></span>
+		<span><a href="../page/items">项目列表</a></span>
+	</p>
+	<span id="msg" th:text="${error?.msg}">msg</span>
 	<ul>
 		<li>
 			<table border="1" class="bwmTable">
 				<caption>百万码</caption>
 				<tr>
-					<td>用户名：</td><td><input id="bwmUser" class="bwmInput"/></td><td colspan="2" rowspan="3" class="bwmMsg" id="bwmMsg">信息</td>
+					<td>用户名：</td><td><input id="bwmUser" class="bwmInput" /></td><td colspan="2" rowspan="3" class="bwmMsg" id="bwmMsg">信息</td>
 				</tr>
 				<tr>
 					<td>密码：</td><td><input id="bwmPass" type="password" class="bwmInput"/></td>
@@ -136,7 +162,7 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 			<table border="1" class="lzTable">
 				<caption>联众</caption>
 				<tr>
-					<td>用户名：</td><td><input id="lzUser" class="lzInput"/></td><td colspan="2" rowspan="3" class="lzMsg" id="lzMsg">信息</td>
+					<td>用户名：</td><td><input id="lzUser" class="lzInput" /></td><td colspan="2" rowspan="3" class="lzMsg" id="lzMsg">信息</td>
 				</tr>
 				<tr>
 					<td>密码：</td><td><input id="lzPass" type="password" class="lzInput"/></td>
@@ -149,3 +175,16 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 	</ul>
 </body>
 </html>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+   	var user=/*[[${session.bwm?.name}]]*/;
+   	var info=/*[[${session.bwmMsg}]]*/;
+    if(user!=null)
+    init('bwm',user,info,'a');
+    
+   	var user=/*[[${session.lz?.name}]]*/;
+   	var info=/*[[${session.lzMsg}]]*/;
+    if(user!=null)
+    init('lz',user,info,'b');
+    /*]]>*/
+</script>

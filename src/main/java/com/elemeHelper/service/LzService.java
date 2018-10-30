@@ -2,6 +2,7 @@ package com.elemeHelper.service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,10 +50,28 @@ public class LzService {
 				user.setCreatorId(userId);
 				user.setCreateDate(new Date());
 				user.setDatalevel(0);
-				userDao.save(user);
+				lzUser=userDao.save(user);
 			}
+			request.getSession().setAttribute("lz", lzUser);
 		}
 		return checkPoints;
+	}
+	
+	public void autoLogin(HttpServletRequest request) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser==null) {
+			return;
+		}
+		if (request.getSession().getAttribute("lz")==null) {
+			List<User> users = userDao.getByCreatorIdAndTypeOrderByIdDesc(sessionUser.getId(), 2);
+			if (users!=null&&users.size()>0) {
+				User user = users.get(0);
+				Result result = login(user, request);
+				if (result.getCode()==0) {
+					request.getSession().setAttribute("lzMsg", result.getData());
+				}
+			}
+		}
 	}
 
 	public Result upload(String base64, HttpServletRequest request) throws Exception {
@@ -61,7 +80,11 @@ public class LzService {
 			return new Result(-1, "请重新登录系统");
 		}
 		Long userId = sessionUser.getId();
-		User lzUser = userDao.getByCreatorIdAndType(userId, 2);
+		List<User> users = userDao.getByCreatorIdAndTypeOrderByIdDesc(userId, 2);
+		User lzUser=null;
+		if (users!=null&&users.size()>0) {
+			 lzUser = users.get(0);
+		}
 		Map<String, String> param = new HashMap<>();
 		param.put("softwareId", softwareId);
 		param.put("softwareSecret", softwareSecret);
@@ -91,7 +114,11 @@ public class LzService {
 			return new Result(-1, "请重新登录系统");
 		}
 		Long userId = sessionUser.getId();
-		User lzUser = userDao.getByCreatorIdAndType(userId, 2);
+		List<User> users = userDao.getByCreatorIdAndTypeOrderByIdDesc(userId, 2);
+		User lzUser=null;
+		if (users!=null&&users.size()>0) {
+			 lzUser = users.get(0);
+		}
 		Map<String, String> param = new HashMap<>();
 		param.put("softwareId", softwareId);
 		param.put("softwareSecret", softwareSecret);

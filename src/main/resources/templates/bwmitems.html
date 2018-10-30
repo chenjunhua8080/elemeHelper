@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>项目列表</title>
+</head>
+<body>
+	<table border="1" class="itemsTable">
+		<caption>item</caption>
+		<thead>
+			<tr>
+				<th>#</th><th>项目ID</th><th>项目详细</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:id="'item_'+${item.key}" th:each="item,itemStatus:${items.data}">
+				<td><span th:text="${itemStatus.count}">1</span></td>
+				<td><span th:text="${item.key}">key</span></td>
+				<td><span th:text="${item.value}">value</span></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

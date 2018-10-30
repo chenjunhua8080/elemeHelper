@@ -1,5 +1,7 @@
 package com.elemeHelper.dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +20,6 @@ public interface UserDao extends JpaRepository<User, Long>{
 	
 	public User getByNameAndPassAndTypeAndCreatorId(String name,String pass,int type,Long creatorId);
 	
-	public User getByCreatorIdAndType(Long creatorId,int type);
+	public List<User> getByCreatorIdAndTypeOrderByIdDesc(Long creatorId,int type);
 
 }

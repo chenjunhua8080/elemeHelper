@@ -14,7 +14,7 @@ public class LogPromotion {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String logRedpacketId;
+	private Long logRedpacketId;
 	private String phone;
 	private String name;
 	private String amount;
@@ -24,16 +24,34 @@ public class LogPromotion {
 	private Date createDate;
 	private Long creatorId;
 	private int datalevel;
+	
+	public LogPromotion(Long logRedpacketId, String phone, String name, String amount, String sum_condition,
+			String validity_periods, int type, Long creatorId) {
+		this.logRedpacketId = logRedpacketId;
+		this.phone = phone;
+		this.name = name;
+		this.amount = amount;
+		this.sum_condition = sum_condition;
+		this.validity_periods = validity_periods;
+		this.type = type;
+		this.creatorId = creatorId;
+		this.createDate = new Date();
+		this.datalevel = 0;
+	}
+	public LogPromotion() {
+		this.createDate = new Date();
+		this.datalevel = 0;
+	}
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getLogRedpacketId() {
+	public Long getLogRedpacketId() {
 		return logRedpacketId;
 	}
-	public void setLogRedpacketId(String logRedpacketId) {
+	public void setLogRedpacketId(Long logRedpacketId) {
 		this.logRedpacketId = logRedpacketId;
 	}
 	public String getPhone() {

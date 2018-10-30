@@ -1,5 +1,6 @@
 package com.elemeHelper.service;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.elemeHelper.dao.CookieDao;
+import com.elemeHelper.dao.LogPromotionDao;
 import com.elemeHelper.dao.LogRedpacketDao;
 import com.elemeHelper.entity.Cookie;
+import com.elemeHelper.entity.LogPromotion;
 import com.elemeHelper.entity.User;
 import com.elemeHelper.entity.logRedpacket;
 import com.elemeHelper.http.HttpUtil;
@@ -39,7 +43,9 @@ public class ElemeService {
 	@Autowired
 	private CookieDao cookieDao;
 	@Autowired
-	private LogRedpacketDao logDao;
+	private LogRedpacketDao logRedpacketDao;
+	@Autowired
+	private LogPromotionDao logPromotionDao;
 
 	public Result openRedpacket(String redpacketLink,HttpServletRequest request){
 		if (redpacketLink==null||!Pattern.matches("^https?://.*?&sn=.*?$", redpacketLink)) {
@@ -99,16 +105,36 @@ public class ElemeService {
 				JSONArray promotion_records = (JSONArray) jsonObject.get("promotion_records");
 				if (promotion_records!=null) {
 					openCount= promotion_records.size();
-					List<logRedpacket> log = logDao.getListByRedpacketIdAndOpenId(redpacketId, cookie.getUserId());
+					List<logRedpacket> log = logRedpacketDao.getListByRedpacketIdAndOpenId(redpacketId, cookie.getUserId());
 					if (log==null||log.size()==0) {
-						logDao.save(new logRedpacket(redpacketId,"",cookie.getUserId(),cookie.getPhone(),"",0,sessionUser.getId()));
+						logRedpacket save = logRedpacketDao.save(new logRedpacket(redpacketId,null,cookie.getUserId(),cookie.getPhone(),0,sessionUser.getId()));
 						cookieDao.use(cookie.getId());
+						JSONArray promotion_item = (JSONArray) jsonObject.get("promotion_items");
+						if (promotion_item!=null) {
+							JSONObject jsonObj=null;
+							LogPromotion promotion=null;
+							for (int i = 0; i < promotion_item.size(); i++) {
+								jsonObj=(JSONObject) promotion_item.get(i);
+								promotion=new LogPromotion();
+								promotion.setCreatorId(sessionUser.getId());
+								promotion.setLogRedpacketId(save.getId());
+								promotion.setPhone((String) jsonObj.get("phone"));
+								promotion.setName((String) jsonObj.get("name"));
+								promotion.setAmount(String.valueOf(jsonObj.get("amount")));
+								promotion.setSum_condition(String.valueOf(jsonObj.get("sum_condition")));
+								promotion.setValidity_periods((String) jsonObj.get("validity_periods"));
+								promotion.setType(0);
+								logPromotionDao.save(promotion);
+							}
+						}
 					}
 				}
 			}
 			if (luckyNumber-1==openCount) {
 				success=true;
 				break;
+			}else if (openCount>=luckyNumber) {
+				return new Result(-1,"最大包已被领取了");
 			}
 		}
 		if (success) {
@@ -305,14 +331,39 @@ public class ElemeService {
 		return new Result("删除成功!");
 	}
 	
-	public PageResult list(HttpServletRequest request) {
+	public PageResult listCookie(HttpServletRequest request) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser==null) {
-			return new PageResult(PageUtil.redirect_login,"登录失效，请重新登录");
+			return new PageResult(PageUtil.redirect_login2,"登录失效，请重新登录");
 		}
 		Long creatorId = sessionUser.getId();
 		List<Cookie> cookies = cookieDao.getAllByDatalevelNotAndCreatorId(-1, creatorId);
 		request.setAttribute("cookies", cookies);
 		return new PageResult(PageUtil.eleme_cookie_list,null);
+	}
+
+
+	public PageResult listLuck(HttpServletRequest request) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser==null) {
+			return new PageResult(PageUtil.redirect_login2,"登录失效，请重新登录");
+		}
+		Long creatorId = sessionUser.getId();
+		List<LogPromotion> list = logPromotionDao.getListByDatalevelAndCreatorId(0, creatorId);
+		request.setAttribute("promotions", list);
+		return new PageResult(PageUtil.eleme_luck,null);
+	}
+	
+	public void run(HttpServletRequest request) {
+		int i=0;
+		while (i<3) {
+			try {
+				Thread.sleep(500);
+				System.out.println(i);
+				i++;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
