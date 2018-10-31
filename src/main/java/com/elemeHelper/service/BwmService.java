@@ -87,6 +87,22 @@ public class BwmService {
 		}
 	}
 	
+	public boolean getNewToken(HttpServletRequest request) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser==null) {
+			return false;
+		}
+		List<User> users = userDao.getByCreatorIdAndTypeOrderByIdDesc(sessionUser.getId(), 1);
+		if (users!=null&&users.size()>0) {
+			User user = users.get(0);
+			Result result = login(user, request);
+			if (result.getCode()==0) {
+				request.getSession().setAttribute("bwmMsg", result.getData());
+			}
+		}
+		return false;
+	}
+	
 	private String getOpenId(String userName) {
 		url = url_get_openid.replace("USER", userName);
 		String resp = HttpUtil.getRequest(url);
@@ -161,7 +177,7 @@ public class BwmService {
 		return pageResult;
 	}
 	
-	public Map<String, String> getItems(String token) throws Exception {
+	private Map<String, String> getItems(String token) throws Exception {
 		Map<String, String> map = new HashMap<>();
 		url = url_get_items.replace("TOKEN", token);
 		String respBody = HttpUtil.getRequest(url);
@@ -174,14 +190,14 @@ public class BwmService {
 		return map;
 	}
 	
-	public String getPhone(String token,String itemId) throws Exception {
+	public String getPhone(String token,String itemId){
 		url = url_get_list_phone.replace("COUNT", "1").replace("ITEMID", itemId).replace("TOKEN", token);
 		String respBody = HttpUtil.getRequest(url);
 		respBody=respBody.replace(";", "");
 		return respBody;
 	}
 	
-	public List<String> getPhone(String count, String itemId,String token) throws Exception {
+	public List<String> getPhone(String token, String itemId,String count){
 		url = url_get_list_phone.replace("COUNT", count).replace("ITEMID", itemId).replace("TOKEN", token);
 		String respBody = HttpUtil.getRequest(url);
 		String[] phoneList = respBody.split(";");
@@ -189,13 +205,13 @@ public class BwmService {
 		return list;
 	}
 
-	public String getPhone(String phone) throws Exception {
+	public String getPhone(String phone){
 		url = url_get_that_phone.replace("PHONE", phone);
 		String respBody = HttpUtil.getRequest(url);
 		return respBody;
 	}
 	
-	public String releasePhone(List<String> list,String itemId,String token) throws Exception {
+	public String releasePhone(List<String> list,String itemId,String token){
 		String phoneStr="";
 		for (String item : list) {
 			phoneStr+=item+"-"+itemId+";";
@@ -205,7 +221,7 @@ public class BwmService {
 		return respBody;
 	}
 	
-	public String releasePhone(String phone,String itemId,String token) throws Exception {
+	public String releasePhone(String phone,String itemId,String token){
 		String phoneStr="";
 		phoneStr+=phone+"-"+56206+";";
 		url = url_release_phone.replace("LIST", phoneStr).replace("TOKEN", token);

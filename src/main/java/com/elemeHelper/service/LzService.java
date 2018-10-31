@@ -27,6 +27,7 @@ public class LzService {
 	private static final String softwareId = "11520";
 	private static final String softwareSecret = "OQCFvZ7hI3IQQW0vL3upiZ1c1ia9sUGgzSVk51Ed";
 	private static final String captchaType = "1001";
+	private static final String JSONObject = null;
 
 	@Autowired
 	private UserDao userDao;
@@ -74,10 +75,10 @@ public class LzService {
 		}
 	}
 
-	public Result upload(String base64, HttpServletRequest request) throws Exception {
+	public String upload(String base64, HttpServletRequest request){
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser == null) {
-			return new Result(-1, "请重新登录系统");
+			return null;
 		}
 		Long userId = sessionUser.getId();
 		List<User> users = userDao.getByCreatorIdAndTypeOrderByIdDesc(userId, 2);
@@ -100,12 +101,13 @@ public class LzService {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		String msg = jsonObject.get("message").toString();
 		String code = jsonObject.get("code").toString();
 		if (!code.equals("0")) {
-			new Result(-1, msg);
+			System.err.println(jsonObject.get("message").toString());
 		}
-		return new Result(msg);
+		JSONObject jsonData = (JSONObject)jsonObject.get("data");
+		String value = (String) jsonData.get("recognition");
+		return value;
 	}
 
 	public Result reportError(String captchaId, HttpServletRequest request) throws Exception {

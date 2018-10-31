@@ -1,11 +1,14 @@
 package com.elemeHelper.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.elemeHelper.entity.Cookie;
@@ -34,10 +37,11 @@ public class ElemeController {
 		return result;
 	}
 	
+	@ResponseBody
 	@GetMapping("/run")
 	public Result run(HttpServletRequest request) {
-		elemeService.run(request);
-		return null;
+		Result result = elemeService.run(request);
+		return result;
 	}
 	
 
