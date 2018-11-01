@@ -51,6 +51,7 @@ public class ElemeService {
 	
 	// 检测
 	public static final String url_newuser = "http://ele.hongbao.show/webService/shopGatherController?m=elmNew";
+	public static final String url_newuser_prizecode ="http://ele.hongbao.show/webService/UserVisitController?m=getPrizeCode";
 	
 	// 拆包
 	public static final String url_get_redpacket = "https://h5.ele.me/restapi/traffic/redpacket/check";
@@ -387,43 +388,94 @@ public class ElemeService {
 			return new Result(-1,"未登录联众");
 		}
 		Token token = tokenDao.getLastToken(1,bwmUser.getId());
-		String phone = bwmService.getPhone(token.getToken(), "56206");
-		if (phone.contains("过期")) {
-			bwmService.getNewToken(request);
-			token = tokenDao.getLastToken(1,bwmUser.getId());
-			phone = bwmService.getPhone(token.getToken(), "56206");
-		}
-		Map<String, String> captchas=null;
-		try {
-			captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
-		} catch (ParseException | IOException e) {
-			e.printStackTrace();
-		}
-		String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
-		String validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
-		while (validate_token==null) {
+		
+		int count=0;
+		String packetId=null;
+		Map<String, String> result=new HashMap<>();
+		while (count<3) {
+			String phone ="";
+			boolean isNew=false;
+			while (!isNew) {
+				try {
+					Thread.sleep(3000);
+					phone=bwmService.getPhone(token.getToken(), "56206");
+					if (phone.contains("过期")) {
+						bwmService.getNewToken(request);
+						token = tokenDao.getLastToken(1,bwmUser.getId());
+						phone = bwmService.getPhone(token.getToken(), "56206");
+					}
+					isNew=isNewUser(phone);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				if (packetId==null) {
+					break;
+				}else {
+					bwmService.releasePhone(phone, "56206", token.getToken());
+					bwmService.releasePhone(phone, "56206", token.getToken());
+				}
+			}
+			
+			Map<String, String> captchas=null;
 			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
+				captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
+			} catch (ParseException | IOException e) {
 				e.printStackTrace();
 			}
-			captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
-			validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
-		}
-		String validate_code = bwmService.getMessage(phone, token.getToken());
-		while (!validate_code.contains("验证码")) {
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+			String validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+			int a=0;
+			while (validate_token==null) {
+				try {
+					Thread.sleep(3000);
+					captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
+					captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+					validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				a++;
+				if (a>2) {
+					break;
+				}
 			}
-			validate_code=bwmService.getMessage(phone, token.getToken());
+			if (a>2) {
+				continue;
+			}
+			String validate_code = bwmService.getMessage(phone, token.getToken());
+			
+			int b=0;
+			while (!validate_code.contains("验证码")) {
+				try {
+					Thread.sleep(3000);
+					validate_code=bwmService.getMessage(phone, token.getToken());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				b++;
+				if (b>10) {
+					break;
+				}
+			}
+			if (b>10) {
+				continue;
+			}
+			validate_code = getValidata(validate_code);
+			Map<String, String> cookies = login(phone, validate_code, validate_token);
+			if (packetId==null) {
+				packetId = getRedpacket(cookies);
+			}
+			String msg="";
+			boolean isOpen = openRedpacket(cookies, packetId);
+			if (isOpen) {
+				count++;
+			}
+			msg="39-15:"+isOpen+";";
+			boolean isNewPlatform = getNewPlatform(cookies, phone);
+			msg+="15-15:"+isNewPlatform+";";
+			result.put(phone, msg);
 		}
-		validate_code = getValidata(validate_code);
-		Map<String, String> cookies = login(phone, validate_code, validate_token);
-		String packetId = getRedpacket(cookies);
-		boolean isOpen = openRedpacket(cookies, packetId);
-		return new Result(isOpen);
+		return new Result(result);
 	}
 
 	/**
@@ -462,9 +514,11 @@ public class ElemeService {
 	 * @return
 	 */
 	public boolean isNewUser(String phone) {
+		String prizeCoide= HttpUtil.getRequest(url_newuser_prizecode);
 		Map<String, String> param = new HashMap<>();
 		param.put("mobile", phone);
 		param.put("r_url", "");// http://api.hongbao.show/webService/
+		param.put("prizeCode", prizeCoide);
 		Map<String, String> header = new HashMap<String, String>();
 		header.put("Accept", "application/json");
 		header.put("Content-Type", "application/x-www-form-urlencoded");
@@ -529,20 +583,24 @@ public class ElemeService {
 	}
 	
 	public Map<String, String> login(String phone,String validate_code,String validate_token) {
-		Map<String, String> header = new HashMap<>();
-		header.put("cookie", "perf_ssid=ys0xa75xhmg3sgcuj4ts2rxe994ia42e_2018-10-14; ubt_ssid=ajxucwkxi2omx2o3e6efttwd4c2cytjr_2018-10-14; _utrace=fc5f68e484068e39207537d353b2883a_2018-10-14; snsInfo[101204453]=%7B%22city%22%3A%22%22%2C%22constellation%22%3A%22%22%2C%22eleme_key%22%3A%22b3225995880342b7a5b568ffcf970510%22%2C%22figureurl%22%3A%22http%3A%2F%2Fqzapp.qlogo.cn%2Fqzapp%2F101204453%2F13702FA623DF912DD822E9FF212F2484%2F30%22%2C%22figureurl_1%22%3A%22http%3A%2F%2Fqzapp.qlogo.cn%2Fqzapp%2F101204453%2F13702FA623DF912DD822E9FF212F2484%2F50%22%2C%22figureurl_2%22%3A%22http%3A%2F%2Fqzapp.qlogo.cn%2Fqzapp%2F101204453%2F13702FA623DF912DD822E9FF212F2484%2F100%22%2C%22figureurl_qq_1%22%3A%22http%3A%2F%2Fthirdqq.qlogo.cn%2Fqqapp%2F101204453%2F13702FA623DF912DD822E9FF212F2484%2F40%22%2C%22figureurl_qq_2%22%3A%22http%3A%2F%2Fthirdqq.qlogo.cn%2Fqqapp%2F101204453%2F13702FA623DF912DD822E9FF212F2484%2F100%22%2C%22gender%22%3A%22%E7%94%B7%22%2C%22is_lost%22%3A0%2C%22is_yellow_vip%22%3A%220%22%2C%22is_yellow_year_vip%22%3A%220%22%2C%22level%22%3A%220%22%2C%22msg%22%3A%22%22%2C%22nickname%22%3A%22%E8%BD%BB%E9%A2%A6%22%2C%22openid%22%3A%2213702FA623DF912DD822E9FF212F2484%22%2C%22province%22%3A%22%22%2C%22ret%22%3A0%2C%22vip%22%3A%220%22%2C%22year%22%3A%220%22%2C%22yellow_vip_level%22%3A%220%22%2C%22name%22%3A%22%E8%BD%BB%E9%A2%A6%22%2C%22avatar%22%3A%22http%3A%2F%2Fthirdqq.qlogo.cn%2Fqqapp%2F101204453%2F13702FA623DF912DD822E9FF212F2484%2F40%22%7D; track_id=1539527993|b5ffd878c7ed0a9494cb3d7df26015e21614b51f4ec898609a|92a23ab44531c0e81ce8061a0600b539; USERID=2250533306; SID=gVk6Nj9eJaA80qlcqds7ZIPDGuULzuNZIrWw");
+		Map<String, String> cookies = new HashMap<>();
+//		cookies.put("perf_ssid", "ydy7x8ftlgz9le0fk6ifasbxaeyv7j69_2018-09-25");
+//		cookies.put("ubt_ssid", "jg77sedwsj91c3lqbc0rwiorw5yrbyg0_2018-09-25");
+//		cookies.put("_utrace", "2dc40edd80a3c0c0a9a845025f75edb8_2018-09-25");
+//		cookies.put("track_id",
+//				"1537864108|773ee26f253b7c15a2d556b4115254391d8d04e0b9bccc8913|6cad10e81bb1d56cf7237c82ef5aec47");
 		Map<String, String> param = new HashMap<>();
 		param.put("mobile", phone);
 		param.put("validate_code", validate_code);
 		param.put("validate_token", validate_token);
-		Map<String, String> resp = HttpUtil.getCookieByPostRequest(url_login,header, param);
+		Map<String, String> resp = HttpUtil.getCookieByPostRequest(url_login,cookies, param);
 		return resp;
 	}
 	
 	public String getRedpacket(Map<String, String> cookies) {
 		String packetId=null;
 		Map<String, String> param = new HashMap<>();
-		param.put("user_id", "userid");
+		param.put("user_id", cookies.get("USERID"));
 		param.put("lat", "23.09339");
 		param.put("lng", "113.315966");
 		param.put("packet_id", "0");
@@ -569,7 +627,7 @@ public class ElemeService {
 	
 	public boolean openRedpacket(Map<String, String> cookies,String packetId) {
 		Map<String, String> param = new HashMap<>();
-		param.put("user_id","userId");
+		param.put("user_id",cookies.get("USERID"));
 		param.put("lat", "23.09339");
 		param.put("lng", "113.315966");
 		param.put("packet_id", packetId);
@@ -601,8 +659,43 @@ public class ElemeService {
 		return false;
 	}
 	
+	public boolean getNewPlatform(Map<String, String> cookies,String phone) {
+		String userId=cookies.get("USERID");
+		String url=url_new_platform.replace("USERID", userId);
+		Map<String, String> data = new HashMap<>();
+		data.put("refer_code", "bbc9baf3f6a3bf8e8697d6fdf58bcb59");
+		data.put("refer_user_id", "145998491");
+		data.put("phone", phone);
+		data.put("lat", "23.09339");
+		data.put("lng", "113.315966");
+		data.put("platform", "3");
+		data.put("refer_channel_code", "1");
+		data.put("refer_channel_type", "2");
+		Map<String, String> resp = HttpUtil.setCookieByPostRequest(url, cookies, data);
+		String body = resp.get("body");
+		if (body.contains("promotion_items")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			JSONArray promotion_items = (JSONArray) jsonObject.get("promotion_items");
+			JSONObject item=null;
+			for (int i = 0; i < promotion_items.size(); i++) {
+				item=(JSONObject) promotion_items.get(i);
+				System.out.println(item.get("name")+"领取成功："+item.get("sum_condition")+"----"+item.get("amount"));
+				if (item.get("amount").equals("15")) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public static void main(String[] args) {
-		ElemeService service = new ElemeService();
-		service.isNewUser("13413527258");
+		ElemeService elemeService = new ElemeService();
+		elemeService.isNewUser("13413527257");
 	}
 }

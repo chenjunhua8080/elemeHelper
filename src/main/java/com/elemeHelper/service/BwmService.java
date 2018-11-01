@@ -237,6 +237,10 @@ public class BwmService {
 		String respBody = null;
 		try {
 			respBody = HttpUtil.getRequest(url);
+			if (respBody.contains("验证码")) {
+				releasePhone(phone, "56206", token);
+				releasePhone(phone, "56206", token);
+			}
 		} catch (Exception e) {
 			System.err.println("获取短信失败："+e.getMessage());
 		}

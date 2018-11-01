@@ -144,14 +144,15 @@ public class HttpUtil {
 	}
 	
 	public static Map<String, String> setCookieByPostRequest(String url,Map<String, String> cookies,Map<String, String> param) {
+		cookies.remove("body");
 		Map<String, String> result=new HashMap<>();
-		CookieStore cookieStore=new BasicCookieStore();
+		/*CookieStore cookieStore=new BasicCookieStore();
 		BasicClientCookie reqCookie=null;
 		for (String key : cookies.keySet()) {
 			reqCookie=new BasicClientCookie(key, cookies.get(key));
 			cookieStore.addCookie(reqCookie);
 		}
-		CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+		CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();*/
 		HttpPost post = new HttpPost(url);
 		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
 		post.setConfig(config);
@@ -176,17 +177,10 @@ public class HttpUtil {
 		HttpResponse response = null;
 		try {
 			response = client.execute(post);
-			Header[] headers = response.getAllHeaders();
-			StringBuilder sb=new StringBuilder();
-			for (int i = 0; i < headers.length; i++) {
-				if (headers[i].getName().equals("Set-Cookie")) {
-					sb.append(headers[i].getValue());
-				}
-			}
-//			result.put("cookie2",sb.toString());
+
 			List<Cookie> respCookies = cookieStore.getCookies();
 			Cookie respCookie=null;
-			for (int i = 0; i < cookies.size(); i++) {
+			for (int i = 0; i < respCookies.size(); i++) {
 				respCookie = respCookies.get(i);
 				result.put(respCookie.getName(), respCookie.getValue());
 				System.out.println("cookie_"+respCookie.getName()+" : "+respCookie.getValue());
@@ -194,22 +188,29 @@ public class HttpUtil {
 			HttpEntity entity = response.getEntity();
 			String resp = EntityUtils.toString(entity,"utf-8");
 			result.put("body", resp);
+			System.err.println(resp);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			try {
+			/*try {
 				client.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 		return result;
 	}
-	
-	public static Map<String, String> getCookieByPostRequest(String url,Map<String, String> header,Map<String, String> param) {
+	private static CloseableHttpClient client;
+	private static CookieStore cookieStore;
+	public static Map<String, String> getCookieByPostRequest(String url,Map<String, String> cookies,Map<String, String> param) {
 		Map<String, String> result=new HashMap<>();
-		CookieStore cookieStore=new BasicCookieStore();
-		CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+			cookieStore=new BasicCookieStore();
+		BasicClientCookie reqCookie=null;
+		for (String key : cookies.keySet()) {
+			reqCookie=new BasicClientCookie(key, cookies.get(key));
+			cookieStore.addCookie(reqCookie);
+		}
+		client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
 		HttpPost post = new HttpPost(url);
 		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
 		post.setConfig(config);
@@ -237,32 +238,26 @@ public class HttpUtil {
 		HttpResponse response = null;
 		try {
 			response = client.execute(post);
-			Header[] headers = response.getAllHeaders();
-			StringBuilder sb=new StringBuilder();
-			for (int i = 0; i < headers.length; i++) {
-				if (headers[i].getName().equals("Set-Cookie")) {
-					sb.append(headers[i].getValue());
-				}
-			}
-//			result.put("cookie2",sb.toString());
-			List<Cookie> cookies = cookieStore.getCookies();
-			Cookie cookie=null;
-			for (int i = 0; i < cookies.size(); i++) {
-				cookie = cookies.get(i);
-				result.put(cookie.getName(), cookie.getValue());
-				System.out.println("cookie_"+cookie.getName()+" : "+cookie.getValue());
+
+			List<Cookie> respCookies = cookieStore.getCookies();
+			Cookie respCookie=null;
+			for (int i = 0; i < respCookies.size(); i++) {
+				respCookie = respCookies.get(i);
+				result.put(respCookie.getName(), respCookie.getValue());
+				System.out.println("cookie_"+respCookie.getName()+" : "+respCookie.getValue());
 			}
 			HttpEntity entity = response.getEntity();
 			String resp = EntityUtils.toString(entity,"utf-8");
 			result.put("body", resp);
+			System.err.println(resp);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			try {
+			/*try {
 				client.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 		return result;
 	}
