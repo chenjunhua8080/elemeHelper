@@ -31,6 +31,8 @@ public class BwmService {
 	private static final String url_release_phone = "http://kapi.yika66.com:20153/User/releasePhone?phoneList=LIST&token=TOKEN";
 	private static final String url_message = "http://kapi.yika66.com:20153/User/getMessage?code=CODE&token=TOKEN";	
 	private static final String url_logout = "http://kapi.yika66.com:20153/User/exit?uName=USER&token=TOKEN";
+	private static final String url_black_phone ="http://kapi.yika66.com:20153/User/addBlack?token=TOKEN&phoneList=LIST";
+	
 	private String url=null;
 	
 	@Autowired
@@ -229,6 +231,14 @@ public class BwmService {
 		return respBody;
 	}
 
+	public String blackPhone(String phone,String itemId,String token){
+		String phoneStr="";
+		phoneStr+=56206+"-"+phone+";";
+		url = url_black_phone.replace("LIST", phoneStr).replace("TOKEN", token);
+		String respBody = HttpUtil.getRequest(url);
+		return respBody;
+	}
+	
 	public String getMessage(String phone,String token){
 		url = url_message.replace("CODE", "utf8").replace("TOKEN", token);
 		if (phone!=null) {
