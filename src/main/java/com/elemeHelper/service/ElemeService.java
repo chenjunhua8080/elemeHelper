@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,14 @@ public class ElemeService {
 	// 新客
 	public static final String url_new_platform = "https://h5.ele.me/restapi/marketing/promotion/refer/USERID";
 
+	// 抽会员
+	public static final String url_get_vip = "https://h5.ele.me/restapi/member/v1/users/USERID/supervip/growth/prize";
+	public static final String url_is_vip = "https://h5.ele.me/restapi/member/v1/users/USERID/supervip?latitude=23.09339&longitude=113.315966&source=3";
+	
+	//查询红包
+	public static final String url_get_share = "https://h5.ele.me/restapi/promotion/v3/users/USERID/hongbaos?offset=0&limit=20&cart_sub_channel=share";
+	public static final String url_get_coupons = "https://h5.ele.me/restapi/promotion/v1/users/USERID/coupons?cart_sub_channel=share";
+	
 	private static String url = null;
 
 	@Autowired
@@ -395,9 +404,9 @@ public class ElemeService {
 		while (count<3) {
 			String phone ="";
 			boolean isNew=false;
-			while (!isNew) {
+			while (true) {
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(5000);
 					phone=bwmService.getPhone(token.getToken(), "56206");
 					if (phone.contains("过期")) {
 						bwmService.getNewToken(request);
@@ -408,9 +417,11 @@ public class ElemeService {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (packetId==null) {
+//				if (isNew||packetId==null) {
+				if (isNew) {
 					break;
 				}else {
+					bwmService.blackPhone(phone, "56206", token.getToken());
 					bwmService.releasePhone(phone, "56206", token.getToken());
 					bwmService.releasePhone(phone, "56206", token.getToken());
 				}
@@ -427,7 +438,7 @@ public class ElemeService {
 			int a=0;
 			while (validate_token==null) {
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(5000);
 					captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
 					captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
 					validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
@@ -447,7 +458,7 @@ public class ElemeService {
 			int b=0;
 			while (!validate_code.contains("验证码")) {
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(5000);
 					validate_code=bwmService.getMessage(phone, token.getToken());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -470,10 +481,23 @@ public class ElemeService {
 			if (isOpen) {
 				count++;
 			}
-			msg="39-15:"+isOpen+";";
+			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
-			msg+="15-15:"+isNewPlatform+";";
+			msg="39-15:"+isNewPlatform+";";
+			boolean getVip = getVip(cookies);
+			msg+="抽会员:"+getVip+";";
+			boolean isVip = isVip(cookies);
+			msg+="是否会员:"+isVip+";";
+			List<String> shares = getShare(cookies);
+			for (int i = 0; i < shares.size(); i++) {
+				msg+=shares.get(i);
+			}
+			List<String> coupons = getCoupons(cookies);
+			for (int i = 0; i < coupons.size(); i++) {
+				msg+=coupons.get(i);
+			}
 			result.put(phone, msg);
+			return new Result(result);
 		}
 		return new Result(result);
 	}
@@ -523,8 +547,24 @@ public class ElemeService {
 		header.put("Accept", "application/json");
 		header.put("Content-Type", "application/x-www-form-urlencoded");
 		header.put("Referer", "http://ele.hongbao.show/webService/shopGather/elm-new/index.html?channelId=32010380");
-		String resp = HttpUtil.postRequest(url_newuser, header, param);
-		System.out.println(resp);
+		String body = HttpUtil.postRequest(url_newuser, header, param);
+		try {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = (JSONObject) parser.parse(body);
+			Object resultcode = jsonObject.get("resultcode");
+			if (resultcode.toString().equals("200")) {
+				JSONObject result = (JSONObject) parser.parse(jsonObject.get("result").toString());
+				if (result.get("error") == null) {
+					JSONObject data = (JSONObject) parser.parse(result.get("data").toString());
+					String amount =  data.get("amount").toString();
+					if (amount.equals("15")) {
+						return true;
+					}
+				}
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		return false;
 	}
 
@@ -689,6 +729,123 @@ public class ElemeService {
 				if (item.get("amount").equals("15")) {
 					return true;
 				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean getVip(Map<String, String> cookies) {
+		String userId=cookies.get("USERID");
+		String url=url_get_vip.replace("USERID", userId);
+		Map<String, String> param = new HashMap<>();
+		param.put("channel", "wingpay_banner_1");
+		param.put("latitude", "23.021503");
+		param.put("longitude", "113.321222");
+		Map<String, String> resp = HttpUtil.setCookieByPostRequest(url, cookies, param);
+		String body = resp.get("body");
+		if (body.contains("header_text")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			String header_text = (String) jsonObject.get("header_text");
+			System.out.println("抽会员："+header_text);
+			if (header_text.contains("一个月")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public List<String> getShare(Map<String, String> cookies) {
+		List<String> list=new ArrayList<>();
+		String userId=cookies.get("USERID");
+		String url=url_get_share.replace("USERID", userId);
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("amount")) {
+			JSONParser parser = new JSONParser();
+			JSONArray jsonArray=null;
+			JSONObject jsonObject = null;
+			String name=null;
+			String sum_condition=null;
+			String amount=null;
+			String item="";
+			try {
+				jsonArray = (JSONArray) parser.parse(body);
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject=(JSONObject) jsonArray.get(i);
+					name=jsonObject.get("name").toString();
+					sum_condition=jsonObject.get("sum_condition").toString();
+					amount=jsonObject.get("amount").toString();
+					item=name+":"+sum_condition+"-"+amount+";";
+					System.out.println(item);
+					if (Double.valueOf(amount)>5) {
+						list.add(item);
+					}
+				}
+				return list;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	public List<String> getCoupons(Map<String, String> cookies) {
+		List<String> list=new ArrayList<>();
+		String userId=cookies.get("USERID");
+		String url=url_get_coupons.replace("USERID", userId);
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("reduce_amount")) {
+			JSONParser parser = new JSONParser();
+			JSONArray jsonArray=null;
+			JSONObject jsonObject = null;
+			String name=null;
+			String sum_condition=null;
+			String amount=null;
+			String item="";
+			try {
+				jsonArray = (JSONArray) parser.parse(body);
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject=(JSONObject) jsonArray.get(i);
+					name=jsonObject.get("name").toString();
+					sum_condition=jsonObject.get("sum_condition").toString();
+					amount=jsonObject.get("reduce_amount").toString();
+					item=name+":"+sum_condition+"-"+amount+";";
+					System.out.println(item);
+					if (Double.valueOf(amount)>5) {
+						list.add(item);
+					}
+				}
+				return list;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	public boolean isVip(Map<String, String> cookies) {
+		String userId=cookies.get("USERID");
+		String url=url_is_vip.replace("USERID", userId);
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("status")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				Integer status = Integer.valueOf(jsonObject.get("status").toString());
+				if (status>2) {
+					return true;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
 		}
 		return false;

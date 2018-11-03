@@ -96,17 +96,18 @@ public class LzService {
 		String resp = HttpUtil.postJsonRequest(url_upload, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObject = null;
+		String value=null;
 		try {
 			jsonObject = (JSONObject) parser.parse(resp);
+			String code = jsonObject.get("code").toString();
+			if (!code.equals("0")) {
+				System.err.println(jsonObject.get("message").toString());
+			}
+			JSONObject jsonData = (JSONObject)jsonObject.get("data");
+			value = (String) jsonData.get("recognition");
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		String code = jsonObject.get("code").toString();
-		if (!code.equals("0")) {
-			System.err.println(jsonObject.get("message").toString());
-		}
-		JSONObject jsonData = (JSONObject)jsonObject.get("data");
-		String value = (String) jsonData.get("recognition");
 		return value;
 	}
 

@@ -142,7 +142,48 @@ public class HttpUtil {
 		}
 		return null;
 	}
-	
+	public static Map<String, String> setCookieByGetRequest(String url,Map<String, String> cookies) {
+		cookies.remove("body");
+		Map<String, String> result=new HashMap<>();
+		/*CookieStore cookieStore=new BasicCookieStore();
+		BasicClientCookie reqCookie=null;
+		for (String key : cookies.keySet()) {
+			reqCookie=new BasicClientCookie(key, cookies.get(key));
+			cookieStore.addCookie(reqCookie);
+		}
+		CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();*/
+		HttpGet get = new HttpGet(url);
+		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
+		get.setConfig(config);
+		get.setHeader("Accept", "text/plain;charset=utf-8");
+		get.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+		get.setHeader("user-agent", "Mozilla/5.0 (Linux; Android 5.1; OPPO R9tm Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 V1_AND_SQ_7.0.0_676_YYB_D PA QQ/7.0.0.3135 NetType/4G WebP/0.3.0 Pixel/1080");
+		HttpResponse response = null;
+		try {
+			response = client.execute(get);
+
+			List<Cookie> respCookies = cookieStore.getCookies();
+			Cookie respCookie=null;
+			for (int i = 0; i < respCookies.size(); i++) {
+				respCookie = respCookies.get(i);
+				result.put(respCookie.getName(), respCookie.getValue());
+				System.out.println("cookie_"+respCookie.getName()+" : "+respCookie.getValue());
+			}
+			HttpEntity entity = response.getEntity();
+			String resp = EntityUtils.toString(entity,"utf-8");
+			result.put("body", resp);
+			System.err.println(resp);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			/*try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}*/
+		}
+		return result;
+	}
 	public static Map<String, String> setCookieByPostRequest(String url,Map<String, String> cookies,Map<String, String> param) {
 		cookies.remove("body");
 		Map<String, String> result=new HashMap<>();
@@ -281,7 +322,12 @@ public class HttpUtil {
 			try {
 				response = client.execute(post);
 			} catch (Exception e) {
-				response = client.execute(post);
+				try {
+					response = client.execute(post);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+					System.err.println("识别验证码失败：上传图片异常:"+e2.getMessage());
+				}
 			}
 			Header[] headers = response.getAllHeaders();
 			for (int i = 0; i < headers.length; i++) {
