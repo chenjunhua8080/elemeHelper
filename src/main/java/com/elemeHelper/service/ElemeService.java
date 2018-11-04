@@ -53,6 +53,7 @@ public class ElemeService {
 	// 检测
 	public static final String url_newuser = "http://ele.hongbao.show/webService/shopGatherController?m=elmNew";
 	public static final String url_newuser_prizecode ="http://ele.hongbao.show/webService/UserVisitController?m=getPrizeCode";
+	public static final String url_check_new_1104 ="http://stoneflying.cn/e/e.php?tel=PHONE";
 	
 	// 拆包
 	public static final String url_get_redpacket = "https://h5.ele.me/restapi/traffic/redpacket/check";
@@ -68,6 +69,14 @@ public class ElemeService {
 	//查询红包
 	public static final String url_get_share = "https://h5.ele.me/restapi/promotion/v3/users/USERID/hongbaos?offset=0&limit=20&cart_sub_channel=share";
 	public static final String url_get_coupons = "https://h5.ele.me/restapi/promotion/v1/users/USERID/coupons?cart_sub_channel=share";
+	
+	//29-13
+	public static final String url_check_29_13 = "https://newretail.ele.me/newretail/act/newguestwelfare?city_id=4&lat=123.87806&lng=120.13185&user_id=0";
+	public static final String url_get_29_13="https://newretail.ele.me/newretail/act/takewelfare?city_id=61&device_id=1BF190C5A6484ED8A4A4228A7B0CF0F8%7C1541317706249&lat=30.87806&lng=120.13185&redbag_location=2&user_id=0";
+			
+	//1111
+	public static final String url_get_shoplist="https://newretail.ele.me/newretail/main/shoplist?address=&cat_id=0&channel=fresh&device_id=1BF190C5A6484ED8A4A4228A7B0CF0F8%7C1541317706249&fromalipay=0&pn=1&rn=20&rule_id=0&scene_id=0&scene_type=shop&type=1&user_type=newuser&lng=120.13185&lat=30.87806&city_id=61";
+	public static final String url_get_1111Ag="https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=61&lat=30.87806&lng=120.13185&shop_id=2218137034";
 	
 	private static String url = null;
 
@@ -413,7 +422,7 @@ public class ElemeService {
 						token = tokenDao.getLastToken(1,bwmUser.getId());
 						phone = bwmService.getPhone(token.getToken(), "56206");
 					}
-					isNew=isNewUser(phone);
+					isNew=checkNew1104(phone);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -561,6 +570,20 @@ public class ElemeService {
 						return true;
 					}
 				}
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	public boolean checkNew1104(String phone) {
+		String body = HttpUtil.getRequest(url_check_new_1104.replace("PHONE", phone));
+		try {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = (JSONObject) parser.parse(body);
+			Object isnew = jsonObject.get("new");
+			if (isnew.equals("new")) {
+				return true;
 			}
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -787,12 +810,11 @@ public class ElemeService {
 						list.add(item);
 					}
 				}
-				return list;
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 		}
-		return null;
+		return list;
 	}
 	
 	public List<String> getCoupons(Map<String, String> cookies) {
@@ -822,12 +844,11 @@ public class ElemeService {
 						list.add(item);
 					}
 				}
-				return list;
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 		}
-		return null;
+		return list;
 	}
 	
 	public boolean isVip(Map<String, String> cookies) {

@@ -307,7 +307,7 @@ public class HttpUtil {
 	public static String postJsonRequest(String url,Map<String, String> param) {
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);
-		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
+		RequestConfig config = RequestConfig.custom().setConnectTimeout(10000).build();
 		post.setConfig(config);
 		post.setHeader("Accept", "application/json;charset=utf-8");
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");

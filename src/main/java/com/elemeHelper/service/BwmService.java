@@ -117,7 +117,7 @@ public class BwmService {
 
 	private String login(User user){
 		String openId = getOpenId(user.getName());
-		url = url_login.replace("USER", user.getName()).replace("PASS", user.getPass()).replace("OPENID", openId);
+		url = url_login.replace("USER", user.getName()).replace("PASS", user.getPass()).replace("OPENID", "");
 		String resp = HttpUtil.getRequest(url);
 		if (resp==null) {
 			System.err.println("bwm 登录失败");
