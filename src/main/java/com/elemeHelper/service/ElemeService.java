@@ -71,12 +71,13 @@ public class ElemeService {
 	public static final String url_get_coupons = "https://h5.ele.me/restapi/promotion/v1/users/USERID/coupons?cart_sub_channel=share";
 	
 	//29-13
-	public static final String url_check_29_13 = "https://newretail.ele.me/newretail/act/newguestwelfare?city_id=4&lat=123.87806&lng=120.13185&user_id=0";
-	public static final String url_get_29_13="https://newretail.ele.me/newretail/act/takewelfare?city_id=61&device_id=1BF190C5A6484ED8A4A4228A7B0CF0F8%7C1541317706249&lat=30.87806&lng=120.13185&redbag_location=2&user_id=0";
+	public static final String url_check_29_13 = "https://newretail.ele.me/newretail/act/newguestwelfare?city_id=CITY&lat=LAT&lng=LNG&user_id=USERID";
+	public static final String url_get_29_13="https://newretail.ele.me/newretail/act/takewelfare?city_id=CITY&device_id=DEVICE&lat=LAT&lng=LNG&redbag_location=INDEX&user_id=USER";
 			
 	//1111
-	public static final String url_get_shoplist="https://newretail.ele.me/newretail/main/shoplist?address=&cat_id=0&channel=fresh&device_id=1BF190C5A6484ED8A4A4228A7B0CF0F8%7C1541317706249&fromalipay=0&pn=1&rn=20&rule_id=0&scene_id=0&scene_type=shop&type=1&user_type=newuser&lng=120.13185&lat=30.87806&city_id=61";
-	public static final String url_get_1111Ag="https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=61&lat=30.87806&lng=120.13185&shop_id=2218137034";
+	public static final String url_get_shoplist="https://newretail.ele.me/newretail/main/shoplist?address=&cat_id=0&channel=fresh&device_id=DEVICE&fromalipay=0&pn=1&rn=20&rule_id=0&scene_id=0&scene_type=shop&type=1&user_type=newuser&lng=120.13185&lat=30.87806&city_id=CITY";
+	public static final String url_get_1111Au="https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=CITY&lat=LAT&lng=LNG&shop_id=SHOPID";
+	public static final String url_get_1111Au_sum="https://newretail-huodong.ele.me/newretail/shuangshiyi/giftcash?city_id=CITY&from=shop&lat=LAT&lng=LNG&shop_id=SHOPID";
 	
 	private static String url = null;
 
@@ -435,32 +436,35 @@ public class ElemeService {
 					bwmService.releasePhone(phone, "56206", token.getToken());
 				}
 			}
-			
-			Map<String, String> captchas=null;
-			try {
-				captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
-			} catch (ParseException | IOException e) {
-				e.printStackTrace();
-			}
-			String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
-			String validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
-			int a=0;
-			while (validate_token==null) {
+			String validate_token = sendCode(phone);
+			if (validate_token==null) {
+				System.err.println("登录风险，需要识别验证码");
+				Map<String, String> captchas=null;
 				try {
-					Thread.sleep(5000);
-					captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
-					captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
-					validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
-				} catch (Exception e) {
+					captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
+				} catch (ParseException | IOException e) {
 					e.printStackTrace();
 				}
-				a++;
-				if (a>2) {
-					break;
+				String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+				validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+				int a=0;
+				while (validate_token==null) {
+					try {
+						Thread.sleep(5000);
+						captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
+						captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+						validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					a++;
+					if (a>2) {
+						break;
+					}
 				}
-			}
-			if (a>2) {
-				continue;
+				if (a>2) {
+					continue;
+				}
 			}
 			String validate_code = bwmService.getMessage(phone, token.getToken());
 			
@@ -510,6 +514,9 @@ public class ElemeService {
 		}
 		return new Result(result);
 	}
+	
+	
+	
 
 	/**
 	 * 通过领取红包返回，是否新用户
@@ -610,9 +617,9 @@ public class ElemeService {
 				b[i] += 256;
 			}
 		}
-		String file = path + new Date().getTime() + ".jpg";
+		String file =new Date().getTime() + ".jpg";
 		System.out.println(file);
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
+		FileOutputStream fileOutputStream = new FileOutputStream( path + file);
 		fileOutputStream.write(b);
 		fileOutputStream.flush();
 		fileOutputStream.close();
@@ -622,7 +629,7 @@ public class ElemeService {
 		result.put("captcha_base64", captcha_base64);
 		return result;
 	}
-
+	
 	public String sendCode(String phone,String captcha_hash,String captcha_value) {
 		Map<String, String> param = new HashMap<>();
 		param.put("mobile", phone);
@@ -643,6 +650,27 @@ public class ElemeService {
 			return null;
 		}
 		return validate_token.toString();
+	}
+	
+	public String sendCode(String phone) {
+		Map<String, String> param = new HashMap<>();
+		param.put("mobile", phone);
+		param.put("captcha_hash", "");
+		param.put("captcha_value", "");
+		String resp = HttpUtil.postRequest(url_send_code, param);
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObj = null;
+		String validate_token=null;
+		try {
+			if (resp.contains("validate_token")) {
+				jsonObj = (JSONObject) parser.parse(resp);
+				validate_token = (String) jsonObj.get("validate_token");
+			}
+		} catch (ParseException e) {
+			System.err.println(jsonObj);
+			e.printStackTrace();
+		}
+		return validate_token;
 	}
 	
 	public Map<String, String> login(String phone,String validate_code,String validate_token) {
@@ -870,6 +898,185 @@ public class ElemeService {
 			}
 		}
 		return false;
+	}
+	
+	public int check29_13(Map<String, String> cookies) {
+		String userId=cookies.get("USERID");
+		String url=url_check_29_13
+				.replace("CITY", "4")
+				.replace("LAT", "113.321222")
+				.replace("LNG", "23.021503")
+				.replace("USERID", userId);
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("red_package_location")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			JSONArray jsonArray=null;
+			Integer status=0;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				jsonObject=(JSONObject) jsonObject.get("result");
+				jsonObject=(JSONObject) jsonObject.get("welfare_redpacket");
+				jsonArray= (JSONArray) parser.parse(jsonObject.get("new_guest_redpacket").toString());
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject = (JSONObject) jsonArray.get(i);
+					status = Integer.valueOf(jsonObject.get("status").toString());
+					if (status==0) {
+						return i+1;
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return 0;
+	}
+	
+	public boolean get29_13(Map<String, String> cookies,String index) {
+		String userId=cookies.get("USERID");
+		String url=url_get_29_13
+				.replace("CITY", "4")
+				.replace("LAT", "113.321222")
+				.replace("LNG", "23.021503")
+				.replace("DEVICE", "")
+				.replace("INDEX", index)
+				.replace("USERID", userId);
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("money")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			JSONArray jsonArray=null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				jsonObject=(JSONObject) jsonObject.get("result");
+				jsonArray= (JSONArray) parser.parse(jsonObject.get("red_packet").toString());
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject = (JSONObject) jsonArray.get(i);
+					System.out.println("果蔬商超："+jsonObject.get("threshold")+"-"+jsonObject.get("money"));
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	public List<String> getShoplist(Map<String, String> cookies) {
+		List<String> list=new ArrayList<>();
+		String url=url_get_shoplist
+				.replace("CITY", "4")
+				.replace("DEVICE", "");
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("shop_name")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			JSONArray jsonArray=null;
+			String wid=null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				jsonObject=(JSONObject) jsonObject.get("result");
+				jsonArray= (JSONArray) parser.parse(jsonObject.get("shop_list").toString());
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject=(JSONObject) jsonArray.get(i);
+					jsonObject=(JSONObject) jsonObject.get("shop_info");
+					Object is_eleven = jsonObject.get("is_eleven");
+					if (is_eleven!=null) {
+						wid = (String) jsonObject.get("wid");
+						list.add(wid);
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+	
+	public boolean get1111AuCheck(Map<String, String> cookies) {
+		String url=url_get_1111Au
+				.replace("CITY", "4")
+				.replace("LAT", "113.321222")
+				.replace("LNG", "23.021503")
+				.replace("SHOPID", "2233255575");
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("signed_num")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				jsonObject=(JSONObject) jsonObject.get("result");
+				jsonObject=(JSONObject) jsonObject.get("shop");
+				Integer num = Integer.valueOf(jsonObject.get("signed_num").toString());
+				Integer total = Integer.valueOf(jsonObject.get("total_num").toString());
+				if (num<total) {
+					return true;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	public int get1111AuSum(Map<String, String> cookies) {
+		int sum=0;
+		String url=url_get_1111Au
+				.replace("CITY", "4")
+				.replace("LAT", "113.321222")
+				.replace("LNG", "23.021503")
+				.replace("SHOPID", "2233255575");
+		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+		String body=resp.get("body");
+		if (body.contains("giftcash")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				jsonObject=(JSONObject) jsonObject.get("result");
+				Integer giftcash = Integer.valueOf(jsonObject.get("giftcash").toString());
+				sum=giftcash;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return sum;
+	}
+	
+	public int get1111Au(Map<String, String> cookies,List<String> shops) {
+		int sum = get1111AuSum(cookies);
+		String url=url_get_1111Au
+				.replace("CITY", "4")
+				.replace("LAT", "113.321222")
+				.replace("LNG", "23.021503");
+		for (int i = 0; i < shops.size(); i++) {
+			url.replace("SHOPID", shops.get(i));
+			Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
+			String body=resp.get("body");
+			if (body.contains("signed_num")) {
+				JSONParser parser = new JSONParser();
+				JSONObject jsonObject = null;
+				try {
+					jsonObject = (JSONObject) parser.parse(body);
+					jsonObject=(JSONObject) jsonObject.get("result");
+					jsonObject=(JSONObject) jsonObject.get("shop");
+					System.err.println(jsonObject.get("toast"));
+					Integer num = Integer.valueOf(jsonObject.get("signed_num").toString());
+					Integer total = Integer.valueOf(jsonObject.get("total_num").toString());
+					sum++;
+					if (num>=total) {
+						return sum;
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return sum;
 	}
 	
 	public static void main(String[] args) {

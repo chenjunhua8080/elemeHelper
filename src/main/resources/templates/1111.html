@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>双十一金</title>
+<style type="text/css">
+*{margin: 0;padding: 0;}
+ul,li{list-style: none;}
+table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
+.input{width: 100%;}
+.btn{width: 100%;}
+</style>
+<script type="text/javascript">
+var captcha_hash=null;
+var captcha_value=null;
+var validate_token=null;
+var validate_code=null;
+function sendClick(){
+	var phone=$('#phone');
+	$.ajax({
+		type:"post",
+		url:"/e/mobile_send_code",
+		data:{phone:phone.val()},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				validate_token=result.data;
+			}else{
+				alert(result.msg);
+				var src=result.data.captcha_path;
+				if(src!=null){
+					$('#captchaImg').attr("src","../"+src);
+				}
+				var hash=result.data.captcha_hash;
+				if(hash!=null){
+					captcha_hash=hash;
+				}
+			}
+		}
+	});
+}
+function sendClick2(){
+	var phone=$('#phone');
+	captcha_value=$('#captcha_value');
+	$.ajax({
+		type:"post",
+		url:"/e/mobile_send_code",
+		data:{phone:phone.val(),captcha_hash:captcha_hash,captcha_value:captcha_value},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				validate_token=result.data;
+			}else{
+				alert(result.msg);
+				var src=result.data.captcha_path;
+				if(src!=null){
+					$('#captchaImg').attr("src","../"+src);
+				}
+				var hash=result.data.captcha_hash;
+				if(hash!=null){
+					captcha_hash=hash;
+				}
+			}
+		}
+	});
+}
+function loginClick(){
+	var phone=$('#phone');
+	validate_code=$('#validate_code');
+	$.ajax({
+		type:"post",
+		url:"/e/login",
+		data:{phone:phone.val(),validate_token:validate_token,validate_code:validate_code},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				alert(result.data);
+			}else{
+				alert(result.msg);
+			}
+		}
+	});
+}
+function get1111Click(){
+	$.ajax({
+		type:"post",
+		url:"/e/1111Au",
+		data:null,
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				alert(result.data);
+			}else{
+				alert(result.msg);
+			}
+		}
+	});
+}
+</script>
+</head>
+<body>
+	<p>
+	<img id="captchaImg"/>
+	请输入图形验证码：<input id="captcha_value" class="input" />
+	<button id="send2" class="btn" onclick="sendClick2()">发送验证码</button>
+	</p>
+	<table border="1" class="table">
+		<tr>
+			<td>手机号：</td><td><input id="phone" class="input" /></td>
+			<td><button id="send" class="btn" onclick="sendClick()">发送验证码</button></td>
+		</tr>
+		<tr>
+			<td>验证码：</td><td><input id="validate_code" type="text" class="input"/></td>
+			<td><button id="login" class="btn" onclick="loginClick()">登录</button></td>
+		</tr>
+		<tr>
+			<td colspan="2"><button id="get1111" class="btn" onclick="get1111Click()">领取11.11礼金</button></td>
+		</tr>
+	</table>
+</body>
+</html>
