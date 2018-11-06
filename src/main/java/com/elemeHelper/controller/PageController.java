@@ -72,4 +72,8 @@ public class PageController {
 		return PageUtil.eleme_cookie_add;
 	}
 	
+	@GetMapping("/page/1111")
+	public String page1111(HttpServletRequest request) {
+		return PageUtil.eleme_1111;
+	}
 }

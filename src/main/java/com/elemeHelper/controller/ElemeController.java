@@ -47,7 +47,7 @@ public class ElemeController {
 	@PostMapping("/e/mobile_send_code")
 	public Result mobile_send_code(String phone,String captcha_hash, String captcha_value,HttpServletRequest request) throws ParseException, IOException {
 		Result result=null;
-		if (captcha_hash.equals("")||captcha_value==null||captcha_value.equals("")||captcha_value==null) {
+		if (captcha_hash==null||captcha_value==null||captcha_hash.equals("")||captcha_value.equals("")) {
 			String validate_token = elemeService.sendCode(phone);
 			if (validate_token==null) {
 				String realPath = request.getSession().getServletContext().getRealPath("");
@@ -97,8 +97,13 @@ public class ElemeController {
 			return new Result(-1,"暂无活动商家");
 		}
 		int init = elemeService.get1111AuSum(cookies);
-		int sum = elemeService.get1111Au(cookies, shoplist);
-		return new Result("领取成功："+init +" >>> "+sum);
+		int count = elemeService.get1111Au(cookies, shoplist)+init;
+		int sum=0;
+		if (count>0) {
+			sum= elemeService.get1111AuSum(cookies);
+			return new Result("领取成功："+init +" >>> "+sum);
+		}
+		return new Result("领取成功："+init +" 领取次数: "+count);
 	}
 
 }

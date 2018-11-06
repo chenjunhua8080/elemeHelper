@@ -10,6 +10,7 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 .input{width: 100%;}
 .btn{width: 100%;}
 </style>
+<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
 var captcha_hash=null;
 var captcha_value=null;
@@ -20,7 +21,7 @@ function sendClick(){
 	$.ajax({
 		type:"post",
 		url:"/e/mobile_send_code",
-		data:{phone:phone.val()},
+		data:{'phone':phone.val()},
 		success:function(result){
 			var data=null;
 			var code=result.code;
@@ -42,11 +43,11 @@ function sendClick(){
 }
 function sendClick2(){
 	var phone=$('#phone');
-	captcha_value=$('#captcha_value');
+	captcha_value=$('#captcha_value').val();
 	$.ajax({
 		type:"post",
 		url:"/e/mobile_send_code",
-		data:{phone:phone.val(),captcha_hash:captcha_hash,captcha_value:captcha_value},
+		data:{'phone':phone.val(),'captcha_hash':captcha_hash,'captcha_value':captcha_value},
 		success:function(result){
 			var data=null;
 			var code=result.code;
@@ -68,11 +69,11 @@ function sendClick2(){
 }
 function loginClick(){
 	var phone=$('#phone');
-	validate_code=$('#validate_code');
+	validate_code=$('#validate_code').val();
 	$.ajax({
 		type:"post",
 		url:"/e/login",
-		data:{phone:phone.val(),validate_token:validate_token,validate_code:validate_code},
+		data:{'phone':phone.val(),'validate_token':validate_token,'validate_code':validate_code},
 		success:function(result){
 			var data=null;
 			var code=result.code;
