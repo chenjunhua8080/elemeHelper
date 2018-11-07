@@ -75,7 +75,8 @@ public class ElemeService {
 	public static final String url_get_29_13="https://newretail.ele.me/newretail/act/takewelfare?city_id=CITY&device_id=DEVICE&lat=LAT&lng=LNG&redbag_location=INDEX&user_id=USER";
 			
 	//1111
-	public static final String url_get_shoplist="https://newretail.ele.me/newretail/main/shoplist?address=&cat_id=0&channel=fresh&device_id=DEVICE&fromalipay=0&pn=1&rn=20&rule_id=0&scene_id=0&scene_type=shop&type=1&user_type=newuser&lng=120.13185&lat=30.87806&city_id=CITY";
+	public static final String url_get_shoplist1="https://newretail.ele.me/newretail/main/shoplist?address=&cat_id=0&channel=fresh&device_id=DEVICE&fromalipay=0&pn=1&rn=20&rule_id=0&scene_id=0&scene_type=shop&type=1&user_type=newuser&lng=120.13185&lat=30.87806&city_id=CITY";
+	public static final String url_get_shoplist="https://newretail-huodong.ele.me/newretail/shuangshiyi/venue?address=&city_id=4&device_id=DEVICE&lat=LAT&lng=LNG&sub_id=&with_tb=0";
 	public static final String url_get_1111Au="https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=CITY&lat=LAT&lng=LNG&shop_id=SHOPID";
 	public static final String url_get_1111Au_sum="https://newretail-huodong.ele.me/newretail/shuangshiyi/giftcash?city_id=CITY&from=shop&lat=LAT&lng=LNG&shop_id=SHOPID";
 	
@@ -94,8 +95,8 @@ public class ElemeService {
 	@Autowired
 	private TokenDao tokenDao;
 	
-	private String lat="113.307649";
-	private String lng="23.1200491";
+	private String lat="113.314352";
+	private String lng="23.092253";
 
 	public Result openRedpacket(String redpacketLink, HttpServletRequest request) {
 		if (redpacketLink == null || !Pattern.matches("^https?://.*?&sn=.*?$", redpacketLink)) {
@@ -503,11 +504,11 @@ public class ElemeService {
 					e.printStackTrace();
 				}
 				b++;
-				if (b>10) {
+				if (b>15) {
 					break;
 				}
 			}
-			if (b>10) {
+			if (b>15) {
 				continue;
 			}
 			validate_code = getValidata(validate_code);
@@ -998,11 +999,12 @@ public class ElemeService {
 	public List<String> getShoplist(Map<String, String> cookies) {
 		List<String> list=new ArrayList<>();
 		String url=url_get_shoplist
-				.replace("CITY", "4")
+				.replace("LNG", "113.321222")
+				.replace("LAT", "23.021503")
 				.replace("DEVICE", "");
 		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
 		String body=resp.get("body");
-		if (body.contains("shop_name")) {
+		if (body.contains("is_eleven")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
 			JSONArray jsonArray=null;
@@ -1010,6 +1012,8 @@ public class ElemeService {
 			try {
 				jsonObject = (JSONObject) parser.parse(body);
 				jsonObject=(JSONObject) jsonObject.get("result");
+				jsonObject=(JSONObject) jsonObject.get("venueentries");
+				jsonObject=(JSONObject) jsonObject.get("content");
 				jsonArray= (JSONArray) parser.parse(jsonObject.get("shop_list").toString());
 				for (int i = 0; i < jsonArray.size(); i++) {
 					jsonObject=(JSONObject) jsonArray.get(i);

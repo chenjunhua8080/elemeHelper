@@ -9,6 +9,7 @@ ul,li{list-style: none;}
 table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 .input{width: 100%;}
 .btn{width: 100%;}
+.captcha{display: none;}
 </style>
 <script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
@@ -27,11 +28,14 @@ function sendClick(){
 			var code=result.code;
 			if(code==0){
 				validate_token=result.data;
+				alert("发送成功");
 			}else{
 				alert(result.msg);
 				var src=result.data.captcha_path;
 				if(src!=null){
 					$('#captchaImg').attr("src","../"+src);
+					$('.captcha').css("display","block");
+					$('#send').css("display","none");
 				}
 				var hash=result.data.captcha_hash;
 				if(hash!=null){
@@ -104,10 +108,10 @@ function get1111Click(){
 </script>
 </head>
 <body>
-	<p>
-	<img id="captchaImg"/>
-	请输入图形验证码：<input id="captcha_value" class="input" />
-	<button id="send2" class="btn" onclick="sendClick2()">发送验证码</button>
+	<p class="captcha">
+		<img id="captchaImg"/>
+		请输入图形验证码：<input id="captcha_value" class="input" />
+		<button id="send2" class="btn" onclick="sendClick2()">发送验证码</button>
 	</p>
 	<table border="1" class="table">
 		<tr>
