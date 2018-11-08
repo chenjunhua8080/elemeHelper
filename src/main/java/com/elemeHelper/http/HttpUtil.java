@@ -29,7 +29,14 @@ import org.json.simple.JSONObject;
 public class HttpUtil {
 
 	public static void main(String[] args) {
-		postRequest("https://www.cnblogs.com/112313", null);
+		Map<String, String> cookie = new HashMap<>();
+//		track_id=1541657649|b116b5dc68db9c5ede36495aa6e52163bca9c39ab86e08e530|53034cc45448b28a5dc8d0b472a32382;
+//		USERID=2029618961;
+//		SID=rffuFvQpJ6iZHHGgbVUjtIPjGpwFEpfLHQRA
+		cookie.put("track_id","1541657649|b116b5dc68db9c5ede36495aa6e52163bca9c39ab86e08e530|53034cc45448b28a5dc8d0b472a32382");
+		cookie.put("USERID", "2029618961");
+		cookie.put("SID", "rffuFvQpJ6iZHHGgbVUjtIPjGpwFEpfLHQRA");
+		setCookieByGetRequest("https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=4&lat=113.321222&lng=23.021503&shop_id=2232965589", cookie);
 	}
 
 	public static String getRequest(String url) {
@@ -145,13 +152,13 @@ public class HttpUtil {
 	public static Map<String, String> setCookieByGetRequest(String url,Map<String, String> cookies) {
 		cookies.remove("body");
 		Map<String, String> result=new HashMap<>();
-		/*CookieStore cookieStore=new BasicCookieStore();
+		CookieStore cookieStore=new BasicCookieStore();
 		BasicClientCookie reqCookie=null;
 		for (String key : cookies.keySet()) {
 			reqCookie=new BasicClientCookie(key, cookies.get(key));
 			cookieStore.addCookie(reqCookie);
 		}
-		CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();*/
+		CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
 		HttpGet get = new HttpGet(url);
 		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
 		get.setConfig(config);

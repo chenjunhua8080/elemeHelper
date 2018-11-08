@@ -451,20 +451,27 @@ public class ElemeService {
 						phone = bwmService.getPhone(token.getToken(), "56206");
 					}
 					isNew=checkNew1104(phone);
+					List<Cookie> exist = cookieDao.getAllByDatalevelAndPhone(0, phone);
+					if (exist==null||exist.size()==0) {
+						break;
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 //				if (isNew||packetId==null) {
-				if (isNew) {
-					break;
-				}else {
-					bwmService.blackPhone(phone, "56206", token.getToken());
-					bwmService.releasePhone(phone, "56206", token.getToken());
-					bwmService.releasePhone(phone, "56206", token.getToken());
-				}
+//				if (isNew) {
+//					break;
+//				}else {
+//					bwmService.blackPhone(phone, "56206", token.getToken());
+//					bwmService.releasePhone(phone, "56206", token.getToken());
+//					bwmService.releasePhone(phone, "56206", token.getToken());
+//				}
 			}
 			String validate_token = sendCode(phone);
 			if (validate_token==null) {
+				if (validate_token==null) {
+					continue;
+				}
 				System.err.println("登录风险，需要识别验证码");
 				Map<String, String> captchas=null;
 				try {
@@ -526,11 +533,14 @@ public class ElemeService {
 			}
 			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
-			msg="39-15:"+isNewPlatform+";";
+			msg="新客:"+isNewPlatform+";";
 			boolean getVip = getVip(cookies);
 			msg+="抽会员:"+getVip+";";
 			boolean isVip = isVip(cookies);
 			msg+="是否会员:"+isVip+";";
+			boolean get29_13 = get29_13(cookies, "1");
+			msg+="29-13:"+get29_13+";";
+			msg+="大额红包:";
 			List<String> shares = getShare(cookies);
 			for (int i = 0; i < shares.size(); i++) {
 				msg+=shares.get(i);
@@ -716,6 +726,8 @@ public class ElemeService {
 		param.put("mobile", phone);
 		param.put("validate_code", validate_code);
 		param.put("validate_token", validate_token);
+		String jsessionid = HttpUtil.getJSESSIONID();
+		cookies.put("JSESSIONID", jsessionid);
 		Map<String, String> resp = HttpUtil.getCookieByPostRequest(url_login,cookies, param);
 		return resp;
 	}
@@ -866,7 +878,7 @@ public class ElemeService {
 					amount=jsonObject.get("amount").toString();
 					item=name+":"+sum_condition+"-"+amount+";";
 					System.out.println(item);
-					if (Double.valueOf(amount)>5) {
+					if (Double.valueOf(amount)>=5) {
 						list.add(item);
 					}
 				}
@@ -900,7 +912,7 @@ public class ElemeService {
 					amount=jsonObject.get("reduce_amount").toString();
 					item=name+":"+sum_condition+"-"+amount+";";
 					System.out.println(item);
-					if (Double.valueOf(amount)>5) {
+					if (Double.valueOf(amount)>=5) {
 						list.add(item);
 					}
 				}
@@ -932,7 +944,7 @@ public class ElemeService {
 		return false;
 	}
 	
-	public int check29_13(Map<String, String> cookies) {
+	public boolean check29_13(Map<String, String> cookies) {
 		String userId=cookies.get("USERID");
 		String url=url_check_29_13
 				.replace("CITY", "4")
@@ -951,21 +963,30 @@ public class ElemeService {
 				jsonObject=(JSONObject) jsonObject.get("result");
 				jsonObject=(JSONObject) jsonObject.get("welfare_redpacket");
 				jsonArray= (JSONArray) parser.parse(jsonObject.get("new_guest_redpacket").toString());
-				for (int i = 0; i < jsonArray.size(); i++) {
-					jsonObject = (JSONObject) jsonArray.get(i);
-					status = Integer.valueOf(jsonObject.get("status").toString());
-					if (status==0) {
-						return i+1;
-					}
+				jsonObject = (JSONObject) jsonArray.get(0);
+				status = Integer.valueOf(jsonObject.get("status").toString());
+				if (status==0) {
+					return true;
 				}
+//				for (int i = 0; i < jsonArray.size(); i++) {
+//					jsonObject = (JSONObject) jsonArray.get(i);
+//					status = Integer.valueOf(jsonObject.get("status").toString());
+//					if (status==0) {
+//						return i+1;
+//					}
+//				}
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 		}
-		return 0;
+		return false;
 	}
 	
 	public boolean get29_13(Map<String, String> cookies,String index) {
+		boolean check29_13 = check29_13(cookies);
+		if (!check29_13) {
+			return false;
+		}
 		String userId=cookies.get("USERID");
 		String url=url_get_29_13
 				.replace("CITY", "4")
@@ -1148,6 +1169,11 @@ public class ElemeService {
 		List<Cookie> list = cookieDao.getAllByDatalevelAndCreatorIdAndType(0, sessionUser.getId(), 1);
 		String result="";
 		for (int i = 0; i < list.size(); i++) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			Cookie cookie = list.get(i);
 			String str=cookie.getValue();
 			String[] split = str.split(";");

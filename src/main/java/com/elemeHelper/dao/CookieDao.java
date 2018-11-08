@@ -18,6 +18,8 @@ public interface CookieDao extends JpaRepository<Cookie, Long>{
 	
 	List<Cookie> getByDatalevelAndUserId(int datalevel,String userId);
 	
+	List<Cookie> getAllByDatalevelAndPhone(int datalevel,String phone);
+	
 	@Transactional
 	@Modifying
 	@Query("update Cookie c set c.datalevel=-1 where c.id=?1")

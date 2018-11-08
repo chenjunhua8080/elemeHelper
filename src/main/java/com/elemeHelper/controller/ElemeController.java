@@ -80,13 +80,19 @@ public class ElemeController {
 		}
 		return result;
 	}
-	@SuppressWarnings("unchecked")
+	@GetMapping("/e/1111Au/cookie")
+	public Result get1111AuByCookie(HttpServletRequest request) {
+		Result result = elemeService.get1111Au2ForDB(request);
+		return result;
+	}
+	
 	@PostMapping("/e/1111Au")
 	public Result get1111Au(HttpServletRequest request) {
 		Object loginInfo = request.getSession().getAttribute("loginInfo");
 		if (loginInfo==null) {
 			return new Result(-1,"未登录要领取双十一金的饿了么账号");
 		}
+		@SuppressWarnings("unchecked")
 		Map<String, String> cookies=(Map<String, String>) loginInfo;
 		boolean get1111AuCheck = elemeService.get1111AuCheck(cookies);
 		if (!get1111AuCheck) {
