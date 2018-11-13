@@ -12,7 +12,7 @@ import com.elemeHelper.entity.Cookie;
 
 public interface CookieDao extends JpaRepository<Cookie, Long>{
 
-	List<Cookie> getAllByDatalevelAndCountLessThan(int datalevel,int count);
+	List<Cookie> getAllByDatalevelAndTypeAndCountLessThan(int datalevel,int type,int count);
 	
 	List<Cookie> getAllByDatalevelAndCreatorIdAndType(int datalevel,Long creatorId,int type);
 	

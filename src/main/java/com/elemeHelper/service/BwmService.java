@@ -15,7 +15,7 @@ import com.elemeHelper.dao.TokenDao;
 import com.elemeHelper.dao.UserDao;
 import com.elemeHelper.entity.Token;
 import com.elemeHelper.entity.User;
-import com.elemeHelper.http.HttpUtil;
+import com.elemeHelper.http.HttpUtil2;
 import com.elemeHelper.result.PageResult;
 import com.elemeHelper.result.Result;
 import com.elemeHelper.util.PageUtil;
@@ -26,7 +26,7 @@ public class BwmService {
 	private static final String url_get_openid = "http://capi.yika66.com/Code.aspx?uName=USER";
 	private static final String url_login = "http://kapi.yika66.com:20153/User/login?uName=USER&pWord=PASS&Developer=OPENID";
 	private static final String url_get_items = "http://kapi.yika66.com:20153/User/getItems?token=TOKEN&tp=ut";
-	private static final String url_get_list_phone = "http://kapi.yika66.com:20153/User/getPhone?PhoneType=170&Count=COUNT&ItemId=ITEMID&token=TOKEN";
+	private static final String url_get_list_phone = "http://kapi.yika66.com:20153/User/getPhone?PhoneType=157&Count=COUNT&ItemId=ITEMID&token=TOKEN";
 	private static final String url_get_that_phone = "http://kapi.yika66.com:20153/User/getPhone?&Phone=PHONE";
 	private static final String url_release_phone = "http://kapi.yika66.com:20153/User/releasePhone?phoneList=LIST&token=TOKEN";
 	private static final String url_message = "http://kapi.yika66.com:20153/User/getMessage?code=CODE&token=TOKEN";	
@@ -107,7 +107,7 @@ public class BwmService {
 	
 	private String getOpenId(String userName) {
 		url = url_get_openid.replace("USER", userName);
-		String resp = HttpUtil.getRequest(url);
+		String resp = HttpUtil2.getRequest(url,"gbk");
 		if (resp==null||resp.length()>200) {
 			System.err.println("bwm OpenId 获取失败");
 			return "null";
@@ -118,7 +118,7 @@ public class BwmService {
 	private String login(User user){
 		String openId = getOpenId(user.getName());
 		url = url_login.replace("USER", user.getName()).replace("PASS", user.getPass()).replace("OPENID", "");
-		String resp = HttpUtil.getRequest(url);
+		String resp = HttpUtil2.getRequest(url,"gbk");
 		if (resp==null) {
 			System.err.println("bwm 登录失败");
 		}
@@ -135,7 +135,7 @@ public class BwmService {
 		if (sessionUser!=null) {
 			Token token = tokenDao.getLastToken(1, bwmUser.getId());
 			url = url_logout.replace("USER", user).replace("TOKEN", token.getToken());
-			String resp = HttpUtil.getRequest(url);
+			String resp = HttpUtil2.getRequest(url,"gbk");
 			session.removeAttribute("bwm");
 			return new Result(resp);
 		}
@@ -182,7 +182,7 @@ public class BwmService {
 	private Map<String, String> getItems(String token) throws Exception {
 		Map<String, String> map = new HashMap<>();
 		url = url_get_items.replace("TOKEN", token);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		String[] items = respBody.split("&");
 		for (int i = 0; i < items.length-1; i++) {
 			if (i==0 || i%3==0) {
@@ -194,14 +194,14 @@ public class BwmService {
 	
 	public String getPhone(String token,String itemId){
 		url = url_get_list_phone.replace("COUNT", "1").replace("ITEMID", itemId).replace("TOKEN", token);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		respBody=respBody.replace(";", "");
 		return respBody;
 	}
 	
 	public List<String> getPhone(String token, String itemId,String count){
 		url = url_get_list_phone.replace("COUNT", count).replace("ITEMID", itemId).replace("TOKEN", token);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		String[] phoneList = respBody.split(";");
 		List<String> list = Arrays.asList(phoneList);
 		return list;
@@ -209,7 +209,7 @@ public class BwmService {
 
 	public String getPhone(String phone){
 		url = url_get_that_phone.replace("PHONE", phone);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		return respBody;
 	}
 	
@@ -219,7 +219,7 @@ public class BwmService {
 			phoneStr+=item+"-"+itemId+";";
 		}
 		url = url_release_phone.replace("LIST", phoneStr).replace("TOKEN", token);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		return respBody;
 	}
 	
@@ -227,7 +227,7 @@ public class BwmService {
 		String phoneStr="";
 		phoneStr+=phone+"-"+56206+";";
 		url = url_release_phone.replace("LIST", phoneStr).replace("TOKEN", token);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		return respBody;
 	}
 
@@ -235,7 +235,7 @@ public class BwmService {
 		String phoneStr="";
 		phoneStr+=56206+"-"+phone+";";
 		url = url_black_phone.replace("LIST", phoneStr).replace("TOKEN", token);
-		String respBody = HttpUtil.getRequest(url);
+		String respBody = HttpUtil2.getRequest(url,"gbk");
 		return respBody;
 	}
 	
@@ -246,7 +246,7 @@ public class BwmService {
 		}
 		String respBody = null;
 		try {
-			respBody = HttpUtil.getRequest(url);
+			respBody = HttpUtil2.getRequest(url,"gbk");
 			if (respBody.contains("验证码")) {
 				releasePhone(phone, "56206", token);
 				releasePhone(phone, "56206", token);

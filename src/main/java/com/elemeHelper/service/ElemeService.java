@@ -31,7 +31,7 @@ import com.elemeHelper.entity.LogPromotion;
 import com.elemeHelper.entity.Token;
 import com.elemeHelper.entity.User;
 import com.elemeHelper.entity.logRedpacket;
-import com.elemeHelper.http.HttpUtil;
+import com.elemeHelper.http.HttpUtil2;
 import com.elemeHelper.result.PageResult;
 import com.elemeHelper.result.Result;
 import com.elemeHelper.util.PageUtil;
@@ -117,7 +117,7 @@ public class ElemeService {
 		Map<String, String> mapHeader = new HashMap<>();
 		Map<String, String> mapParam = new HashMap<>();
 
-		List<Cookie> cookies = cookieDao.getAllByDatalevelAndCountLessThan(0, 5);
+		List<Cookie> cookies = cookieDao.getAllByDatalevelAndTypeAndCountLessThan(0,0,5);
 		String openId = null;
 		String sign = null;
 		String trackId = null;
@@ -125,6 +125,11 @@ public class ElemeService {
 		int openCount = 0;
 		boolean success = false;
 		for (Cookie cookie : cookies) {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 			cookieStr = cookie.getValue();
 			sign = getSign(cookieStr);
 			trackId = getTrackId(cookieStr);
@@ -145,7 +150,7 @@ public class ElemeService {
 			mapParam.put("track_id", trackId);
 			openId = getOpenId(cookieStr);
 			url = url_open_luck_redpacket.replace("OPENID", openId);
-			String body = HttpUtil.postRequest(url, mapHeader, mapParam);
+			String body = HttpUtil2.postRequest(url, mapHeader, mapParam);
 			if (body != null) {
 				JSONParser parser = new JSONParser();
 				JSONObject jsonObject = null;
@@ -212,7 +217,7 @@ public class ElemeService {
 
 	public static int getLuckyNumber(String redPacketId) {
 		url = url_get_lucky_number.replace("REDPACKETID", redPacketId);
-		String body = HttpUtil.getRequest(url);
+		String body = HttpUtil2.getRequest(url,"utf-8");
 		if (body.contains("lucky_number")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -345,7 +350,7 @@ public class ElemeService {
 		param.put("packet_id", "0");
 		param.put("lat", "");
 		param.put("lng", "");
-		String resp = HttpUtil.postRequest(url_check_cookie, head, param);
+		String resp = HttpUtil2.postRequest(url_check_cookie, head, param);
 		if (resp == null || getRedpackId(resp) == null) {
 			return new Result(-1, "无效cookie");
 		}
@@ -363,11 +368,6 @@ public class ElemeService {
 	}
 	
 	public Result addCookie(Map<String, String> cookies,String phone, HttpServletRequest request) {
-		String cookieStr = "";
-		for (String key:cookies.keySet()) {
-			cookieStr+=key+"="+cookies.get(key)+";";
-		}
-		cookieStr=cookieStr.substring(0,cookieStr.length()-1);
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		Cookie cookie=new Cookie();
 		cookie.setUserId(cookies.get("USERID"));
@@ -377,7 +377,7 @@ public class ElemeService {
 		cookie.setCreatorId(sessionUser.getId());
 		cookie.setType(1);
 		cookie.setPhone(phone);
-		cookie.setValue(cookieStr);
+		cookie.setValue(cookies.get("cookie"));
 		Cookie save = cookieDao.save(cookie);
 		if (save == null) {
 			return new Result(-1, "上传失败");
@@ -469,9 +469,9 @@ public class ElemeService {
 			}
 			String validate_token = sendCode(phone);
 			if (validate_token==null) {
-				if (validate_token==null) {
-					continue;
-				}
+//				if (validate_token==null) {
+//					continue;
+//				}
 				System.err.println("登录风险，需要识别验证码");
 				Map<String, String> captchas=null;
 				try {
@@ -533,7 +533,7 @@ public class ElemeService {
 			}
 			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
-			msg="新客:"+isNewPlatform+";";
+			msg+="新客:"+isNewPlatform+";";
 			boolean getVip = getVip(cookies);
 			msg+="抽会员:"+getVip+";";
 			boolean isVip = isVip(cookies);
@@ -571,7 +571,7 @@ public class ElemeService {
 	public boolean isNewUser(String param, String cookie) throws Exception {
 		String openId = getOpenId(cookie);
 		url = url_open_luck_redpacket.replace("OPENID", openId);
-		String body = HttpUtil.postRequest(url, null, null);
+		String body = HttpUtil2.postRequest(url, null, null);
 		if (body != null) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(body);
@@ -596,7 +596,7 @@ public class ElemeService {
 	 * @return
 	 */
 	public boolean isNewUser(String phone) {
-		String prizeCoide= HttpUtil.getRequest(url_newuser_prizecode);
+		String prizeCoide= HttpUtil2.getRequest(url_newuser_prizecode,"utf-8");
 		Map<String, String> param = new HashMap<>();
 		param.put("mobile", phone);
 		param.put("r_url", "");// http://api.hongbao.show/webService/
@@ -605,7 +605,7 @@ public class ElemeService {
 		header.put("Accept", "application/json");
 		header.put("Content-Type", "application/x-www-form-urlencoded");
 		header.put("Referer", "http://ele.hongbao.show/webService/shopGather/elm-new/index.html?channelId=32010380");
-		String body = HttpUtil.postRequest(url_newuser, header, param);
+		String body = HttpUtil2.postRequest(url_newuser, header, param);
 		try {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(body);
@@ -626,7 +626,7 @@ public class ElemeService {
 		return false;
 	}
 	public boolean checkNew1104(String phone) {
-		String body = HttpUtil.getRequest(url_check_new_1104.replace("PHONE", phone));
+		String body = HttpUtil2.getRequest(url_check_new_1104.replace("PHONE", phone),"utf-8");
 		try {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(body);
@@ -644,7 +644,7 @@ public class ElemeService {
 		Map<String, String> result = new HashMap<>();
 		Map<String, String> param = new HashMap<>();
 		param.put("captcha_str", phone);
-		String resp = HttpUtil.postRequest(url_get_img_captchas, param);
+		String resp = HttpUtil2.postRequest(url_get_img_captchas, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObj = null;
 		jsonObj = (JSONObject) parser.parse(resp);
@@ -677,7 +677,7 @@ public class ElemeService {
 		param.put("mobile", phone);
 		param.put("captcha_hash", captcha_hash);
 		param.put("captcha_value", captcha_value);
-		String resp = HttpUtil.postRequest(url_send_code, param);
+		String resp = HttpUtil2.postRequest(url_send_code, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObj = null;
 		Object validate_token=null;
@@ -699,7 +699,7 @@ public class ElemeService {
 		param.put("mobile", phone);
 		param.put("captcha_hash", "");
 		param.put("captcha_value", "");
-		String resp = HttpUtil.postRequest(url_send_code, param);
+		String resp = HttpUtil2.postRequest(url_send_code, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObj = null;
 		String validate_token=null;
@@ -726,9 +726,7 @@ public class ElemeService {
 		param.put("mobile", phone);
 		param.put("validate_code", validate_code);
 		param.put("validate_token", validate_token);
-		String jsessionid = HttpUtil.getJSESSIONID();
-		cookies.put("JSESSIONID", jsessionid);
-		Map<String, String> resp = HttpUtil.getCookieByPostRequest(url_login,cookies, param);
+		Map<String, String> resp = HttpUtil2.getCookieByPostRequest(url_login,cookies, param);
 		return resp;
 	}
 	
@@ -739,8 +737,8 @@ public class ElemeService {
 		param.put("lat", lat);
 		param.put("lng", lng);
 		param.put("packet_id", "0");
-		Map<String, String> resp = HttpUtil.setCookieByPostRequest(url_get_redpacket, cookies, param);
-		String body = resp.get("body");
+		String resp = HttpUtil2.postRequest(url_get_redpacket, cookies, param);
+		String body = resp;
 		if (body.contains("成功")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObj = null;
@@ -768,8 +766,8 @@ public class ElemeService {
 		param.put("packet_id", packetId);
 		param.put("nickname", "拆房大队");
 		param.put("avatar", "https://thirdqq.qlogo.cn/g?b=sdk&k=9AFfpMJtickCFia2LIjpYKPQ&s=100&t=1535538633");
-		Map<String, String> resp = HttpUtil.setCookieByPostRequest(url_open_redpacket, cookies, param);
-		String body = resp.get("body");
+		String resp = HttpUtil2.postRequest(url_open_redpacket, cookies, param);
+		String body = resp;
 		if (body.contains("成功")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObj = null;
@@ -806,8 +804,8 @@ public class ElemeService {
 		data.put("platform", "3");
 		data.put("refer_channel_code", "1");
 		data.put("refer_channel_type", "2");
-		Map<String, String> resp = HttpUtil.setCookieByPostRequest(url, cookies, data);
-		String body = resp.get("body");
+		String resp = HttpUtil2.postRequest(url, cookies, data);
+		String body = resp;
 		if (body.contains("promotion_items")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -836,8 +834,8 @@ public class ElemeService {
 		param.put("channel", "wingpay_banner_1");
 		param.put("latitude", "23.021503");
 		param.put("longitude", "113.321222");
-		Map<String, String> resp = HttpUtil.setCookieByPostRequest(url, cookies, param);
-		String body = resp.get("body");
+		String resp = HttpUtil2.postRequest(url, cookies, param);
+		String body = resp;
 		if (body.contains("header_text")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -859,8 +857,8 @@ public class ElemeService {
 		List<String> list=new ArrayList<>();
 		String userId=cookies.get("USERID");
 		String url=url_get_share.replace("USERID", userId);
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("amount")) {
 			JSONParser parser = new JSONParser();
 			JSONArray jsonArray=null;
@@ -893,8 +891,8 @@ public class ElemeService {
 		List<String> list=new ArrayList<>();
 		String userId=cookies.get("USERID");
 		String url=url_get_coupons.replace("USERID", userId);
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("reduce_amount")) {
 			JSONParser parser = new JSONParser();
 			JSONArray jsonArray=null;
@@ -926,8 +924,8 @@ public class ElemeService {
 	public boolean isVip(Map<String, String> cookies) {
 		String userId=cookies.get("USERID");
 		String url=url_is_vip.replace("USERID", userId);
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("status")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -951,8 +949,8 @@ public class ElemeService {
 				.replace("LAT", "113.321222")
 				.replace("LNG", "23.021503")
 				.replace("USERID", userId);
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("red_package_location")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -995,8 +993,8 @@ public class ElemeService {
 				.replace("DEVICE", "")
 				.replace("INDEX", index)
 				.replace("USERID", userId);
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("money")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -1023,8 +1021,8 @@ public class ElemeService {
 				.replace("LNG", "113.321222")
 				.replace("LAT", "23.021503")
 				.replace("DEVICE", "");
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("is_eleven")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -1058,8 +1056,8 @@ public class ElemeService {
 				.replace("LAT", "113.321222")
 				.replace("LNG", "23.021503")
 				.replace("SHOPID", "2233255575");
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("signed_num")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -1086,8 +1084,8 @@ public class ElemeService {
 				.replace("LAT", "113.321222")
 				.replace("LNG", "23.021503")
 				.replace("SHOPID", "2233255575");
-		Map<String, String> resp = HttpUtil.setCookieByGetRequest(url, cookies);
-		String body=resp.get("body");
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
 		if (body.contains("giftcash")) {
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = null;
@@ -1111,8 +1109,8 @@ public class ElemeService {
 				.replace("LNG", "23.021503");
 		for (int i = 0; i < shops.size(); i++) {
 			String url2=url.replace("SHOPID", shops.get(i));
-			Map<String, String> resp = HttpUtil.setCookieByGetRequest(url2, cookies);
-			String body=resp.get("body");
+			String resp = HttpUtil2.getRequest(url2, cookies);
+			String body=resp;
 			if (body.contains("signed_num")) {
 				JSONParser parser = new JSONParser();
 				JSONObject jsonObject = null;

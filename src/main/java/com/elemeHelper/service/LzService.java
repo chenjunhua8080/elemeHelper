@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.elemeHelper.dao.UserDao;
 import com.elemeHelper.entity.User;
-import com.elemeHelper.http.HttpUtil;
+import com.elemeHelper.http.HttpUtil2;
 import com.elemeHelper.result.Result;
 
 @Service
@@ -27,7 +27,6 @@ public class LzService {
 	private static final String softwareId = "11520";
 	private static final String softwareSecret = "OQCFvZ7hI3IQQW0vL3upiZ1c1ia9sUGgzSVk51Ed";
 	private static final String captchaType = "1001";
-	private static final String JSONObject = null;
 
 	@Autowired
 	private UserDao userDao;
@@ -93,7 +92,7 @@ public class LzService {
 		param.put("password", lzUser.getPass());
 		param.put("captchaData", base64);
 		param.put("captchaType", captchaType);
-		String resp = HttpUtil.postJsonRequest(url_upload, param);
+		String resp = HttpUtil2.postRequestByJson(url_upload, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObject = null;
 		String value=null;
@@ -129,7 +128,7 @@ public class LzService {
 		param.put("password", lzUser.getPass());
 		param.put("captchaId", captchaId);
 		param.put("captchaType", captchaType);
-		String resp = HttpUtil.postJsonRequest(url_report_error, param);
+		String resp = HttpUtil2.postRequestByJson(url_upload, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObject = null;
 		try {
@@ -151,7 +150,7 @@ public class LzService {
 		map.put("softwareSecret", softwareSecret);
 		map.put("username", user.getName());
 		map.put("password", user.getPass());
-		String resp = HttpUtil.postJsonRequest(url_check_points, map);
+		String resp = HttpUtil2.postRequestByJson(url_check_points, map);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObject = null;
 		try {
@@ -171,7 +170,7 @@ public class LzService {
 			e.printStackTrace();
 		}
 		String availablePoints = jsonObject.get("availablePoints").toString();
-		return new Result("登录成功，可用点数："+availablePoints);
+		return new Result("可用点数："+availablePoints);
 	}
 
 	public static String unicode2String(String unicode) {
