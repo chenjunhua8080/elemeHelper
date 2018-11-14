@@ -42,6 +42,7 @@ public class UserService {
 			// 已注册
 			return new PageResult(PageUtil.user_register, "用户名已注册");
 		}
+		user.setCreatorId((long)0);
 		user.setCreateDate(new Date());
 		user.setDatalevel(0);
 		user.setType(0);

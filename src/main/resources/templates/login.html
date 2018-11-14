@@ -3,14 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <title>登录</title>
+<div th:replace="layuiInclud :: html"></div>
 </head>
 <body>
-	<h2>登录</h2>
-	<span id="msg" th:text="${error?.msg}">msg</span>
-	<form action="/login" method="POST">
-		用户名：<input type="text" name="name" placeholder="请输入用户名" th:value="${user?.name}" required="required" /><br /> 
-			密码：<input type="password" name="pass" placeholder="请输入密码" /><br /> 
-			<input type="submit" value="登录" />
-	</form>
+	<div class="layui-col-xs12 layui-col-md12">
+		<fieldset class="layui-elem-field layui-field-title">
+			<legend>登录</legend>
+		</fieldset>
+		<div class="layui-block" style="text-align: center;margin-bottom: 10px;">
+			<span id="msg" th:if="${error!=null}" th:text="${error?.msg}"
+		class="layui-btn layui-btn-danger">msg</span>
+		</div>
+		<form action="/login" method="POST" class="layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">用户名</label>
+				<div class="layui-input-inline">
+					<input type="text" name="name" placeholder="请输入用户名"
+						required="required" lay-verify="required" autocomplete="off"
+						class="layui-input" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">密码</label>
+				<div class="layui-input-inline">
+					<input type="password" name="pass" placeholder="请输入密码"
+						lay-verify="required" class="layui-input" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<input type="submit" value="登录" class="layui-btn layui-btn-normal" />
+					<!-- <button type="reset" class="layui-btn layui-btn-primary">重置</button> -->
+				</div>
+			</div>
+		</form>
+	</div>
 </body>
 </html>

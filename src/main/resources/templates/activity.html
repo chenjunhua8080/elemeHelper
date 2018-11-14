@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <title>39-15</title>
-<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
 function logout(){
 	var userName=$('#userName').val();
@@ -175,6 +174,7 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
 	</ul>
 </body>
 </html>
+<div th:replace="layuiInclud :: html"></div>
 <script type="text/javascript" th:inline="javascript">
     /*<![CDATA[*/
    	var user=/*[[${session.bwm?.name}]]*/;

@@ -3,37 +3,60 @@
 <head>
 <meta charset="UTF-8"/>
 <title>index</title>
-<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
-<style type="text/css">
-	.btn{
-		width:200px;
-		height:100px;
-		margin: 10px;
-		box-shadow: #ccc 5px 5px 5px;
-	}
-</style>
 <script type="text/javascript">
-
 function run(){
 	$.ajax({
 		type:"get",
 		url:"/run",
 		success:function(result){
-			console.log(result);
+			alert(result.msg||result.data.msg);
 		}
 	});
 }
 </script>
 </head>
-<body>
-	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span><span><a href="/logout">退出</a></span></p>
-	<p>
-		<a href="../page/1111" class="btn">11.11</a>
-		<a href="../page/activity" class="btn">39-15</a>
-		<a href="../page/luck" class="btn">拼手气</a>
-	</p>
-	<p>
-		<a onclick="run()" class="btn">测试</a>
-	</p>
+<body class="layui-layout-body">
+	<div class="layui-layout layui-layout-admin">
+		<div class="layui-header">	
+			<div class="layui-logo">
+				hello! <span id="userName" th:text="${session.user?.name}">name</span>
+			</div>
+		    <ul class="layui-nav layui-layout-left"><!--不加 layui-layout-left 会挤到最左 -->
+		      <li class="layui-nav-item"><a href="/logout">退出</a></li>
+		    </ul>
+		</div>
+
+		<div class="layui-side layui-bg-black" style="display: none;">
+			<div class="layui-side-scroll">
+				<ul class="layui-nav layui-nav-tree"><!-- layui-nav-side 最左优先 -->
+				  <li class="layui-nav-item layui-nav-itemed">
+				    <a href="javascript:;">默认展开</a>
+				    <dl class="layui-nav-child">
+				      <dd><a href="javascript:;">选项1</a></dd>
+				      <dd><a href="javascript:;">选项2</a></dd>
+				    </dl>
+				  </li>
+				  <li class="layui-nav-item"><a href="../page/1111" class="btn">11.11</a></li>
+				  <li class="layui-nav-item"><a href="../page/activity" class="btn">39-15</a></li>
+				  <li class="layui-nav-item"><a href="../page/luck" class="btn">拼手气</a></li>
+				</ul>	
+			</div>
+		</div>
+			<div class="layui-card">
+			  <div class="layui-card-body">
+				<div class="layui-row">
+					<a href="../page/1111" class="layui-btn layui-col-xs4 layui-col-space10">11.11</a>
+					<a href="../page/activity" class="layui-btn layui-col-xs4 layui-col-space10">第三方平台</a>
+					<a href="../page/luck" class="layui-btn layui-col-xs4 layui-col-space10">拼手气</a>
+				</div>
+			  </div>
+			  <div class="layui-card-body">
+					<p>
+						<a onclick="run()" class="layui-btn layui-btn-danger layui-btn-fluid">跑号</a>
+					</p>
+			  </div>
+			</div>
+</div>
 </body>
 </html>
+<div th:replace="layuiInclud :: html"></div>
