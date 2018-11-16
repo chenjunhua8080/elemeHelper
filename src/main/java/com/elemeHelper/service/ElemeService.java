@@ -551,7 +551,8 @@ public class ElemeService {
 			}
 			int get1111Au = get1111Au2(cookies);
 			msg+=" 双十一金："+get1111Au;
-			result.put(phone, msg);
+			result.put("phone", phone);
+			result.put("msg", msg);
 			return new Result(result);
 		}
 		return new Result(result);

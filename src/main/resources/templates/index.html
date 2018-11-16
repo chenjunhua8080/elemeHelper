@@ -5,11 +5,13 @@
 <title>index</title>
 <script type="text/javascript">
 	function run() {
+		$.showLoading();
 		$.ajax({
 			type : "get",
 			url : "/run",
 			success : function(result) {
-				alert(result.msg || result.data.msg);
+				$.hideLoading();
+				$.alert(result.msg || (result.data.phone+'----'+result.data.msg));
 			}
 		});
 	}
@@ -20,17 +22,16 @@
 		<div style="height: 100%;">
 			<div class="weui-tab">
 				<div class="weui-tab__panel">
-                    <div class="weui-tab__panel__item">
-						<div th:replace="luck :: html"></div>                  	
+                    <div class="weui-tab__panel__item" data-page="1">
                     </div>
-                    <div class="weui-tab__panel__item" style="display: none;">
-                  		<div th:replace="1111 :: html"></div>
+                    <div class="weui-tab__panel__item" style="display: none;" data-page="2">
                     </div>
-                    <div class="weui-tab__panel__item" style="display: none;">
-                   		<div th:replace="activity :: html"></div>
+                    <div class="weui-tab__panel__item" style="display: none;" data-page="3">
                     </div>
-                    <div class="weui-tab__panel__item" style="display: none;">
-                   		<div th:replace="cookie :: html"></div>
+                    <div class="weui-tab__panel__item" style="display: none;" data-page="4">
+	                    <div class="weui-btn-area">
+							<input type="button" value="跑号" class="weui-btn weui-btn_primary" onclick="run()"/>
+						</div>
                     </div>
                 </div>
 				<div class="weui-tabbar">
@@ -54,13 +55,27 @@
 	<div th:replace="layuiInclud :: html"></div>
 </body>
 <script type="text/javascript">
-	//tab切换    
 	$(function(){
-	var aLi = $('.weui-tabbar__item');
-	  aLi.on('click', function () {
+		//----初始化拼手气
+		var page=$('.weui-tab__panel .weui-tab__panel__item').eq(0);
+		page.load('../page/luck');
+		//----tab切换    
+		var aLi = $('.weui-tabbar__item');
+	  	aLi.on('click', function () {
 	      $(this).addClass('weui-bar__item_on').siblings('.weui-bar__item_on').removeClass('weui-bar__item_on');
 	      var index = $(this).index();
-	      $('.weui-tab__panel .weui-tab__panel__item').eq(index).show().siblings('.weui-tab__panel__item').hide();
+	      var page=$('.weui-tab__panel .weui-tab__panel__item').eq(index);
+	      var pageId=page[0].dataset.page;
+	      if(pageId==1){
+	    	  page.load('../page/luck');
+	      }else if(pageId==2){
+	    	  page.load('../page/1111');
+	      }else if(pageId==3){
+	    	  page.load('../page/activity'); 	  
+  		  }else if(pageId==4){
+		      //page.load('../page/index');
+		  }
+	      page.show().siblings('.weui-tab__panel__item').hide();
 	  });
 	});
 </script>

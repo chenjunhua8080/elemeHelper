@@ -3,26 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <title>双十一金</title>
-<style type="text/css">
-*{margin: 0;padding: 0;}
-ul,li{list-style: none;}
-table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
-.input{width: 100%;}
-.btn{width: 100%;}
-.captcha{display: none;}
-</style>
-<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
 var captcha_hash=null;
 var captcha_value=null;
 var validate_token=null;
 var validate_code=null;
 function sendClick(){
-	var phone=$('#phone');
+	var phone=$('#phone').val();
+	if(!(/^1[34578]\d{9}$/.test(phone))){        
+		$.toptip('请输入正确的手机号', 'error'); 
+		return;
+    }
 	$.ajax({
 		type:"post",
 		url:"/e/mobile_send_code",
-		data:{'phone':phone.val()},
+		data:{'phone':phone},
 		success:function(result){
 			var data=null;
 			var code=result.code;
@@ -30,46 +25,65 @@ function sendClick(){
 				validate_token=result.data;
 				alert("发送成功");
 			}else{
-				alert(result.msg);
-				var src=result.data.captcha_path;
-				if(src!=null){
-					$('#captchaImg').attr("src","../"+src);
-					$('.captcha').css("display","block");
-					$('#send').css("display","none");
-				}
+				//alert(result.msg);
 				var hash=result.data.captcha_hash;
 				if(hash!=null){
 					captcha_hash=hash;
+				}
+				var src=result.data.captcha_path;
+				if(src!=null){
+					/*
+					$('#captchaImg').attr("src","../"+src);
+					$('.captcha').css("display","block");
+					$('#send').css("display","none");
+					*/
+					$.prompt({
+				          text: "<img src="+src+" />",
+				          title: "输入验证码",
+				          input: '',
+				          onOK: function(captcha_value) {
+				        	  sendClick2(captcha_value);
+				          },
+				          onCancel: function() {
+				            console.log("取消了");
+				          }
+			        });
 				}
 			}
 		}
 	});
 }
-function sendClick2(){
-	var phone=$('#phone');
-	captcha_value=$('#captcha_value').val();
+function sendClick2(captcha_value){
+	var phone=$('#phone').val();
 	$.ajax({
 		type:"post",
 		url:"/e/mobile_send_code",
-		data:{'phone':phone.val(),'captcha_hash':captcha_hash,'captcha_value':captcha_value},
+		data:{'phone':phone,'captcha_hash':captcha_hash,'captcha_value':captcha_value},
 		success:function(result){
 			var data=null;
 			var code=result.code;
 			if(code==0){
 				validate_token=result.data;
+				$.alert("发送成功");
+				keepAgain();
 			}else{
-				alert(result.msg);
-				var src=result.data.captcha_path;
-				if(src!=null){
-					$('#captchaImg').attr("src","../"+src);
-				}
-				var hash=result.data.captcha_hash;
-				if(hash!=null){
-					captcha_hash=hash;
-				}
+				$.alert("验证码不正确");
 			}
 		}
 	});
+}
+function keepAgain(){
+	var send=$('#send');
+	var i=60;
+	var id = setInterval(changeText, 1000);
+	function changeText() {
+	  	send.text('稍后再试'+i);
+		i--;
+		if(i==0){
+	      clearInterval(id);
+	      send.text('发送验证码');
+		};
+	}
 }
 function loginClick(){
 	var phone=$('#phone');
@@ -108,23 +122,55 @@ function get1111Click(){
 </script>
 </head>
 <body>
-	<p class="captcha">
-		<img id="captchaImg"/>
-		请输入图形验证码：<input id="captcha_value" class="input" />
-		<button id="send2" class="btn" onclick="sendClick2()">发送验证码</button>
-	</p>
-	<table border="1" class="table">
-		<tr>
-			<td>手机号：</td><td><input id="phone" class="input" /></td>
-			<td><button id="send" class="btn" onclick="sendClick()">发送验证码</button></td>
-		</tr>
-		<tr>
-			<td>验证码：</td><td><input id="validate_code" type="text" class="input"/></td>
-			<td><button id="login" class="btn" onclick="loginClick()">登录</button></td>
-		</tr>
-		<tr>
-			<td colspan="2"><button id="get1111" class="btn" onclick="get1111Click()">领取11.11礼金</button></td>
-		</tr>
-	</table>
+	<!-- 登录 -->
+	<div>
+		<div class="weui-cells__title">登录</div>
+		<div class="weui_cells weui-cells_form">
+		 <!-- 
+			<div class="weui-cell weui-cell__vcode">
+				<div class="weui-cell__hd">
+					<label class="weui-label">图形验证码</label>
+				</div>
+				<div class="weui-cell__bd">
+					<p class="captcha">
+						<img id="captchaImg"/>
+						<input id="captcha_value" class="weui-input" placeholder="请输图形验证码"/>
+					</p>
+				</div>
+				<div class="weui-cell__ft">
+					<button id="send2" class="weui-vcode-btn" onclick="sendClick2()">发送验证码</button>
+				</div>
+			</div>
+		  -->
+			<div class="weui-cell weui-cell_vcode">
+				<div class="weui-cell__hd">
+					<label class="weui-label" style="width: 75px;">手机号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input id="phone" class="weui-input" type="tel" placeholder="请输入手机号"/>
+				</div>
+				<div class="weui-cell__ft">
+					<button id="send" class="weui-vcode-btn" onclick="sendClick()" style="width: 125px;">发送验证码</button>
+				</div>
+			</div>
+			
+			<div class="weui-cell weui-cell_vcode">
+				<div class="weui-cell__hd">
+					<label class="weui-label" style="width: 75px;">验证码</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input id="validate_code" type="text" class="weui-input" placeholder="请输短信验证码"/>
+				</div>
+				<div class="weui-cell__ft">
+					<button id="login" class="weui-vcode-btn" onclick="loginClick()" style="width: 125px;">登录</button>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	<!-- 登录 end -->
+	<div class="weui-btn-area">
+		<button id="get1111" class="weui-btn weui-btn_primary" onclick="get1111Click()">领取11.11礼金</button>
+	</div>
 </body>
 </html>

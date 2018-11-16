@@ -3,18 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <title>luck</title>
-<script type="text/javascript" src="../jquery-2.1.0.min.js"></script>
-<style type="text/css">
-*{margin: 0;padding: 0;}
-ul,li{list-style: none;}
-table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
-.luckMsg{width: 300px;text-align: center;}
-.luckInputTd{text-align: center;}
-.luckInput{width: 200px;}
-.luckOpen{width: 100%;}
-.body{position: relative;}
-.loading{position: absolute;display: none;padding:20px 120px;}
-</style>
 <script type="text/javascript">
 function logout(){
 	var userName=$('#userName').val();
@@ -26,70 +14,72 @@ function logout(){
 	});
 }
 function luckClick(){
-	$('.loading').toggle();
+	$.showLoading();
 	var luckLink=$('#luckLink');
 	$.ajax({
 		type:"post",
 		url:"/openRedpacket",
 		data:{link:luckLink.val()},
 		success:function(result){
-			$('.loading').toggle();
+			$.hideLoading();
 			var data=null;
 			var code=result.code;
 			if(code==0){
 				data=result.data;
+				$.toptip(data, 'success');
 			}else{
 				data=result.msg;
+				$.toptip(data, 'error');
 			}
-			var luckMsg=$('#luckMsg').text(data);
 		}
 	});
 }
 </script>
 </head>
 <body>
-	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span></p>
-	<p>
-		<span><a href="../page/index">首页</a></span>
-		<span><a href="../page/cookie">cookie</a></span>
-	</p>
-	<div class="body">
-		<img class="loading" alt="加载zhong..." src="../loading.gif" />
-		<table border="1" class="luckTable">
-			<caption>拼手气最大包</caption>
-			<tr>
-				<td>红包链接:</td><td class="luckInputTd"><input id="luckLink" class="luckInput"/></td>
-			</tr>
-			<tr>
-				<td colspan="2"><button id="luckOpen" class="luckOpen" onclick="luckClick()">领取</button></td>
-			</tr>
-			<tr>
-				<td colspan="2" rowspan="3" class="luckMsg" id="luckMsg">信息</td>
-			</tr>
-		</table>
-		
-		<table border="1" class="luckTable">
-			<caption>领取记录</caption>
-			<thead>
-				<tr>
-					<th>#</th><th>来源</th><th>机器人</th><th>类型</th><th>金额</th><th>领取时间</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:id="'promotion_'+${promotion.id}" th:each="promotion,promotionStatus:${promotions}">
-					<td><span th:text="${promotionStatus.count}">1</span></td>
-					<td><span th:text="${promotion.logRedpacketId}">LogRedpacketId</span></td>
-					<td><span>***</span></td>
-					<td><span th:text="${promotion.name}">name</span></td>
-					<td>
-						<span th:text="${promotion.sum_condition}">sum_condition</span>
-						-
-						<span th:text="${promotion.amount}">amount</span>
-					</td>
-					<td><span th:text="${promotion.createDate}">上传时间</span></td>
-				</tr>
-			</tbody>
-		</table>
+	<!-- 操作区域 -->
+	<div>
+		<div class="weui-cells__title">拼手气最大包</div>
+		<div class="weui-cells">
+			<div class="weui-cell">
+	             <div class="weui-cell__hd"><label class="weui-label">红包链接</label></div>
+	             <div class="weui-cell__bd">
+	                 <input id="luckLink" class="weui-input" type="text" placeholder="请输入红包链接"/>
+	             </div>
+	         </div>
+		</div>
+		<div class="weui-btn-area">
+	        <a id="luckOpen" class="weui-btn weui-btn_primary" href="javascript:" onclick="luckClick()">领取</a>
+	    </div>
+    </div>
+    <!-- 操作区域 end -->
+    <!-- 列表区域 -->
+    <div>
+    	<div class="weui-cells__title">
+    		代领记录<span th:if="${promotions!=null and promotions.size()>0}" th:text="${':'+promotions.size()+'次'}">次数</span>
+    	</div>
+		<div class="weui-cells">
+			<div class="weui-cell" th:id="'promotion_'+${promotion.id}" th:each="promotion,promotionStatus:${promotions}">
+			  <div class="weui-cell__hd">
+			 	 <img src="../../img/redpack.png" alt="" style="width:20px;margin-right:5px;display:block"/>
+			  </div>
+			  <div class="weui-cell__bd">
+			    <p>
+			    	<!-- 
+			    	<span th:text="${promotion.name}">name</span>
+			    	:
+			    	 -->
+				    <span th:text="${promotion.sum_condition}">sum_condition</span>
+					-
+					<span th:text="${promotion.amount}">amount</span>
+			    </p>
+			  </div>
+			  <div class="weui-cell__ft">
+				<span th:text="${'【'+#dates.format(promotion.createDate,'yyyy-MM-dd')+'】'}">领取时间</span>
+			  </div>
+			</div>
+		</div>	
 	</div>
+	<!-- 列表区域 end -->
 </body>
 </html>
