@@ -249,7 +249,7 @@ public class BwmService {
 			respBody = HttpUtil2.getRequest(url,"gbk");
 			if (respBody.contains("验证码")) {
 				releasePhone(phone, "56206", token);
-				releasePhone(phone, "56206", token);
+//				releasePhone(phone, "56206", token);
 			}
 		} catch (Exception e) {
 			System.err.println("获取短信失败："+e.getMessage());

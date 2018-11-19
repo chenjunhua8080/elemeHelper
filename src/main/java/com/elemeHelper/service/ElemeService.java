@@ -54,6 +54,7 @@ public class ElemeService {
 	public static final String url_newuser = "http://ele.hongbao.show/webService/shopGatherController?m=elmNew";
 	public static final String url_newuser_prizecode ="http://ele.hongbao.show/webService/UserVisitController?m=getPrizeCode";
 	public static final String url_check_new_1104 ="http://stoneflying.cn/e/e.php?tel=PHONE";
+	public static final String url_check_new_1119 ="https://h5.ele.me/restapi/marketing/hongbao/h5/grab";
 	
 	// 拆包
 	public static final String url_get_redpacket = "https://h5.ele.me/restapi/traffic/redpacket/check";
@@ -450,26 +451,27 @@ public class ElemeService {
 						token = tokenDao.getLastToken(1,bwmUser.getId());
 						phone = bwmService.getPhone(token.getToken(), "56206");
 					}
-					isNew=checkNew1104(phone);
+					isNew=checkNew1119(phone);
 					List<Cookie> exist = cookieDao.getAllByDatalevelAndPhone(0, phone);
-					if (exist==null||exist.size()==0) {
-						break;
+					//数据库已有，但未拉黑
+					if (exist!=null&&exist.size()>0) {
+						continue;
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 //				if (isNew||packetId==null) {
-//				if (isNew) {
-//					break;
-//				}else {
-//					bwmService.blackPhone(phone, "56206", token.getToken());
-//					bwmService.releasePhone(phone, "56206", token.getToken());
-//					bwmService.releasePhone(phone, "56206", token.getToken());
-//				}
+				if (isNew) {
+					break;
+				}else {
+					System.out.println(phone+" : 已注册，拉黑、自动释放释放号码");
+					bwmService.blackPhone(phone, "56206", token.getToken());
+				}
 			}
 			String validate_token = sendCode(phone);
 			if (validate_token==null) {
 //				if (validate_token==null) {
+//					System.err.println("登录风险，需要识别验证码，跳过");
 //					continue;
 //				}
 				System.err.println("登录风险，需要识别验证码");
@@ -637,6 +639,22 @@ public class ElemeService {
 			}
 		} catch (ParseException e) {
 			e.printStackTrace();
+		}
+		return false;
+	}
+	public boolean checkNew1119(String phone) {
+		Map<String, String> param = new HashMap<>();
+		param.put("phone", phone);
+		param.put("group_sn", "8bc2d4df4dd1642f84ce80ae371af033");// http://api.hongbao.show/webService/
+		param.put("logical_geohash", "ws0e6s45wmtj");
+		param.put("weixin_uid", "");
+		Map<String, String> header = new HashMap<String, String>();
+//		header.put("Accept", "application/json");
+//		header.put("Content-Type", "application/x-www-form-urlencoded");
+//		header.put("Referer", "https://h5.ele.me/baida/?group_sn=8bc2d4df4dd1642f84ce80ae371af033");
+		String body = HttpUtil2.postRequest(url_check_new_1119, header, param);
+		if (body!=null && (body.contains("注册")||body.contains("新用户"))) {
+			return true;
 		}
 		return false;
 	}
@@ -1192,6 +1210,6 @@ public class ElemeService {
 	
 	public static void main(String[] args) {
 		ElemeService elemeService = new ElemeService();
-		elemeService.isNewUser("13413527257");
+		System.out.println(elemeService.checkNew1119("13413527299"));;
 	}
 }
