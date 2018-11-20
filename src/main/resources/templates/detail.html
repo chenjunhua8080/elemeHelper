@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>账号状况</title>
+<script type="text/javascript">
+function questClick(){
+	var id=$('#list').val();
+	/*$.ajax({
+		type:"get",
+		url:"/address",
+		data:{"cookieId":id},
+		success:function(result){
+			var data=null;
+			var code=result.code;
+			if(code==0){
+				$('#address').html(result.data);
+			}else{
+				$.alert(result.msg);
+			}
+		}
+	});*/
+	$('#address').load("/address?cookieId="+id);
+}
+</script>
+</head>
+<body>
+	<!-- 账号列表 -->
+	<div>
+		<div class="weui-cells__title">账号列表</div>
+		<div class="weui_cells">
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label" style="width: 75px;">选择账号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" id="list">
+						<option th:each = "user,userStat:${cookies}" th:text="${user.phone}" th:value="${user.id}">微信号</option>
+					</select>
+				</div>
+				<div class="weui-cell__ft">
+					<button id="quest" class="weui-vcode-btn" onclick="questClick()" style="width: 125px;">查询</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 账号列表 end -->
+	<!-- 账号详情 -->
+	<div id="address">
+		<div class="weui-form-preview" th:each = "address,addressStat:${addresses}">
+	      <div class="weui-form-preview__hd">
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">联系人</label>
+	          <em class="weui-form-preview__value" th:text="${address.name}">小明</em>
+	        </div>
+	      </div>
+	      <div class="weui-form-preview__bd">
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">手机</label>
+	          <span class="weui-form-preview__value" th:text="${address.phone}">13413413413</span>
+	        </div>
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">地址</label>
+	          <span class="weui-form-preview__value" th:text="${address.address}">地址地址地址</span>
+	        </div>
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">详细</label>
+	          <span class="weui-form-preview__value" th:text="${address.address_detail}">详细详细详细</span>
+	        </div>
+	      </div>
+	      <div class="weui-form-preview__ft">
+	      </div>
+	    </div>
+	</div>	
+	<!-- 账号详情 -->
+</body>
+</html>

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.elemeHelper.result.PageResult;
+import com.elemeHelper.result.Result;
 import com.elemeHelper.service.BwmService;
 import com.elemeHelper.service.ElemeService;
 import com.elemeHelper.service.LzService;
@@ -63,7 +64,7 @@ public class PageController {
 	
 	@GetMapping("/page/cookie")
 	public String cookie(HttpServletRequest request) {
-		PageResult list = elemeService.listCookie(request);
+		PageResult list = elemeService.listCookie(request,0);
 		return list.getPage();
 	}
 	
@@ -75,5 +76,18 @@ public class PageController {
 	@GetMapping("/page/1111")
 	public String page1111(HttpServletRequest request) {
 		return PageUtil.eleme_1111;
+	}
+	
+	@GetMapping("/page/detail")
+	public String detail(HttpServletRequest request) {
+		PageResult list=elemeService.detailListCookie(request, 1);
+		return list.getPage();
+	}
+	
+	@GetMapping("/page/address")
+	public String getAddress(HttpServletRequest request,Long cookieId) {
+		Result result = elemeService.getAddress(request,cookieId);
+		request.setAttribute("addresses", result.getData());
+		return "address";
 	}
 }

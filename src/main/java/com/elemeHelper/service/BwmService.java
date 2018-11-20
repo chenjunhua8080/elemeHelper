@@ -26,7 +26,7 @@ public class BwmService {
 	private static final String url_get_openid = "http://capi.yika66.com/Code.aspx?uName=USER";
 	private static final String url_login = "http://kapi.yika66.com:20153/User/login?uName=USER&pWord=PASS&Developer=OPENID";
 	private static final String url_get_items = "http://kapi.yika66.com:20153/User/getItems?token=TOKEN&tp=ut";
-	private static final String url_get_list_phone = "http://kapi.yika66.com:20153/User/getPhone?PhoneType=157&Count=COUNT&ItemId=ITEMID&token=TOKEN";
+	private static final String url_get_list_phone = "http://kapi.yika66.com:20153/User/getPhone?PhoneType=187&Count=COUNT&ItemId=ITEMID&token=TOKEN";
 	private static final String url_get_that_phone = "http://kapi.yika66.com:20153/User/getPhone?&Phone=PHONE";
 	private static final String url_release_phone = "http://kapi.yika66.com:20153/User/releasePhone?phoneList=LIST&token=TOKEN";
 	private static final String url_message = "http://kapi.yika66.com:20153/User/getMessage?code=CODE&token=TOKEN";	

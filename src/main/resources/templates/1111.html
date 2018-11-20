@@ -32,6 +32,7 @@ function sendClick(){
 				}
 				var src=result.data.captcha_path;
 				if(src!=null){
+					src="../../"+src;
 					/*
 					$('#captchaImg').attr("src","../"+src);
 					$('.captcha').css("display","block");

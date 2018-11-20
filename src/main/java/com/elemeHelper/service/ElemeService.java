@@ -4,7 +4,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +83,9 @@ public class ElemeService {
 	public static final String url_get_1111Au="https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=CITY&lat=LAT&lng=LNG&shop_id=SHOPID";
 	public static final String url_get_1111Au_sum="https://newretail-huodong.ele.me/newretail/shuangshiyi/giftcash?city_id=CITY&from=shop&lat=LAT&lng=LNG&shop_id=SHOPID";
 	
+	//收货地址
+	public static final String url_get_address = "https://h5.ele.me/restapi/member/v1/users/USERID/addresses";
+	
 	private static String url = null;
 
 	@Autowired
@@ -96,8 +101,8 @@ public class ElemeService {
 	@Autowired
 	private TokenDao tokenDao;
 	
-	private String lat="113.314352";
-	private String lng="23.092253";
+	private String lng="113.327099";//经度
+	private String lat="23.102179";//纬度
 
 	public Result openRedpacket(String redpacketLink, HttpServletRequest request) {
 		if (redpacketLink == null || !Pattern.matches("^https?://.*?&sn=.*?$", redpacketLink)) {
@@ -127,7 +132,7 @@ public class ElemeService {
 		boolean success = false;
 		for (Cookie cookie : cookies) {
 			try {
-				Thread.sleep(200);
+				Thread.sleep(2000);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -142,8 +147,12 @@ public class ElemeService {
 			mapParam.put("platform", 0 + "");
 			mapParam.put("unionid", "fuck");
 			mapParam.put("weixin_avatar",
-					"http://thirdqq.qlogo.cn/qqapp/101204453/FC8486BF4A505A66DA4A2A7DA27A91EF/40");
-			mapParam.put("weixin_username", "admin");
+					"https://fanyi.bdstatic.com/static/translation/img/header/logo_cbfea26.png");
+			try {
+				mapParam.put("weixin_username", URLEncoder.encode("百什么度", "utf-8"));
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+			}
 			mapParam.put("method", "phone");
 			mapParam.put("phone", cookie.getPhone());
 			mapParam.put("group_sn", redpacketId);
@@ -398,13 +407,24 @@ public class ElemeService {
 		return new Result("删除成功!");
 	}
 
-	public PageResult listCookie(HttpServletRequest request) {
+	public PageResult detailListCookie(HttpServletRequest request,int type) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser == null) {
 			return new PageResult(PageUtil.redirect_login2, "登录失效，请重新登录");
 		}
 		Long creatorId = sessionUser.getId();
-		List<Cookie> cookies = cookieDao.getAllByDatalevelAndCreatorIdAndType(0, creatorId,0);
+		List<Cookie> cookies = cookieDao.getAllByCreatorIdAndType(creatorId, type);
+		request.setAttribute("cookies", cookies);
+		return new PageResult(PageUtil.eleme_detail, null);
+	}
+	
+	public PageResult listCookie(HttpServletRequest request,int type) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null) {
+			return new PageResult(PageUtil.redirect_login2, "登录失效，请重新登录");
+		}
+		Long creatorId = sessionUser.getId();
+		List<Cookie> cookies = cookieDao.getAllByDatalevelAndCreatorIdAndType(0, creatorId,type);
 		request.setAttribute("cookies", cookies);
 		return new PageResult(PageUtil.eleme_cookie_list, null);
 	}
@@ -437,7 +457,7 @@ public class ElemeService {
 		Token token = tokenDao.getLastToken(1,bwmUser.getId());
 		
 		int count=0;
-		String packetId=null;
+		String packetId="15426946797846129";
 		Map<String, String> result=new HashMap<>();
 		while (count<3) {
 			String phone ="";
@@ -505,7 +525,7 @@ public class ElemeService {
 			String validate_code = bwmService.getMessage(phone, token.getToken());
 			
 			int b=0;
-			while (!validate_code.contains("验证码")) {
+			while (validate_code==null||!validate_code.contains("验证码")) {
 				try {
 					Thread.sleep(5000);
 					validate_code=bwmService.getMessage(phone, token.getToken());
@@ -756,6 +776,7 @@ public class ElemeService {
 		param.put("lat", lat);
 		param.put("lng", lng);
 		param.put("packet_id", "0");
+		cookies.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
 		String resp = HttpUtil2.postRequest(url_get_redpacket, cookies, param);
 		String body = resp;
 		if (body.contains("成功")) {
@@ -783,8 +804,10 @@ public class ElemeService {
 		param.put("lat", lat);
 		param.put("lng", lng);
 		param.put("packet_id", packetId);
-		param.put("nickname", "拆房大队");
-		param.put("avatar", "https://thirdqq.qlogo.cn/g?b=sdk&k=9AFfpMJtickCFia2LIjpYKPQ&s=100&t=1535538633");
+		param.put("nickname", "百什么度");
+		param.put("avatar", "https://fanyi.bdstatic.com/static/translation/img/header/logo_cbfea26.png");
+		cookies.put("Referer", "https://h5.ele.me/grouping/activity/?id="+packetId);
+		cookies.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
 		String resp = HttpUtil2.postRequest(url_open_redpacket, cookies, param);
 		String body = resp;
 		if (body.contains("成功")) {
@@ -810,7 +833,6 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
 	public boolean getNewPlatform(Map<String, String> cookies,String phone) {
 		String userId=cookies.get("USERID");
 		String url=url_new_platform.replace("USERID", userId);
@@ -818,11 +840,13 @@ public class ElemeService {
 		data.put("refer_code", "bbc9baf3f6a3bf8e8697d6fdf58bcb59");
 		data.put("refer_user_id", "145998491");
 		data.put("phone", phone);
-		data.put("lat", lat);
-		data.put("lng", lng);
+		data.put("latitude", lat);
+		data.put("longitude", lng);
 		data.put("platform", "3");
 		data.put("refer_channel_code", "1");
 		data.put("refer_channel_type", "2");
+		cookies.put("Referer","https://h5.ele.me/fire/water/");
+		cookies.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
 		String resp = HttpUtil2.postRequest(url, cookies, data);
 		String body = resp;
 		if (body.contains("promotion_items")) {
@@ -851,8 +875,8 @@ public class ElemeService {
 		String url=url_get_vip.replace("USERID", userId);
 		Map<String, String> param = new HashMap<>();
 		param.put("channel", "wingpay_banner_1");
-		param.put("latitude", "23.021503");
-		param.put("longitude", "113.321222");
+		param.put("latitude", lat);
+		param.put("longitude", lng);
 		String resp = HttpUtil2.postRequest(url, cookies, param);
 		String body = resp;
 		if (body.contains("header_text")) {
@@ -965,8 +989,8 @@ public class ElemeService {
 		String userId=cookies.get("USERID");
 		String url=url_check_29_13
 				.replace("CITY", "4")
-				.replace("LAT", "113.321222")
-				.replace("LNG", "23.021503")
+				.replace("LAT", lat)
+				.replace("LNG", lng)
 				.replace("USERID", userId);
 		String resp = HttpUtil2.getRequest(url, cookies);
 		String body=resp;
@@ -1007,8 +1031,8 @@ public class ElemeService {
 		String userId=cookies.get("USERID");
 		String url=url_get_29_13
 				.replace("CITY", "4")
-				.replace("LAT", "113.321222")
-				.replace("LNG", "23.021503")
+				.replace("LAT", lat)
+				.replace("LNG", lng)
 				.replace("DEVICE", "")
 				.replace("INDEX", index)
 				.replace("USERID", userId);
@@ -1037,8 +1061,8 @@ public class ElemeService {
 	public List<String> getShoplist(Map<String, String> cookies) {
 		List<String> list=new ArrayList<>();
 		String url=url_get_shoplist
-				.replace("LNG", "113.321222")
-				.replace("LAT", "23.021503")
+				.replace("LAT",lat)
+				.replace("LNG", lng)
 				.replace("DEVICE", "");
 		String resp = HttpUtil2.getRequest(url, cookies);
 		String body=resp;
@@ -1072,8 +1096,8 @@ public class ElemeService {
 	public boolean get1111AuCheck(Map<String, String> cookies) {
 		String url=url_get_1111Au_sum
 				.replace("CITY", "4")
-				.replace("LAT", "113.321222")
-				.replace("LNG", "23.021503")
+				.replace("LAT", lat)
+				.replace("LNG", lng)
 				.replace("SHOPID", "2233255575");
 		String resp = HttpUtil2.getRequest(url, cookies);
 		String body=resp;
@@ -1100,8 +1124,8 @@ public class ElemeService {
 		int sum=0;
 		String url=url_get_1111Au_sum
 				.replace("CITY", "4")
-				.replace("LAT", "113.321222")
-				.replace("LNG", "23.021503")
+				.replace("LAT", lat)
+				.replace("LNG", lng)
 				.replace("SHOPID", "2233255575");
 		String resp = HttpUtil2.getRequest(url, cookies);
 		String body=resp;
@@ -1124,8 +1148,8 @@ public class ElemeService {
 		int count = 0;
 		String url=url_get_1111Au
 				.replace("CITY", "4")
-				.replace("LAT", "113.321222")
-				.replace("LNG", "23.021503");
+				.replace("LAT", lat)
+				.replace("LNG", lng);
 		for (int i = 0; i < shops.size(); i++) {
 			String url2=url.replace("SHOPID", shops.get(i));
 			String resp = HttpUtil2.getRequest(url2, cookies);
@@ -1206,6 +1230,26 @@ public class ElemeService {
 			result+=phone+"---"+sum+";";
 		}
 		return new Result(result);
+	}
+	
+	public Result getAddress(HttpServletRequest request,Long cookieId) {
+		HttpSession session = request.getSession();
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null) {
+			return new Result(-1,"重新登录系统");
+		}
+		Cookie cookie= cookieDao.findOne(cookieId);
+		if (cookie==null) {
+			new Result(-1,"未找到对应的cookie");
+		}
+		String url=url_get_address.replace("USERID", cookie.getUserId());
+		Map<String, String> headerMap=new HashMap<>();
+		headerMap.put("cookie", cookie.getValue());
+		String resp = HttpUtil2.getRequest(url, headerMap);
+		if (resp!=null &&resp.contains("id")) {
+			return new Result(resp);
+		}
+		return new Result(-1,resp);
 	}
 	
 	public static void main(String[] args) {
