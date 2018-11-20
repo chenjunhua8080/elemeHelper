@@ -1251,6 +1251,37 @@ public class ElemeService {
 		}
 		return new Result(-1,resp);
 	}
+	public PageResult getAddressToPage(HttpServletRequest request,Long cookieId) {
+		HttpSession session = request.getSession();
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null) {
+			request.setAttribute("error", "请重新登录系统");
+			return new PageResult(PageUtil.redirect_login,"请重新登录系统");
+		}
+		Cookie cookie= cookieDao.findOne(cookieId);
+		if (cookie==null) {
+			request.setAttribute("error", "未找到对应的Cookie");
+			return new PageResult(PageUtil.eleme_address,"未找到对应的Cookie");
+		}
+		String url=url_get_address.replace("USERID", cookie.getUserId());
+		Map<String, String> headerMap=new HashMap<>();
+		headerMap.put("cookie", cookie.getValue());
+		String resp = HttpUtil2.getRequest(url, headerMap);
+		if (resp!=null &&resp.contains("id")) {
+			JSONParser jsonParser=new JSONParser();
+			JSONArray jsonArray=null;
+			try {
+				jsonArray = (JSONArray) jsonParser.parse(resp);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			request.setAttribute("addresses", jsonArray);
+			return new PageResult(PageUtil.eleme_address,resp);
+		}else if (resp!=null&&resp.contains("未登录")) {
+			request.setAttribute("error", "Cookie已失效");
+		}
+		return new PageResult(PageUtil.eleme_address,null);
+	}
 	
 	public static void main(String[] args) {
 		ElemeService elemeService = new ElemeService();

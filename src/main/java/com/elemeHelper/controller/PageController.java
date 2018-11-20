@@ -86,8 +86,7 @@ public class PageController {
 	
 	@GetMapping("/page/address")
 	public String getAddress(HttpServletRequest request,Long cookieId) {
-		Result result = elemeService.getAddress(request,cookieId);
-		request.setAttribute("addresses", result.getData());
-		return "address";
+		PageResult result = elemeService.getAddressToPage(request,cookieId);
+		return result.getPage();
 	}
 }

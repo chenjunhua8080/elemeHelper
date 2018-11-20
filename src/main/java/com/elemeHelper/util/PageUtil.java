@@ -16,5 +16,6 @@ public class PageUtil {
 	public static final String eleme_bwmitems = "bwmitems";
 	public static final String eleme_1111 = "1111";
 	public static final String eleme_detail = "detail";
+	public static final String eleme_address = "address";
 
 }

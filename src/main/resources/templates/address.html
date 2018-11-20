@@ -1,28 +1,50 @@
-<!-- �˺����� -->
-<div id="address">
-	<div class="weui-form-preview" th:each = "address,addressStat:${addresses}">
-      <div class="weui-form-preview__hd">
-        <div class="weui-form-preview__item">
-          <label class="weui-form-preview__label">��ϵ��</label>
-          <em class="weui-form-preview__value" th:text="${address.name}">С��</em>
-        </div>
-      </div>
-      <div class="weui-form-preview__bd">
-        <div class="weui-form-preview__item">
-          <label class="weui-form-preview__label">�ֻ�</label>
-          <span class="weui-form-preview__value" th:text="${address.phone}">13413413413</span>
-        </div>
-        <div class="weui-form-preview__item">
-          <label class="weui-form-preview__label">��ַ</label>
-          <span class="weui-form-preview__value" th:text="${address.address}">��ַ��ַ��ַ</span>
-        </div>
-        <div class="weui-form-preview__item">
-          <label class="weui-form-preview__label">��ϸ</label>
-          <span class="weui-form-preview__value" th:text="${address.address_detail}">��ϸ��ϸ��ϸ</span>
-        </div>
-      </div>
-      <div class="weui-form-preview__ft">
-      </div>
-    </div>
-</div>	
-<!-- �˺����� end-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>地址列表</title>
+</head>
+<body>
+	<div id="address">
+		<div class="weui-form-preview" th:if="${error!=null}">
+			<div class="weui-form-preview__hd">
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label" th:text="${error}">error</label>
+				</div>
+			</div>
+		</div>
+		<div class="weui-form-preview" th:if="${error==null and (addresses==null or addresses.size()==0)}">
+			<div class="weui-form-preview__hd">
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">无收货地址</label>
+				</div>
+			</div>
+		</div>
+		<div class="weui-form-preview" th:each = "address,addressStat:${addresses}">
+	      <div class="weui-form-preview__hd">
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">联系人</label>
+	          <em class="weui-form-preview__value" th:text="${address.name}">小明</em>
+	        </div>
+	      </div>
+	      <div class="weui-form-preview__bd">
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">手机</label>
+	          <span class="weui-form-preview__value" th:text="${address.phone}">13413413413</span>
+	        </div>
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">地址</label>
+	          <span class="weui-form-preview__value" th:text="${address.address}">地址地址地址</span>
+	        </div>
+	        <div class="weui-form-preview__item">
+	          <label class="weui-form-preview__label">详细</label>
+	          <span class="weui-form-preview__value" th:text="${address.address_detail}">详细详细详细</span>
+	        </div>
+	      </div>
+	      <div class="weui-form-preview__ft">
+	      </div>
+	    </div>
+	</div>	
+<!-- 账号详情 end-->
+</body>
+</html>
