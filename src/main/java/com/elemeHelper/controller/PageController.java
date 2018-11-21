@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.elemeHelper.result.PageResult;
-import com.elemeHelper.result.Result;
 import com.elemeHelper.service.BwmService;
 import com.elemeHelper.service.ElemeService;
 import com.elemeHelper.service.LzService;
@@ -87,6 +86,18 @@ public class PageController {
 	@GetMapping("/page/address")
 	public String getAddress(HttpServletRequest request,Long cookieId) {
 		PageResult result = elemeService.getAddressToPage(request,cookieId);
+		return result.getPage();
+	}
+	
+	@GetMapping("/page/order")
+	public String getOrder(HttpServletRequest request,Long cookieId) {
+		PageResult result = elemeService.getOrderToPage(request,cookieId);
+		return result.getPage();
+	}
+	
+	@GetMapping("/page/redpack")
+	public String getRedpack(HttpServletRequest request,Long cookieId) {
+		PageResult result = elemeService.getRedpackToPage(request,cookieId);
 		return result.getPage();
 	}
 }

@@ -6,7 +6,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +84,12 @@ public class ElemeService {
 	
 	//收货地址
 	public static final String url_get_address = "https://h5.ele.me/restapi/member/v1/users/USERID/addresses";
+	
+	//订单
+	public static final String url_get_order = "https://h5.ele.me/restapi/bos/v2/users/USERID/orders?limit=20&offset=0";
+	
+	//统一图片资源
+	public static final String url_img_host ="https://fuss10.elemecdn.com/";
 	
 	private static String url = null;
 
@@ -1216,13 +1221,7 @@ public class ElemeService {
 				e.printStackTrace();
 			}
 			Cookie cookie = list.get(i);
-			String str=cookie.getValue();
-			String[] split = str.split(";");
-			Map<String, String> cookies=new HashMap<>();
-			for (int j = 0; j < split.length; j++) {
-				String[] split2 = split[j].split("=");
-				cookies.put(split2[0], split2[1]);
-			}
+			Map<String, String> cookies=cookieStrToCookieMap(cookie);
 			List<String> shoplist = getShoplist(cookies);
 			get1111Au(cookies, shoplist);
 			int sum = get1111AuSum(cookies);
@@ -1230,6 +1229,17 @@ public class ElemeService {
 			result+=phone+"---"+sum+";";
 		}
 		return new Result(result);
+	}
+	
+	private Map<String, String> cookieStrToCookieMap(Cookie cookie) {
+		String str=cookie.getValue();
+		String[] split = str.split(";");
+		Map<String, String> cookies=new HashMap<>();
+		for (int j = 0; j < split.length; j++) {
+			String[] split2 = split[j].split("=");
+			cookies.put(split2[0], split2[1]);
+		}
+		return cookies;
 	}
 	
 	public Result getAddress(HttpServletRequest request,Long cookieId) {
@@ -1256,7 +1266,7 @@ public class ElemeService {
 		User sessionUser = (User) session.getAttribute("user");
 		if (sessionUser == null) {
 			request.setAttribute("error", "请重新登录系统");
-			return new PageResult(PageUtil.redirect_login,"请重新登录系统");
+			return new PageResult(PageUtil.redirect_login2,"请重新登录系统");
 		}
 		Cookie cookie= cookieDao.findOne(cookieId);
 		if (cookie==null) {
@@ -1283,8 +1293,101 @@ public class ElemeService {
 		return new PageResult(PageUtil.eleme_address,null);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public PageResult getOrderToPage(HttpServletRequest request,Long cookieId) {
+		HttpSession session = request.getSession();
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null) {
+			request.setAttribute("error", "请重新登录系统");
+			return new PageResult(PageUtil.redirect_login2,"请重新登录系统");
+		}
+		Cookie cookie= cookieDao.findOne(cookieId);
+		if (cookie==null) {
+			request.setAttribute("error", "未找到对应的Cookie");
+			return new PageResult(PageUtil.eleme_order,"未找到对应的Cookie");
+		}
+		String url=url_get_order.replace("USERID", cookie.getUserId());
+		Map<String, String> headerMap=new HashMap<>();
+		headerMap.put("cookie", cookie.getValue());
+		String resp = HttpUtil2.getRequest(url, headerMap);
+		if (resp!=null &&resp.contains("id")) {
+			JSONParser jsonParser=new JSONParser();
+			JSONArray jsonArray=null;
+			JSONObject jsonObject=null;
+			String imgUrl =null;
+			Object imgHash=null;
+			try {
+				jsonArray = (JSONArray) jsonParser.parse(resp);
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject=(JSONObject) jsonArray.get(i);
+					imgHash = jsonObject.get("restaurant_image_hash");
+					if (imgHash !=null) {
+						imgUrl = getImgUrl(imgHash.toString());
+						jsonObject.put("imgUrl", imgUrl);
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			request.setAttribute("orders", jsonArray);
+			return new PageResult(PageUtil.eleme_order,resp);
+		}else if (resp!=null&&resp.contains("未登录")) {
+			request.setAttribute("error", "Cookie已失效");
+		}
+		return new PageResult(PageUtil.eleme_order,null);
+	}
+	
+	public PageResult getRedpackToPage(HttpServletRequest request,Long cookieId) {
+		HttpSession session = request.getSession();
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null) {
+			request.setAttribute("error", "请重新登录系统");
+			return new PageResult(PageUtil.redirect_login2,"请重新登录系统");
+		}
+		Cookie cookie= cookieDao.findOne(cookieId);
+		if (cookie==null) {
+			request.setAttribute("error", "未找到对应的Cookie");
+			return new PageResult(PageUtil.eleme_redpack,"未找到对应的Cookie");
+		}
+		Map<String, String> cookies=new HashMap<>();
+		cookies.put("cookie", cookie.getValue());
+		cookies.put("USERID", cookie.getUserId());
+		List<String> redpacks=new ArrayList<>();
+		try {
+			List<String> shares = getShare(cookies);
+			List<String> coupons = getCoupons(cookies);
+			redpacks.addAll(shares);
+			redpacks.addAll(coupons);
+			request.setAttribute("redpacks", redpacks);
+		} catch (Exception e) {
+			request.setAttribute("error", "Cookie已失效");
+			e.printStackTrace();
+		}
+		return new PageResult(PageUtil.eleme_redpack,null);
+	}
+	
+	private String getImgUrl(String imgHash) {
+		String result="";
+		String a=imgHash.substring(0, 1);
+		String b=imgHash.substring(1, 3);
+		String c=imgHash.substring(3, imgHash.length());
+		String d=null;
+		if (imgHash.contains("jpg")) {
+			d="jpg";
+		}else if (imgHash.contains("png")) {
+			d="png";
+		}else if (imgHash.contains("gif")) {
+			d="gif";
+		}else {
+			d="jpeg";
+		}
+		result=url_img_host+a+"/"+b+"/"+c+"."+d;
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		ElemeService elemeService = new ElemeService();
 		System.out.println(elemeService.checkNew1119("13413527299"));;
 	}
+
 }

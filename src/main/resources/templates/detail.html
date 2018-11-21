@@ -20,6 +20,8 @@ function questClick(){
 			}
 		}
 	});*/
+	$('#redpack').load("../../page/redpack?cookieId="+id);
+	$('#order').load("../../page/order?cookieId="+id);
 	$('#address').load("../../page/address?cookieId="+id);
 }
 </script>
@@ -39,39 +41,37 @@ function questClick(){
 					</select>
 				</div>
 				<div class="weui-cell__ft">
-					<button id="quest" class="weui-vcode-btn" onclick="questClick()" style="width: 125px;">查询</button>
+					<button id="quest" class="weui-vcode-btn" onclick="questClick()">查询</button>
 				</div>
 			</div>
 		</div>
 	</div>
 	<!-- 账号列表 end -->
 	<!-- 账号详情 -->
-	<div id="address">
-		<div class="weui-form-preview" th:each = "address,addressStat:${addresses}">
-	      <div class="weui-form-preview__hd">
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">联系人</label>
-	          <em class="weui-form-preview__value" th:text="${address.name}">小明</em>
-	        </div>
-	      </div>
-	      <div class="weui-form-preview__bd">
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">手机</label>
-	          <span class="weui-form-preview__value" th:text="${address.phone}">13413413413</span>
-	        </div>
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">地址</label>
-	          <span class="weui-form-preview__value" th:text="${address.address}">地址地址地址</span>
-	        </div>
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">详细</label>
-	          <span class="weui-form-preview__value" th:text="${address.address_detail}">详细详细详细</span>
-	        </div>
-	      </div>
-	      <div class="weui-form-preview__ft">
-	      </div>
-	    </div>
-	</div>	
+	<div class="weui-tab">
+      <div class="weui-navbar">
+        <a class="weui-navbar__item weui-bar__item--on" href="#tab1">
+       		红包
+        </a>
+        <a class="weui-navbar__item" href="#tab2">
+          	订单
+        </a>
+        <a class="weui-navbar__item" href="#tab3">
+          	收货地址
+        </a>
+      </div>
+      <div class="weui-tab__bd">
+        <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
+        	<div id="redpack"></div>	
+        </div>
+        <div id="tab2" class="weui-tab__bd-item">
+          	<div id="order"></div>	
+        </div>
+        <div id="tab3" class="weui-tab__bd-item">
+        	<div id="address"></div>
+        </div>
+      </div>
+    </div>
 	<!-- 账号详情 -->
 </body>
 </html>
