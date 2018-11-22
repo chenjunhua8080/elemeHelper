@@ -91,6 +91,10 @@ public class ElemeService {
 	//统一图片资源
 	public static final String url_img_host ="https://fuss10.elemecdn.com/";
 	
+	//福袋
+	public static final String url_get_mission ="https://h5.ele.me/restapi/marketing/v1/users/USERID/new_user_mission/rewards?user_id=USERID&device_id=&latitude=LAT&longitude=LNG";
+	public static final String url_get_sudhana ="https://h5.ele.me/restapi/traffic/sudhana/send";
+	
 	private static String url = null;
 
 	@Autowired
@@ -561,6 +565,10 @@ public class ElemeService {
 			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
 			msg+="新客:"+isNewPlatform+";";
+			
+			getMission(cookies);
+			getSudhana(cookies);
+			
 			boolean getVip = getVip(cookies);
 			msg+="抽会员:"+getVip+";";
 			boolean isVip = isVip(cookies);
@@ -933,6 +941,38 @@ public class ElemeService {
 			}
 		}
 		return list;
+	}
+	public JSONArray getAllShare(Map<String, String> cookies) {
+		JSONArray jsonArray=new JSONArray();
+		String userId=cookies.get("USERID");
+		String url=url_get_share.replace("USERID", userId);
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
+		if (body.contains("amount")) {
+			JSONParser parser = new JSONParser();
+			try {
+				jsonArray = (JSONArray) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return jsonArray;
+	}
+	public JSONArray getAllCoupons(Map<String, String> cookies) {
+		JSONArray jsonArray=new JSONArray();
+		String userId=cookies.get("USERID");
+		String url=url_get_coupons.replace("USERID", userId);
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
+		if (body.contains("reduce_amount")) {
+			JSONParser parser = new JSONParser();
+			try {
+				jsonArray = (JSONArray) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return jsonArray;
 	}
 	
 	public List<String> getCoupons(Map<String, String> cookies) {
@@ -1352,13 +1392,13 @@ public class ElemeService {
 		Map<String, String> cookies=new HashMap<>();
 		cookies.put("cookie", cookie.getValue());
 		cookies.put("USERID", cookie.getUserId());
-		List<String> redpacks=new ArrayList<>();
+		getMission(cookies);
+		getSudhana(cookies);
 		try {
-			List<String> shares = getShare(cookies);
-			List<String> coupons = getCoupons(cookies);
-			redpacks.addAll(shares);
-			redpacks.addAll(coupons);
-			request.setAttribute("redpacks", redpacks);
+			JSONArray shares = getAllShare(cookies);
+			JSONArray coupons = getAllCoupons(cookies);
+			request.setAttribute("shares", shares);
+			request.setAttribute("coupons", coupons);
 		} catch (Exception e) {
 			request.setAttribute("error", "Cookie已失效");
 			e.printStackTrace();
@@ -1383,6 +1423,86 @@ public class ElemeService {
 		}
 		result=url_img_host+a+"/"+b+"/"+c+"."+d;
 		return result;
+	}
+	
+	public List<String> getMission(Map<String, String> headerMap) {
+		List<String> list=new ArrayList<>();
+		String userId=headerMap.get("USERID");
+		String url=url_get_mission
+				.replace("USERID", userId)
+				.replace("LNG", lng)
+				.replace("LAT", lat);
+//		headerMap.put("Referer","https://h5.ele.me/fire/water/");
+		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		String resp = HttpUtil2.getRequest(url, headerMap);
+		String body=resp;
+		if (body.contains("amount")) {
+			if (body.contains("amount")) {
+				return null;
+			}
+			JSONParser parser = new JSONParser();
+			JSONArray jsonArray=null;
+			JSONObject jsonObject = null;
+			String name=null;
+			String sum_condition=null;
+			String amount=null;
+			String item="";
+			try {
+				jsonArray = (JSONArray) parser.parse(body);
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonObject=(JSONObject) jsonArray.get(i);
+					name=jsonObject.get("name").toString();
+					sum_condition=jsonObject.get("sum_condition").toString();
+					amount=jsonObject.get("amount").toString();
+					item=name+":"+sum_condition+"-"+amount+";";
+					System.out.println(item);
+					if (Double.valueOf(amount)>=5) {
+						list.add(item);
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+	
+	public boolean getSudhana(Map<String, String> headerMap) {
+		String userId=headerMap.get("USERID");
+		Map<String, String> data = new HashMap<>();
+		data.put("lng", lng);
+		data.put("lat", lat);
+		data.put("channel", "alipay_eleshh");
+		data.put("userId", userId);
+		data.put("refer_channel_type", "2");
+//		headerMap.put("Referer","https://h5.ele.me/fire/water/");
+		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		System.out.println("getSudhana---");
+		String resp = HttpUtil2.postRequest(url_get_sudhana, headerMap, data);
+		System.out.println("getSudhana---");
+		String body = resp;
+		if (body.contains("amount")) {
+			if (body.contains("amount")) {
+				return true;
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			JSONArray promotion_items = (JSONArray) jsonObject.get("data");
+			JSONObject item=null;
+			for (int i = 0; i < promotion_items.size(); i++) {
+				item=(JSONObject) promotion_items.get(i);
+				System.out.println(item.get("title")+"领取成功："+item.get("threshold")+"----"+item.get("amount"));
+				if (Double.valueOf(item.get("amount").toString())>=8.0) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public static void main(String[] args) {

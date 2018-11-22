@@ -5,8 +5,12 @@
 <title>红包列表</title>
 </head>
 <body>
-<!-- 红包列表 -->
-	<div id="redpack">
+	<!-- 红包列表 -->
+	<!-- 红包share -->	
+	<div class="weui-form-preview__ft">
+    	<div class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:">左侧红包(<span th:text="${shares.size()}">0</span>)</div>
+    </div>
+	<div id="shareList">
 		<!-- 错误时显示 -->
 		<div class="weui-form-preview" th:if="${error!=null}">
 			<div class="weui-form-preview__hd">
@@ -16,26 +20,77 @@
 			</div>
 		</div>
 		<!-- 无数据时显示 -->
-		<div th:if="${error==null and (redpacks==null or redpacks.size()==0)}">
+		<div th:if="${error==null and (shares==null or shares.size()==0)}">
 			<div class="weui-loadmore weui-loadmore_line">
 		        <span class="weui-loadmore__tips">暂无数据</span>
 		    </div>
 		</div>
 		<!-- 有数据时显示 -->
-		<div class="weui-panel" th:each = "redpack,redpackStat:${redpacks}">
-			<div class="weui-panel__hd" th:text="${redpack}">红包名称</div>
+		<div class="weui-panel" th:each = "share,shareStat:${shares}">
+			<strong class="weui-panel__hd" th:text="${share.name}">红包名称</strong>
 			<div class="weui-panel__bd">
 				<div class="weui-media-box weui-media-box_text">
-					<h4 class="weui-media-box__title">满减</h4>
-					<p class="weui-media-box__desc" >规则</p>
+					<h4 class="weui-media-box__title">
+						<span th:text="${share.sum_condition}"></span>-<span th:text="${share.amount}" th:style="${share.amount>=5?'color:red;font-size:22px;':''}+';'"></span>
+					</h4>
+					<p class="weui-media-box__desc" 
+						th:each = "rule,ruleStat:${share.description_map.keySet()}" 
+						th:text = "${share.description_map.get(rule)}"
+					>规则1</p>
+					<p class="weui-media-box__desc" 
+						th:each = "rule,ruleStat:${share.limit_map.keySet()}" 
+						th:text = "${share.limit_map.get(rule)}"
+					>规则2</p>
 					<ul class="weui-media-box__info">
-						<li class="weui-media-box__info__meta">到期</li>
-						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra">限制手机</li>
+						<li class="weui-media-box__info__meta" th:text = "${share.begin_date}">开始日期</li>
+						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra" th:text = "${share.end_date}">结束日期</li>
 					</ul>
 				</div>
 			</div>
 		</div>
-	</div>	
-<!-- 红包列表 end-->
+	</div>
+	<!-- 红包share end-->
+	<div class="weui-form-preview__ft">
+    	<div class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:">右侧红包(<span th:text="${coupons.size()}">0</span>)</div>
+    </div>
+	<!-- 红包coupon -->
+	<div id="couponList">
+		<!-- 错误时显示 -->
+		<div class="weui-form-preview" th:if="${error!=null}">
+			<div class="weui-form-preview__hd">
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label" th:text="${error}">error</label>
+				</div>
+			</div>
+		</div>
+		<!-- 无数据时显示 -->
+		<div th:if="${error==null and (coupons==null or coupons.size()==0)}">
+			<div class="weui-loadmore weui-loadmore_line">
+		        <span class="weui-loadmore__tips">暂无数据</span>
+		    </div>
+		</div>
+		<!-- 有数据时显示 -->
+		<div class="weui-panel" th:each = "coupon,couponStat:${coupons}">
+			<strong class="weui-panel__hd" th:text="${coupon.name}">红包名称</strong>
+			<div class="weui-panel__bd">
+				<div class="weui-media-box weui-media-box_text">
+					<h4 class="weui-media-box__title">
+						<span th:text="${coupon.sum_condition}"></span>-<span th:text="${coupon.reduce_amount}" th:style="${coupon.reduce_amount>=5?'color:red;font-size:22px;':''}+';'"></span>
+					</h4>
+					<p class="weui-media-box__desc" 
+						th:each = "rule,ruleStat:${coupon.variety.description_map.keySet()}" 
+						th:text = "${coupon.variety.description_map.get(rule)}"
+						th:if = "${rule!='eticket'}"
+					>规则1</p>
+					<ul class="weui-media-box__info">
+						<li class="weui-media-box__info__meta" th:text = "${coupon.begin_date}">开始日期</li>
+						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra" th:text = "${coupon.end_date}">结束日期</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 红包coupon end -->
+	<!-- 红包列表 end-->
 </body>
 </html>
