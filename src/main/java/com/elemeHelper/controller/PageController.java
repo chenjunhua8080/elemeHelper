@@ -10,6 +10,7 @@ import com.elemeHelper.result.PageResult;
 import com.elemeHelper.service.BwmService;
 import com.elemeHelper.service.ElemeService;
 import com.elemeHelper.service.LzService;
+import com.elemeHelper.service.MgyService;
 import com.elemeHelper.util.PageUtil;
 
 @Controller
@@ -19,6 +20,8 @@ public class PageController {
 	private ElemeService elemeService;
 	@Autowired
 	private BwmService bwmService;
+	@Autowired
+	private MgyService mgyService;
 	@Autowired
 	private LzService lzService;
 
@@ -44,7 +47,7 @@ public class PageController {
 	
 	@GetMapping("/page/activity")
 	public String activity(HttpServletRequest request) {
-		bwmService.autoLogin(request);
+		mgyService.autoLogin(request);
 		lzService.autoLogin(request);
 		return PageUtil.eleme_activity;
 	}

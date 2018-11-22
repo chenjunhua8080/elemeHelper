@@ -23,7 +23,7 @@ public class ElemeController {
 	private ElemeService elemeService;
 
 	@PostMapping("/openRedpacket")
-	public Result login(String link, HttpServletRequest request) {
+	public Result openRedpacket(String link, HttpServletRequest request) {
 		Result result = elemeService.openRedpacket(link,request);
 		return result;
 	}
@@ -40,7 +40,7 @@ public class ElemeController {
 	
 	@GetMapping("/run")
 	public Result run(HttpServletRequest request) {
-		Result result = elemeService.run(request);
+		Result result = elemeService.run2(request);
 		return result;
 	}
 	

@@ -106,6 +106,8 @@ public class ElemeService {
 	@Autowired
 	private BwmService bwmService;
 	@Autowired
+	private MgyService mgyService;
+	@Autowired
 	private LzService lzService;
 	@Autowired
 	private TokenDao tokenDao;
@@ -449,6 +451,147 @@ public class ElemeService {
 		return new PageResult(PageUtil.eleme_luck, null);
 	}
 
+	public Result run2(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null) {
+			return new Result(-1,"重新登录系统");
+		}
+		User mgyUser = (User) session.getAttribute("mgy");
+		if (mgyUser == null) {
+			return new Result(-1,"未登录芒果云");
+		}
+		User lz = (User) session.getAttribute("lz");
+		if (lz == null) {
+			return new Result(-1,"未登录联众");
+		}
+		Token token = tokenDao.getLastToken(5,mgyUser.getId());
+		
+		int count=0;
+		String packetId="";
+		Map<String, String> result=new HashMap<>();
+		while (count<3) {
+			String phone ="";
+			boolean isNew=false;
+			while (true) {
+				try {
+					Thread.sleep(5000);
+					phone=mgyService.getPhone(token.getToken());
+					if (phone==null) {
+						return new Result(-1,"获取号码失败");
+					}
+					List<Cookie> exist = cookieDao.getAllByDatalevelAndPhone(0, phone);
+					//数据库已有，但未拉黑
+					if (exist!=null&&exist.size()>0) {
+						continue;
+					}
+					isNew=checkNew1119(phone);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+//				if (isNew||packetId==null) {
+				if (isNew) {
+					break;
+				}else {
+					System.out.println(phone+" : 已注册，拉黑号码");
+					mgyService.blackPhone(token.getToken(),phone);
+				}
+			}
+			String validate_token = sendCode(phone);
+			if (validate_token==null) {
+				System.err.println("登录风险，需要识别验证码");
+				Map<String, String> captchas=null;
+				try {
+					captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
+				} catch (ParseException | IOException e) {
+					e.printStackTrace();
+				}
+				String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+				validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+				int a=0;
+				while (validate_token==null) {
+					try {
+						Thread.sleep(5000);
+						captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
+						captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+						validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					a++;
+					if (a>2) {
+						break;
+					}
+				}
+				if (a>2) {
+					continue;
+				}
+			}
+			if (validate_token.contains("滑动")) {
+				continue;
+			}
+			String validate_code = null;
+			
+			int b=0;
+			while (validate_code==null||!validate_code.contains("验证码")) {
+				try {
+					Thread.sleep(5000);
+					validate_code=mgyService.getMessage(token.getToken(),phone);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				b++;
+				if (b>15) {
+					break;
+				}
+			}
+			if (b>15) {
+				continue;
+			}
+			validate_code = getValidata(validate_code);
+			Map<String, String> cookies = login(phone, validate_code, validate_token);
+			addCookie(cookies,phone,request);
+
+			if (packetId==null) {
+				packetId = getRedpacket(cookies);
+			}
+			
+			String msg="";
+			boolean isOpen = openRedpacket(cookies, packetId);
+			if (isOpen) {
+				count++;
+			}
+			msg+="帮拆:"+isOpen+";";
+			boolean isNewPlatform = getNewPlatform(cookies, phone);
+			msg+="新客:"+isNewPlatform+";";
+			
+			getMission(cookies);
+			getSudhana(cookies);
+			
+			boolean getVip = getVip(cookies);
+			msg+="抽会员:"+getVip+";";
+			boolean isVip = isVip(cookies);
+			msg+="是否会员:"+isVip+";";
+			boolean get29_13 = get29_13(cookies, "1");
+			msg+="29-13:"+get29_13+";";
+			msg+="大额红包:";
+			List<String> shares = getShare(cookies);
+			for (int i = 0; i < shares.size(); i++) {
+				msg+=shares.get(i);
+			}
+			List<String> coupons = getCoupons(cookies);
+			for (int i = 0; i < coupons.size(); i++) {
+				msg+=coupons.get(i);
+			}
+			int get1111Au = get1111Au2(cookies);
+			msg+=" 双十一金："+get1111Au;
+			result.put("phone", phone);
+			result.put("msg", msg);
+			return new Result(result);
+		}
+		return new Result(result);
+	}
+	
 	public Result run(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -759,6 +902,9 @@ public class ElemeService {
 			if (resp.contains("validate_token")) {
 				jsonObj = (JSONObject) parser.parse(resp);
 				validate_token = (String) jsonObj.get("validate_token");
+			}
+			if (resp.contains("滑动")) {
+				validate_token = "滑动";
 			}
 		} catch (ParseException e) {
 			System.err.println(jsonObj);
