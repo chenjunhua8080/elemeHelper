@@ -8,6 +8,6 @@ import com.elemeHelper.entity.LogPromotion;
 
 public interface LogPromotionDao extends JpaRepository<LogPromotion	, Long>{
 	
-	List<LogPromotion> getListByDatalevelAndCreatorId(int datalevel,Long creatorId);
+	List<LogPromotion> getListByDatalevelAndCreatorIdOrderByIdDesc(int datalevel,Long creatorId);
 	
 }

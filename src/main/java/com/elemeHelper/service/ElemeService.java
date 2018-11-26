@@ -372,7 +372,8 @@ public class ElemeService {
 		param.put("lat", "");
 		param.put("lng", "");
 		String resp = HttpUtil2.postRequest(url_check_cookie, head, param);
-		if (resp == null || getRedpackId(resp) == null) {
+//		if (resp == null || getRedpackId(resp) == null) {
+		if (resp == null || !resp.contains("\"code\":\"200\"")) {
 			return new Result(-1, "无效cookie");
 		}
 		cookie.setUserId(userId);
@@ -446,7 +447,7 @@ public class ElemeService {
 			return new PageResult(PageUtil.redirect_login2, "登录失效，请重新登录");
 		}
 		Long creatorId = sessionUser.getId();
-		List<LogPromotion> list = logPromotionDao.getListByDatalevelAndCreatorId(0, creatorId);
+		List<LogPromotion> list = logPromotionDao.getListByDatalevelAndCreatorIdOrderByIdDesc(0, creatorId);
 		request.setAttribute("promotions", list);
 		return new PageResult(PageUtil.eleme_luck, null);
 	}
@@ -468,7 +469,8 @@ public class ElemeService {
 		Token token = tokenDao.getLastToken(5,mgyUser.getId());
 		
 		int count=0;
-		String packetId="";
+//		String packetId="15432039863422899";
+		String packetId=null;
 		Map<String, String> result=new HashMap<>();
 		while (count<3) {
 			String phone ="";
@@ -489,7 +491,7 @@ public class ElemeService {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-//				if (isNew||packetId==null) {
+//				if (isNew||packetId!=null) {
 				if (isNew) {
 					break;
 				}else {
@@ -515,6 +517,9 @@ public class ElemeService {
 						captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
 						captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
 						validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+						if (validate_token!=null&&validate_token.contains("滑动")) {
+							continue;
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1538,8 +1543,6 @@ public class ElemeService {
 		Map<String, String> cookies=new HashMap<>();
 		cookies.put("cookie", cookie.getValue());
 		cookies.put("USERID", cookie.getUserId());
-		getMission(cookies);
-		getSudhana(cookies);
 		try {
 			JSONArray shares = getAllShare(cookies);
 			JSONArray coupons = getAllCoupons(cookies);
@@ -1578,7 +1581,7 @@ public class ElemeService {
 				.replace("USERID", userId)
 				.replace("LNG", lng)
 				.replace("LAT", lat);
-//		headerMap.put("Referer","https://h5.ele.me/fire/water/");
+		headerMap.put("Referer","https://h5.ele.me/newuser/newmission/");
 		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
 		String resp = HttpUtil2.getRequest(url, headerMap);
 		String body=resp;
@@ -1621,11 +1624,9 @@ public class ElemeService {
 		data.put("channel", "alipay_eleshh");
 		data.put("userId", userId);
 		data.put("refer_channel_type", "2");
-//		headerMap.put("Referer","https://h5.ele.me/fire/water/");
+		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
 		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
-		System.out.println("getSudhana---");
 		String resp = HttpUtil2.postRequest(url_get_sudhana, headerMap, data);
-		System.out.println("getSudhana---");
 		String body = resp;
 		if (body.contains("amount")) {
 			if (body.contains("amount")) {
