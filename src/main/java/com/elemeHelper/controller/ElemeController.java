@@ -40,7 +40,7 @@ public class ElemeController {
 	
 	@GetMapping("/run")
 	public Result run(HttpServletRequest request) {
-		Result result = elemeService.run2(request);
+		Result result = elemeService.run3(request);
 		return result;
 	}
 	

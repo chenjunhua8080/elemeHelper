@@ -46,7 +46,7 @@ function bwmLogin(){
 	var bwmLogin=$('#bwmLogin');
 	$.ajax({
 		type:"post",
-		url:"/mgyLogin",
+		url:"/ymLogin",
 		data:{name:bwmUser.val(),pass:bwmPass.val()},
 		success:function(result){
 			var data=null;
