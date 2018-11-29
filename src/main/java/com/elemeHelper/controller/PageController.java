@@ -108,4 +108,10 @@ public class PageController {
 		PageResult result = elemeService.getRedpackToPage(request,cookieId);
 		return result.getPage();
 	}
+	
+	@GetMapping("/page/sign")
+	public String signPage(HttpServletRequest request) {
+		PageResult result = elemeService.toSignPage(request);
+		return result.getPage();
+	}
 }

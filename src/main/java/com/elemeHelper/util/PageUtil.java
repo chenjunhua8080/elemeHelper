@@ -19,4 +19,5 @@ public class PageUtil {
 	public static final String eleme_address = "address";
 	public static final String eleme_order = "order";
 	public static final String eleme_redpack = "redpack";
+	public static final String eleme_sign = "sign";
 }

@@ -6,46 +6,46 @@
 <div th:replace="layuiInclud :: html"></div>
 </head>
 <body>
-	<div class="layui-col-xs12 layui-col-md12">
-		<fieldset class="layui-elem-field layui-field-title">
-			<legend>注册</legend>
-		</fieldset>
-		<div class="layui-block" style="text-align: center;margin-bottom: 10px;">
-			<span id="msg" th:if="${error!=null}" th:text="${error?.msg}"
-		class="layui-btn layui-btn-danger">msg</span>
+	<div class="page">
+		<div class="weui-cells__title"><h2>注册【限时开放】</h2></div>
+		<div class="weui-block" style="text-align: center;margin-bottom: 10px;">
+			<span id="msg" th:if="${result!=null}" th:text="${result.msg}"
+				class="weui-btn weui-btn_disabled weui-btn_warn">msg</span>
 		</div>
-		<form action="/register" method="POST" class="layui-form">
-			<div class="layui-form-item">
-				<label class="layui-form-label"><span class="layui-badge-dot"></span>用户名</label>
-				<div class="layui-input-inline">
-					<input type="text" name="name" placeholder="6-11位数字或字母" pattern="[A-z,0-9]{6,11}" 
-					lay-verify="required" autocomplete="off"
-						class="layui-input"/>
+		<form action="/register" method="POST" class="weui-cells weui-cells_form">
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">用户名</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="text" name="name" placeholder="6-11位数字或字母" pattern="[A-z,0-9]{6,11}" required="required"
+							class="weui-input"/>
 				</div>
 			</div>
-			<div class="layui-form-item">
-				<label class="layui-form-label"><span class="layui-badge-dot"></span>密码</label>
-				<div class="layui-input-inline">
-					<input type="text" name="pass" placeholder="6位数字" pattern="[0-9]{6}" 
-					lay-verify="required" autocomplete="off"
-						class="layui-input"/>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">密码</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="password" name="pass" placeholder="6位数字" pattern="[0-9]{6}" required="required"
+							class="weui-input"/>
 				</div>
 			</div>
-			<div class="layui-form-item">
-				<label class="layui-form-label"><span class="layui-badge-dot"></span>邮箱</label>
-				<div class="layui-input-inline">
-				<input type="text" name="email" placeholder="用于找回密码(仅QQ邮箱 )" pattern="[0-9]{6,10}@qq.com" 
-				lay-verify="email" autocomplete="off"
-						class="layui-input"/>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">邮箱</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="text" name="email" placeholder="用于找回密码(仅QQ邮箱 )" pattern="[0-9]{6,10}@qq.com" required="required"
+							class="weui-input"/>
 				</div>
 			</div>
-			<div class="layui-form-item">
-				<div class="layui-input-block">
-					<input lay-submit="" type="submit" value="注册" class="layui-btn layui-btn-normal" />
-					<button type="reset" class="layui-btn layui-btn-primary">重置</button>
-				</div>
+			<div class="weui-btn-area">
+				<input type="submit" value="注册" class="weui-btn weui-btn_primary" />
+				<button type="reset" class="weui-btn weui-btn-primary">重置</button>
 			</div>
 		</form>
 	</div>
 </body>
+<div th:replace="layuiInclud :: html"></div>
 </html>

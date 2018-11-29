@@ -53,11 +53,9 @@ public class UserService {
 		Bind bind = new Bind();
 		bind.setAccount(email);
 		bind.setCreatorId(user.getId());
-		;
 		// 邮箱
 		bind.setType(0);
 		bind.setCreateDate(new Date());
-		;
 		bind.setDatalevel(0);
 		bind = bindDao.save(bind);
 		if (bind == null) {

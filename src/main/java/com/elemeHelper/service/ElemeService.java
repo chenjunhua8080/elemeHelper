@@ -94,6 +94,14 @@ public class ElemeService {
 	//福袋
 	public static final String url_get_mission ="https://h5.ele.me/restapi/marketing/v1/users/USERID/new_user_mission/rewards?user_id=USERID&device_id=&latitude=LAT&longitude=LNG";
 	public static final String url_get_sudhana ="https://h5.ele.me/restapi/traffic/sudhana/send";
+	public static final String url_get_newusergift ="https:/h5.ele.me/marketing/v3/users/USERID/new_user_gifts?geohash=ws0e6ecy9uzx";
+	
+	//签到
+	public static final String url_sign_info ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/info";
+	public static final String url_sign ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in";
+	public static final String url_sign_captcha ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/risk/captcha";
+	public static final String url_sign_prize ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/daily/prize";
+	public static final String url_sign_wechar ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/wechat";
 	
 	private static String url = null;
 
@@ -1799,9 +1807,176 @@ public class ElemeService {
 		return false;
 	}
 	
+	public String getSignInfo(Map<String, String> headerMap) {
+		String userId=headerMap.get("USERID");
+//		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
+//		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		String url=url_sign_info.replace("USERID", userId);
+		String resp = HttpUtil2.getRequest(url, headerMap);
+		String body = resp;
+		if (body.contains("statuses")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return jsonObject.get("statuses").toString();
+		}
+		return null;
+	}
+	
+	public PageResult toSignPage(HttpServletRequest request) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null) {
+			return new PageResult(PageUtil.redirect_login2, "登录失效，请重新登录");
+		}
+		Long creatorId = sessionUser.getId();
+		List<Cookie> cookies = cookieDao.getAllByCreatorIdAndType(creatorId, 1);
+		for (int i = 0; i < cookies.size(); i++) {
+			//do...
+		}
+		request.setAttribute("cookies", cookies);
+		return new PageResult(PageUtil.eleme_sign, null);
+	}
+	/*
+		签到流程
+		获取签到信息
+		GET   /restapi/member/v1/users/3419912794/sign_in/info
+		三选一页面
+		GET /restapi/member/v1/users/3419912794/sign_in/risk/captcha
+		签到
+		POST /restapi/member/v1/users/3419912794/sign_in
+			{"user_id":3419912794,"latitude":"0.0","longitude":"0.0"}
+			{"user_id":1926141657,"latitude":"0.0","longitude":"0.0","source":"main"}
+		获取签到信息
+		GET   /restapi/member/v1/users/3419912794/sign_in/info
+		翻牌 "type": 1 会员抵用 "type": 2 红包	"type": 5 品质？
+		POST /restapi/member/v1/users/3419912794/sign_in/daily/prize
+			{"user_id":3419912794,"latitude":"0.0","longitude":"0.0"}
+			cookie:
+			ubt_ssid=xg4ebfi69vhr2r8bsqckrtabsfpjtnqt_2018-02-18
+			perf_ssid=5ttrycwuegxas84lizo9lc3s2buwxn79_2018-02-18
+			_utrace=a61fab1cc835cd714a82054c55157c29_2018-01-10
+			cna=kUlAFAwys10CAXWIKVBKZyj1
+			isg=BJ2dupYWmsbLY36plIY4UDGop3uXutEMOJDLrV9i0fQjFr9IJwr93WjvRQwQ5-nE
+			track_id=1538874282|d770116a9220cba2069439542f7ce585be3d8a441d079bb36b|ef407a06ebcc38981d2a47aedac39128
+			SID=w4SoHh5KH4Ao8FlpWxpyOcoGJ54Fqip7lhcw
+			USERID=3419912794
+		分享
+		POST /restapi/member/v1/users/3419912794/sign_in/wechat
+		{"user_id":3419912794,"latitude":"0.0","longitude":"0.0"}
+		获取签到信息
+		GET   /restapi/member/v1/users/3419912794/sign_in/info
+		翻牌
+		POST /restapi/member/v1/users/3419912794/sign_in/daily/prize
+		获取签到信息
+		GET   /restapi/member/v1/users/3419912794/sign_in/info
+	 */
+	/**
+	 * 签到
+	 * @param headerMap
+	 * @return
+	 */
+	public boolean sign(Map<String, String> headerMap) {
+		String userId=headerMap.get("USERID");
+		Map<String, String> data = new HashMap<>();
+		data.put("lng", lng);
+		data.put("lat", lat);
+		data.put("userId", userId);
+		data.put("source", "main");
+//		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
+//		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		String url=url_sign.replace("USERID", userId);
+		String resp = HttpUtil2.postRequest(url, headerMap,data);
+		String body = resp;
+		if (body.contains("message")) {
+			return false;
+		}
+		return true;
+	}
+	
+	public String getSignCaptcha(Map<String, String> headerMap) {
+		String userId=headerMap.get("USERID");
+		String url=url_sign_captcha.replace("USERID", userId);
+		String resp = HttpUtil2.getRequest(url, headerMap);
+		String body = resp;
+		if (body.contains("statuses")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return jsonObject.get("statuses").toString();
+		}
+		return null;
+	}
+	
+	public String getSignPrize(Map<String, String> headerMap) {
+		String userId=headerMap.get("USERID");
+		Map<String, String> data = new HashMap<>();
+		data.put("lng", lng);
+		data.put("lat", lat);
+		data.put("userId", userId);
+//		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
+//		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		String url=url_sign_prize.replace("USERID", userId);
+		String resp = HttpUtil2.postRequest(url, headerMap,data);
+		String body = resp;
+		if (body.contains("type")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return jsonObject.get("type").toString();
+		}
+		return null;
+	}
+	
+	public String signShareWechat(Map<String, String> headerMap) {
+		String userId=headerMap.get("USERID");
+		Map<String, String> data = new HashMap<>();
+		data.put("lng", lng);
+		data.put("lat", lat);
+		data.put("userId", userId);
+//		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
+//		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		String url=url_sign_wechar.replace("USERID", userId);
+		String resp = HttpUtil2.postRequest(url, headerMap,data);
+		String body = resp;
+		if (body.contains("type")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return jsonObject.get("type").toString();
+		}
+		return null;
+	}
+	
 	public static void main(String[] args) {
+		Map<String, String> map=new HashMap<>();
+		map.put("cookie", "SID=aGzsasgMAt3TSHHZng4RyqXBZwY7PES1T5KA;USERID=1998992001;track_id=1543204815|bc56021778c28bba0ced9fe89aac81713b2496bde4586bce12|8a5a8304d1b9bfe83d6d48908d42f0a9;");
+		map.put("USERID", "1998992001");
 		ElemeService elemeService = new ElemeService();
-		System.out.println(elemeService.checkNew1119("13413527299"));;
+		System.out.println(elemeService.sign(map));
+		System.out.println(elemeService.getSignPrize(map));
+		System.out.println(elemeService.signShareWechat(map));
+		System.out.println(elemeService.signShareWechat(map));
+//		System.out.println(elemeService.sign(map));
+//		System.out.println(elemeService.getSignPrize(map));
+		System.out.println(elemeService.getSignInfo(map));
+		System.out.println(elemeService.getAllCoupons(map));
+		System.out.println(elemeService.getAllShare(map));
 	}
 
 }
