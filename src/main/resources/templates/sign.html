@@ -25,35 +25,25 @@
 		    </div>
 		</div>
 		<!-- 有数据时显示 -->
-		<div class="weui-form-preview" th:each = "order,orderStat:${orders}">
-	      <div class="weui-form-preview__hd">
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">
-	          	<img class="weui-icon" width="64px" th:src="${order.imgUrl}" />
-	          </label>
-	          <label class="weui-form-preview__value" style="font-size: 1em;" th:text="${order.restaurant_name}">店铺</label>
-	        </div>
-	      </div>
-	      <div class="weui-form-preview__bd">
-	        <div class="weui-form-preview__item" th:each = "menu,menuStat:${order.basket.group}">
-	          <label class="weui-form-preview__label">菜单</label>
-	          <span class="weui-form-preview__value" 
-		            th:each = "item,itemStat:${menu}" 
-		            th:text="${item.name}"
-	          >菜单</span>
-	        </div>
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">金额</label>
-	          <span class="weui-form-preview__value" style="color: red;" th:text="${order.total_amount}">金额</span>
-	        </div>
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">订单状态</label>
-	          <span class="weui-form-preview__value" style="color: red;" th:text="${order.status_bar.title}">订单状态</span>
-	        </div>
-	      </div>
-	      <div class="weui-form-preview__ft"></div>
-	      <br/>
-	    </div>
+		<div class="weui-panel" th:each = "coupon,couponStat:${coupons}">
+			<strong class="weui-panel__hd" th:text="${coupon.name}">红包名称</strong>
+			<div class="weui-panel__bd">
+				<div class="weui-media-box weui-media-box_text">
+					<h4 class="weui-media-box__title">
+						<span th:text="${coupon.sum_condition}"></span>-<span th:text="${coupon.reduce_amount}" th:style="${coupon.reduce_amount>=5?'color:red;font-size:22px;':''}+';'"></span>
+					</h4>
+					<p class="weui-media-box__desc" 
+						th:each = "rule,ruleStat:${coupon.variety.description_map.keySet()}" 
+						th:text = "${coupon.variety.description_map.get(rule)}"
+						th:if = "${rule!='eticket'}"
+					>规则1</p>
+					<ul class="weui-media-box__info">
+						<li class="weui-media-box__info__meta" th:text = "${coupon.begin_date}">开始日期</li>
+						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra" th:text = "${coupon.end_date}">结束日期</li>
+					</ul>
+				</div>
+			</div>
+		</div>		
 	</div>	
 	<!-- 签到列表 end-->
 </body>
