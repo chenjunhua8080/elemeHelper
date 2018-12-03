@@ -111,5 +111,10 @@ public class ElemeController {
 		}
 		return new Result("领取成功："+init +" 领取次数: "+count);
 	}
-
+	
+	@GetMapping("/signAll")
+	public Result signAll(HttpServletRequest request) {
+		Result result = elemeService.signAll(request);
+		return result;
+	}
 }

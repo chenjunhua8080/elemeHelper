@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 import com.elemeHelper.dao.CookieDao;
 import com.elemeHelper.dao.LogPromotionDao;
 import com.elemeHelper.dao.LogRedpacketDao;
+import com.elemeHelper.dao.SignInfoDao;
+import com.elemeHelper.dao.SignPrizeDao;
 import com.elemeHelper.dao.TokenDao;
 import com.elemeHelper.entity.Cookie;
 import com.elemeHelper.entity.LogPromotion;
@@ -111,6 +113,11 @@ public class ElemeService {
 	private LogRedpacketDao logRedpacketDao;
 	@Autowired
 	private LogPromotionDao logPromotionDao;
+	@Autowired
+	private SignInfoDao signInfoDao;
+	@Autowired
+	private SignPrizeDao signPrizeDao;
+	
 	@Autowired
 	private BwmService bwmService;
 	@Autowired
@@ -1963,10 +1970,39 @@ public class ElemeService {
 		return null;
 	}
 	
+	public Result signAll(HttpServletRequest request) {
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null) {
+			return new Result(-1,"登录失效，请重新登录");
+		}
+		Long creatorId = sessionUser.getId();
+		List<Cookie> cookies = cookieDao.getAllByCreatorIdAndType(creatorId, 1);
+		Cookie cookie=null;
+		Map<String, String> headerMap=new HashMap<>();
+		for (int i = 0; i < cookies.size(); i++) {
+			cookie= cookies.get(i);
+			headerMap.put("USERID", cookie.getUserId());
+			headerMap.put("cookie", cookie.getValue());
+			getSignInfo(headerMap);
+			getSignCaptcha(headerMap);
+			sign(headerMap);
+			getSignInfo(headerMap);
+			getSignPrize(headerMap);
+			signShareWechat(headerMap);
+			getSignInfo(headerMap);
+			getSignPrize(headerMap);
+			getSignInfo(headerMap);
+			if (i==0) {
+				return null;
+			}
+		}
+		return null;
+	}
+	
 	public static void main(String[] args) {
 		Map<String, String> map=new HashMap<>();
-		map.put("cookie", "SID=aGzsasgMAt3TSHHZng4RyqXBZwY7PES1T5KA;USERID=1998992001;track_id=1543204815|bc56021778c28bba0ced9fe89aac81713b2496bde4586bce12|8a5a8304d1b9bfe83d6d48908d42f0a9;");
-		map.put("USERID", "1998992001");
+		map.put("cookie", "SID=Pvhqns4QpSkBPWAwr9S5Eg1vCIRoIMCOp9pw;USERID=3680000546;track_id=1543290652|a8d6c4edb2d624983d48e396ce5704b47db5d0e48d36d4bc6c|7d517f6fa5b3919d373415d5c9368eb4;");
+		map.put("USERID", "3680000546");
 		ElemeService elemeService = new ElemeService();
 		System.out.println(elemeService.sign(map));
 		System.out.println(elemeService.getSignPrize(map));
