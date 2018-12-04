@@ -3,6 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <title>签到页面</title>
+<script type="text/javascript">
+	function signAll(){
+		$.ajax({
+			type:"get",
+			url:"/signAll",
+			success:function(result){
+				var data=null;
+				var code=result.code;
+				if(code==0){
+					$('#signList').html(result.data);
+				}else{
+					$.alert(result.msg);
+				}
+			}
+		});
+	}
+</script>
 </head>
 <body>
 	<div class="weui-btn-area">
@@ -19,27 +36,24 @@
 			</div>
 		</div>
 		<!-- 无数据时显示 -->
-		<div th:if="${error==null and (cookies==null or cookies.size()==0)}">
+		<div th:if="${error==null and (signs==null or signs.size()==0)}">
 			<div class="weui-loadmore weui-loadmore_line">
 		        <span class="weui-loadmore__tips">暂无数据</span>
 		    </div>
 		</div>
 		<!-- 有数据时显示 -->
-		<div class="weui-panel" th:each = "coupon,couponStat:${coupons}">
-			<strong class="weui-panel__hd" th:text="${coupon.name}">红包名称</strong>
+		<div class="weui-panel" th:each = "sign,signStat:${signs}">
+			<strong class="weui-panel__hd" th:text="${sign.cookieId}">cookieId</strong>
 			<div class="weui-panel__bd">
 				<div class="weui-media-box weui-media-box_text">
-					<h4 class="weui-media-box__title">
-						<span th:text="${coupon.sum_condition}"></span>-<span th:text="${coupon.reduce_amount}" th:style="${coupon.reduce_amount>=5?'color:red;font-size:22px;':''}+';'"></span>
-					</h4>
+					<h4 class="weui-media-box__title" th:text = "${sign.count}">连续签到天数</h4>
 					<p class="weui-media-box__desc" 
-						th:each = "rule,ruleStat:${coupon.variety.description_map.keySet()}" 
-						th:text = "${coupon.variety.description_map.get(rule)}"
-						th:if = "${rule!='eticket'}"
-					>规则1</p>
+						th:each = "prize,prizeStat:${sign.prizes}" 
+						th:text = "${prize.text}" 
+					>红包</p>
 					<ul class="weui-media-box__info">
-						<li class="weui-media-box__info__meta" th:text = "${coupon.begin_date}">开始日期</li>
-						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra" th:text = "${coupon.end_date}">结束日期</li>
+						<li class="weui-media-box__info__meta" th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}">开始日期</li>
+						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra" th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}">结束日期</li>
 					</ul>
 				</div>
 			</div>

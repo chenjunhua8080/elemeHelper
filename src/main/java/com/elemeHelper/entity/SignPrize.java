@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -14,7 +15,8 @@ public class SignPrize {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private Long signId;
+	@ManyToOne
+	private Sign sign;
 	private Date createDate;
 	private Long creatorId;
 	private int datalevel;
@@ -25,9 +27,9 @@ public class SignPrize {
 	public SignPrize() {
 	}
 
-	public SignPrize( Long creatorId, Long signId, String value, String text) {
+	public SignPrize( Long creatorId, Sign sign, String value, String text) {
 		this.creatorId = creatorId;
-		this.signId = signId;
+		this.sign = sign;
 		this.createDate = new Date();
 		this.datalevel = 0;
 		this.value = value;
@@ -39,11 +41,11 @@ public class SignPrize {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Long getSignId() {
-		return signId;
+	public Sign getSign() {
+		return sign;
 	}
-	public void setSignId(Long signId) {
-		this.signId = signId;
+	public void setSign(Sign sign) {
+		this.sign = sign;
 	}
 	public Date getCreateDate() {
 		return createDate;

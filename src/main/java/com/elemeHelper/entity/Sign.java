@@ -1,16 +1,18 @@
 package com.elemeHelper.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table
-public class SignInfo {
+public class Sign {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -19,20 +21,31 @@ public class SignInfo {
 	private Long creatorId;
 	private int datalevel;
 	private int count;
-	private boolean isSign;
+	private boolean isAbort;
 	private boolean isFinish;
 	
-	public SignInfo() {
+	@OneToMany
+	private List<SignPrize> prizes;
+	
+	public Sign() {
 	}
 
-	public SignInfo(Long cookieId,Long creatorId) {
+	public Sign(Long cookieId,Long creatorId) {
 		this.cookieId=cookieId;
 		this.creatorId = creatorId;
 		this.createDate = new Date();
 		this.datalevel = 0;
 		this.count = 1;
-		this.isSign = true;
+		this.isAbort = false;
 		this.isFinish = false;
+	}
+
+	public List<SignPrize> getPrizes() {
+		return prizes;
+	}
+
+	public void setPrizes(List<SignPrize> prizes) {
+		this.prizes = prizes;
 	}
 
 	public Long getId() {
@@ -74,15 +87,16 @@ public class SignInfo {
 	public void setCount(int count) {
 		this.count = count;
 	}
-	public boolean isSign() {
-		return isSign;
-	}
-	public void setSign(boolean isSign) {
-		this.isSign = isSign;
-	}
 	public boolean isFinish() {
 		return isFinish;
 	}
+	public boolean isAbort() {
+		return isAbort;
+	}
+	public void setAbort(boolean isAbort) {
+		this.isAbort = isAbort;
+	}
+
 	public void setFinish(boolean isFinish) {
 		this.isFinish = isFinish;
 	}

@@ -32,6 +32,7 @@
 	                    <div class="weui-btn-area">
 							<input type="button" value="跑号" class="weui-btn weui-btn_primary" onclick="run()"/>
 						</div>
+						<div id="three">111</div>
                     </div>
                 </div>
 				<div class="weui-tabbar">
@@ -74,7 +75,7 @@
 	    	  //page.load('../page/activity'); 
 	    	  page.load('../page/sign'); 	
   		  }else if(pageId==4){
-		      //page.load('../page/index');
+			  $('#three').load('../page/activity');
 		  }
 	      page.show().siblings('.weui-tab__panel__item').hide();
 	  });
