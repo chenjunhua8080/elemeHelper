@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -15,7 +16,10 @@ public class SignPrize {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@ManyToOne
+	
+	//外键不能为空，默认sign_id
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "sign_id")
 	private Sign sign;
 	private Date createDate;
 	private Long creatorId;

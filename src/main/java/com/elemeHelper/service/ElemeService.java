@@ -1886,7 +1886,7 @@ public class ElemeService {
 	 * @param headerMap
 	 * @return
 	 */
-	public boolean sign(Map<String, String> headerMap) {
+	public int sign(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
 		Map<String, String> data = new HashMap<>();
 		data.put("lng", lng);
@@ -1900,9 +1900,15 @@ public class ElemeService {
 		String body = resp;
 		if (body.contains("message")) {
 			//包含但不限于重签、漏签
-			return false;
+			if (body.contains("未登录")) {
+				return -1;
+			}else if (body.contains("重复签到")) {
+				return -2;
+			}else if (body.contains("没有签到")) {
+				return -3;
+			}
 		}
-		return true;
+		return 0;
 	}
 	public boolean signAbort(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
@@ -2002,56 +2008,102 @@ public class ElemeService {
 				e1.printStackTrace();
 			}
 			cookie= cookies.get(i);
-			//查询是否有签到记录
-			Sign sign=null;
-			List<Sign> signList = signDao.getAllSigning(creatorId, cookie.getId());
-			for (int j = 0; j < signList.size(); j++) {
-				sign = signList.get(j);
-				Calendar cal1 = Calendar.getInstance();
-				cal1.setTime(sign.getCreateDate());
-				Calendar cal2 = Calendar.getInstance();
-				int day1= cal1.get(Calendar.DAY_OF_YEAR);
-				int day2 = cal2.get(Calendar.DAY_OF_YEAR);
-				if (day2-day1>1) {
-					//签到间隔一天以上，重新签到
-					signAbort(headerMap);		
-					sign.setAbort(true);
-					signDao.save(sign);
-				}
-			}
-			
 			headerMap.put("USERID", cookie.getUserId());
 			headerMap.put("cookie", cookie.getValue());
+		
+			Sign sign =null;
+			List<SignPrize> prizes=new ArrayList<>();
+			
 			getSignCaptcha(headerMap);
-			sign(headerMap);
-			if (sign!=null&&!sign.isAbort()) {
-				int count = sign.getCount();
-				sign.setCount(++count);
-				if (count==7) {
-					sign.setFinish(true);
+			int signStatus = sign(headerMap);
+			if (signStatus==0) {
+				//签到成功，天数+1；等于7天签到完成
+				//查询是否有签到记录
+				List<Sign> signList = signDao.getAllSigning(creatorId,cookie.getId());
+				if (signList!=null && signList.size()>0) {
+					sign = signList.get(0);
+					int count = sign.getCount();
+					sign.setCount(++count);
+					if (count==7) {
+						sign.setFinish(true);
+					}
+				}else {
+					sign=new Sign(cookie.getId(),creatorId);
 				}
-				signDao.save(sign);
-			}else {
-				signDao.save(new Sign(cookie.getId(), creatorId));
-			}
-			String signPrize1 = getSignPrize(headerMap);
-			if (signPrize1!=null) {
-				signPrizeDao.save(new SignPrize(creatorId, sign, signPrize1, signPrize1));
-			}
-			boolean isShare = signShareWechat(headerMap);
-			if (isShare) {
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				//翻牌
+				String signPrize1 = getSignPrize(headerMap);
+				if (signPrize1!=null) {
+					prizes.add(new SignPrize(creatorId, sign, signPrize1, signPrize1));
 				}
-				String signPrize2 = getSignPrize(headerMap);
-				if (signPrize2!=null) {
-					signPrizeDao.save(new SignPrize(creatorId, sign, signPrize2, signPrize2));
+				//分享
+				boolean isShare = signShareWechat(headerMap);
+				if (isShare) {
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					//再翻牌
+					String signPrize2 = getSignPrize(headerMap);
+					if (signPrize2!=null) {
+						prizes.add(new SignPrize(creatorId, sign, signPrize2, signPrize2));
+					}
+				}
+			}else if (signStatus==-1) {
+				//cookie 无效
+				continue;
+			}else if (signStatus==-2) {
+				//重复签到			
+			}else if (signStatus==-3) {
+				//没有连续签到
+				List<Sign> signList = signDao.getAllSigning(creatorId, cookie.getId());
+				//查询签到间隔一天以上，终止签到
+				for (int j = 0; j < signList.size(); j++) {
+					Sign abort= signList.get(j);
+					Calendar cal1 = Calendar.getInstance();
+					cal1.setTime(abort.getCreateDate());
+					Calendar cal2 = Calendar.getInstance();
+					int day1= cal1.get(Calendar.DAY_OF_YEAR);
+					int day2 = cal2.get(Calendar.DAY_OF_YEAR);
+					if (day2-day1>1) {
+						signAbort(headerMap);		
+						abort.setAbort(true);
+						signDao.save(abort);
+					}
+				}
+				//重新签到
+				sign(headerMap);
+				sign=new Sign(cookie.getId(),creatorId);
+				//翻牌
+				String signPrize1 = getSignPrize(headerMap);
+				if (signPrize1!=null) {
+					prizes.add(new SignPrize(creatorId, sign, signPrize1, signPrize1));
+				}
+				//分享
+				boolean isShare = signShareWechat(headerMap);
+				if (isShare) {
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					//再翻牌
+					String signPrize2 = getSignPrize(headerMap);
+					if (signPrize2!=null) {
+						prizes.add(new SignPrize(creatorId, sign, signPrize2, signPrize2));
+					}
 				}
 			}
 //			getSignInfo(headerMap);
-			break;
+			
+			//保存数据
+			if (sign!=null) {
+				sign.setPrizes(prizes);
+				signDao.save(sign);
+			}
+			
+			//测试一个，跳出循环
+			//break;
 		}
 		Result signs = getSignAll(request);
 		return signs;
