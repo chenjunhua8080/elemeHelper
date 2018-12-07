@@ -9,60 +9,66 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table
-public class Sign {
+public class SignInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@JsonIgnore
-	//外键不能为空，默认sign_id
-	@ManyToOne(optional = true)
-	private SignInfo signInfo;
+	private Long cookieId;
 	private Date createDate;
 	private Long creatorId;
 	private int datalevel;
-	private String value;
-	private String text;
+	private int count;
+	private boolean isAbort;
+	private boolean isFinish;
 	
-	@OneToMany(cascade=CascadeType.ALL,mappedBy="sign",fetch=FetchType.LAZY)
-	private List<Prize> prizes;
 	
-	public Sign() {
+	@OneToMany(cascade=CascadeType.ALL,mappedBy="signInfo",fetch=FetchType.LAZY)
+	private List<Sign> signs;
+	
+	public SignInfo() {
 	}
-	public Sign( Long creatorId, SignInfo signInfo,String text) {
+
+	public SignInfo(Long cookieId,Long creatorId) {
+		this.cookieId=cookieId;
 		this.creatorId = creatorId;
-		this.signInfo = signInfo;
 		this.createDate = new Date();
 		this.datalevel = 0;
-		this.text = text;
+		this.count = 1;
+		this.isAbort = false;
+		this.isFinish = false;
 	}
-	public Sign( Long creatorId, SignInfo signInfo) {
-		this.creatorId = creatorId;
-		this.signInfo = signInfo;
-		this.createDate = new Date();
-		this.datalevel = 0;
+
+
+
+	public List<Sign> getSigns() {
+		return signs;
 	}
+
+	public void setSigns(List<Sign> signs) {
+		this.signs = signs;
+	}
+
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	public SignInfo getSignInfo() {
-		return signInfo;
+
+	public Long getCookieId() {
+		return cookieId;
 	}
-	public void setSignInfo(SignInfo signInfo) {
-		this.signInfo = signInfo;
+
+	public void setCookieId(Long cookieId) {
+		this.cookieId = cookieId;
 	}
+
 	public Date getCreateDate() {
 		return createDate;
 	}
@@ -81,27 +87,25 @@ public class Sign {
 	public void setDatalevel(int datalevel) {
 		this.datalevel = datalevel;
 	}
-	public String getValue() {
-		return value;
+	public int getCount() {
+		return count;
 	}
-	public void setValue(String value) {
-		this.value = value;
+	public void setCount(int count) {
+		this.count = count;
 	}
-	public String getText() {
-		return text;
+	public boolean isFinish() {
+		return isFinish;
 	}
-	public void setText(String text) {
-		this.text = text;
+	public boolean isAbort() {
+		return isAbort;
+	}
+	public void setAbort(boolean isAbort) {
+		this.isAbort = isAbort;
 	}
 
-	public List<Prize> getPrizes() {
-		return prizes;
+	public void setFinish(boolean isFinish) {
+		this.isFinish = isFinish;
 	}
 
-	public void setPrizes(List<Prize> prizes) {
-		this.prizes = prizes;
-	}
-	
-	
 	
 }

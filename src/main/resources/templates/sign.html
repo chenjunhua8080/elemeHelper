@@ -5,17 +5,24 @@
 <title>签到页面</title>
 <script type="text/javascript">
 	function signAll(){
+		$.showLoading();
 		$.ajax({
 			type:"get",
 			url:"/signAll",
 			success:function(result){
+				$.hideLoading();
 				var data=null;
 				var code=result.code;
 				if(code==0){
-					$('#signList').html(result.data);
+					//$('#signList').html(result.data);
+					$.alert("签到成功！");
 				}else{
 					$.alert(result.msg);
 				}
+			},
+			error:function(result){
+				$.hideLoading();
+				$.alert(result);
 			}
 		});
 	}
@@ -36,25 +43,29 @@
 			</div>
 		</div>
 		<!-- 无数据时显示 -->
-		<div th:if="${error==null and (signs==null or signs.size()==0)}">
+		<div th:if="${error==null and (signInfos==null or signInfos.size()==0)}">
 			<div class="weui-loadmore weui-loadmore_line">
 		        <span class="weui-loadmore__tips">暂无数据</span>
 		    </div>
 		</div>
 		<!-- 有数据时显示 -->
-		<div class="weui-panel" th:each = "sign,signStat:${signs}">
-			<strong class="weui-panel__hd" th:text="${sign.cookieId}">cookieId</strong>
+		<div class="weui-panel" th:each = "signInfo,signInfoStatus:${signInfos}">
+			<strong class="weui-panel__hd" th:text="${signInfo.cookieId}">cookieId</strong>
 			<div class="weui-panel__bd">
-				<div class="weui-media-box weui-media-box_text">
-					<h4 class="weui-media-box__title" th:text = "${sign.count}">连续签到天数</h4>
+				<div class="weui-media-box weui-media-box_text"
+				th:each="sign,signStatus:${signInfo.signs}">
+					<h4 class="weui-media-box__title" th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}">日期</h4>
+					<p class="weui-media-box__desc" 
+						th:text = "${sign.text}" 
+						th:if="${sign.text!=null}">签到错误</p>
 					<p class="weui-media-box__desc" 
 						th:each = "prize,prizeStat:${sign.prizes}" 
-						th:text = "${prize.text}" 
-					>红包</p>
-					<ul class="weui-media-box__info">
-						<li class="weui-media-box__info__meta" th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}">开始日期</li>
-						<li class="weui-media-box__info__meta weui-media-box__info__meta_extra" th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}">结束日期</li>
-					</ul>
+						th:text = "${prize.name+':'+prize.amount}" 
+						th:if="${sign.text==null and prize.sum_condition==0}">金币</p>	
+					<p class="weui-media-box__desc" 
+						th:each = "prize,prizeStat:${sign.prizes}" 
+						th:text = "${prize.name+' : '+prize.sum_condition+'-'+prize.amount}" 
+						th:if="${sign.text==null and prize.sum_condition!=0}">抵扣</p>	
 				</div>
 			</div>
 		</div>		

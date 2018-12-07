@@ -117,4 +117,15 @@ public class ElemeController {
 		Result result = elemeService.signAll(request);
 		return result;
 	}
+	
+	@GetMapping("/getSignAll")
+	public Result getSignAll(HttpServletRequest request) {
+		Result result = elemeService.getSignAll(request);
+		return result;
+	}
+	@GetMapping("/getSignAll/A")
+	public Result getSignAdd(HttpServletRequest request) {
+		Result result = elemeService.getSignAdd(request);
+		return result;
+	}
 }

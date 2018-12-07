@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,20 +24,21 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.elemeHelper.dao.CookieDao;
 import com.elemeHelper.dao.LogPromotionDao;
 import com.elemeHelper.dao.LogRedpacketDao;
-import com.elemeHelper.dao.SignDao;
-import com.elemeHelper.dao.SignPrizeDao;
+import com.elemeHelper.dao.SignInfoDao;
 import com.elemeHelper.dao.TokenDao;
 import com.elemeHelper.entity.Cookie;
 import com.elemeHelper.entity.LogPromotion;
+import com.elemeHelper.entity.SignInfo;
 import com.elemeHelper.entity.Sign;
-import com.elemeHelper.entity.SignPrize;
 import com.elemeHelper.entity.Token;
 import com.elemeHelper.entity.User;
 import com.elemeHelper.entity.logRedpacket;
+import com.elemeHelper.entity.Prize;
 import com.elemeHelper.http.HttpUtil2;
 import com.elemeHelper.result.PageResult;
 import com.elemeHelper.result.Result;
@@ -44,6 +46,7 @@ import com.elemeHelper.util.PageUtil;
 
 import sun.misc.BASE64Decoder;
 
+@Transactional
 @Service
 public class ElemeService {
 
@@ -119,9 +122,7 @@ public class ElemeService {
 	@Autowired
 	private LogPromotionDao logPromotionDao;
 	@Autowired
-	private SignDao signDao;
-	@Autowired
-	private SignPrizeDao signPrizeDao;
+	private SignInfoDao signInfoDao;
 	@Autowired
 	private BwmService bwmService;
 	@Autowired
@@ -1818,7 +1819,7 @@ public class ElemeService {
 		return false;
 	}
 	
-	public String getSignInfo(Map<String, String> headerMap) {
+	public int getSignInfo(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
 //		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
 //		headerMap.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
@@ -1833,9 +1834,16 @@ public class ElemeService {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			return jsonObject.get("statuses").toString();
+			String statuses = jsonObject.get("statuses").toString();
+			int count = 0;
+		    Pattern p = Pattern.compile("1");
+		    Matcher m = p.matcher(statuses);
+		    while (m.find()) {
+		        count++;
+		    }
+			return count;
 		}
-		return null;
+		return 0;
 	}
 	
 	public PageResult toSignPage(HttpServletRequest request) {
@@ -1945,7 +1953,8 @@ public class ElemeService {
 		return null;
 	}
 	
-	public String getSignPrize(Map<String, String> headerMap) {
+	public List<Prize> getSignPrize(Map<String, String> headerMap) {
+		List<Prize> prizes=new ArrayList<>();
 		String userId=headerMap.get("USERID");
 		Map<String, String> data = new HashMap<>();
 		data.put("channel", "app");
@@ -1968,11 +1977,25 @@ public class ElemeService {
 			for (int i = 0; i < jsonArray.size(); i++) {
 				jsonObject=(JSONObject) jsonArray.get(i);
 				if (jsonObject.get("status").toString().equals("1")) {
-					return jsonObject.get("prizes").toString();
+					JSONArray jsonPrizes = (JSONArray) jsonObject.get("prizes");
+					for (int j = 0; j < jsonPrizes.size(); j++) {
+						JSONObject jsonPrize = (JSONObject) jsonPrizes.get(j);
+						Prize prize = new Prize();
+						Object sum_condition = jsonPrize.get("sum_condition");
+						if (sum_condition==null) {
+							sum_condition="0";
+						}
+						prize.setSum_condition(Integer.valueOf(sum_condition.toString()));
+						prize.setAmount(Integer.valueOf(jsonPrize.get("amount").toString()));
+						prize.setName(jsonPrize.get("name")==null?"金币":jsonPrize.get("name").toString());
+						prize.setType(Integer.valueOf(jsonObject.get("type").toString()));
+						prizes.add(prize);
+					}
+					break;
 				}
 			}
 		}
-		return null;
+		return prizes;
 	}
 	
 	public boolean signShareWechat(Map<String, String> headerMap) {
@@ -2002,6 +2025,7 @@ public class ElemeService {
 		Cookie cookie=null;
 		Map<String, String> headerMap=new HashMap<>();
 		for (int i = 0; i < cookies.size(); i++) {
+			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e1) {
@@ -2011,30 +2035,41 @@ public class ElemeService {
 			headerMap.put("USERID", cookie.getUserId());
 			headerMap.put("cookie", cookie.getValue());
 		
+			SignInfo signInfo =null;
 			Sign sign =null;
-			List<SignPrize> prizes=new ArrayList<>();
+			List<Sign> signs=new ArrayList<>();
+			List<Prize> prizes=new ArrayList<>();
 			
 			getSignCaptcha(headerMap);
 			int signStatus = sign(headerMap);
 			if (signStatus==0) {
 				//签到成功，天数+1；等于7天签到完成
 				//查询是否有签到记录
-				List<Sign> signList = signDao.getAllSigning(creatorId,cookie.getId());
-				if (signList!=null && signList.size()>0) {
-					sign = signList.get(0);
-					int count = sign.getCount();
-					sign.setCount(++count);
+				List<SignInfo> signInfoList = signInfoDao.getAllSigning(creatorId,cookie.getId());
+				int size=signInfoList.size();
+				if (signInfoList!=null && size>0) {
+					signInfo = signInfoList.get(size-1);
+					int count = signInfo.getCount();
+					signInfo.setCount(++count);
 					if (count==7) {
-						sign.setFinish(true);
+						signInfo.setFinish(true);
 					}
 				}else {
-					sign=new Sign(cookie.getId(),creatorId);
+					//查询已有的签到记录，更新count
+					int signCount = getSignInfo(headerMap);
+					signInfo=new SignInfo(cookie.getId(),creatorId);
+					if (signCount!=0) {
+						signInfo.setCount(signCount+1);
+						for (int j = 0; j < signCount; j++) {
+							signs.add(new Sign(creatorId,signInfo,"已签到：不在本系统签到"));
+						}
+					}
 				}
+				//签到流水
+				sign=new Sign(creatorId, signInfo);
 				//翻牌
-				String signPrize1 = getSignPrize(headerMap);
-				if (signPrize1!=null) {
-					prizes.add(new SignPrize(creatorId, sign, signPrize1, signPrize1));
-				}
+				List<Prize> prize1 = getSignPrize(headerMap);
+				prizes.addAll(prize1);
 				//分享
 				boolean isShare = signShareWechat(headerMap);
 				if (isShare) {
@@ -2044,41 +2079,47 @@ public class ElemeService {
 						e.printStackTrace();
 					}
 					//再翻牌
-					String signPrize2 = getSignPrize(headerMap);
-					if (signPrize2!=null) {
-						prizes.add(new SignPrize(creatorId, sign, signPrize2, signPrize2));
-					}
+					List<Prize> prize2 = getSignPrize(headerMap);
+					prizes.addAll(prize2);
 				}
 			}else if (signStatus==-1) {
-				//cookie 无效
-				continue;
+				//未登录 cookie 无效
+				signInfo=new SignInfo(cookie.getId(),creatorId);
+				signInfo.setAbort(true);
+				signInfo.setCount(0);
+				//签到流水
+				sign=new Sign(creatorId, signInfo,"签到失败，cookie无效：未登录");
 			}else if (signStatus==-2) {
 				//重复签到			
 			}else if (signStatus==-3) {
 				//没有连续签到
-				List<Sign> signList = signDao.getAllSigning(creatorId, cookie.getId());
 				//查询签到间隔一天以上，终止签到
-				for (int j = 0; j < signList.size(); j++) {
-					Sign abort= signList.get(j);
-					Calendar cal1 = Calendar.getInstance();
-					cal1.setTime(abort.getCreateDate());
-					Calendar cal2 = Calendar.getInstance();
-					int day1= cal1.get(Calendar.DAY_OF_YEAR);
-					int day2 = cal2.get(Calendar.DAY_OF_YEAR);
-					if (day2-day1>1) {
-						signAbort(headerMap);		
-						abort.setAbort(true);
-						signDao.save(abort);
+				List<SignInfo> signList = signInfoDao.getAllSigning(creatorId, cookie.getId());
+				if (signList.size()>0) {
+					for (int j = 0; j < signList.size(); j++) {
+						SignInfo abort= signList.get(j);
+						Calendar cal1 = Calendar.getInstance();
+						cal1.setTime(abort.getCreateDate());
+						Calendar cal2 = Calendar.getInstance();
+						int day1= cal1.get(Calendar.DAY_OF_YEAR);
+						int day2 = cal2.get(Calendar.DAY_OF_YEAR);
+						if (day2-day1>1) {
+							signAbort(headerMap);		
+							abort.setAbort(true);
+							signInfoDao.save(abort);
+						}
 					}
+				}else {
+					signAbort(headerMap);
 				}
 				//重新签到
 				sign(headerMap);
-				sign=new Sign(cookie.getId(),creatorId);
+				signInfo=new SignInfo(cookie.getId(),creatorId);
+				//签到流水
+				sign=new Sign(creatorId, signInfo);
 				//翻牌
-				String signPrize1 = getSignPrize(headerMap);
-				if (signPrize1!=null) {
-					prizes.add(new SignPrize(creatorId, sign, signPrize1, signPrize1));
-				}
+				List<Prize> prize1 = getSignPrize(headerMap);
+				prizes.addAll(prize1);
 				//分享
 				boolean isShare = signShareWechat(headerMap);
 				if (isShare) {
@@ -2088,22 +2129,29 @@ public class ElemeService {
 						e.printStackTrace();
 					}
 					//再翻牌
-					String signPrize2 = getSignPrize(headerMap);
-					if (signPrize2!=null) {
-						prizes.add(new SignPrize(creatorId, sign, signPrize2, signPrize2));
-					}
+					List<Prize> prize2 = getSignPrize(headerMap);
+					prizes.addAll(prize2);
 				}
 			}
 //			getSignInfo(headerMap);
 			
 			//保存数据
-			if (sign!=null) {
+			if (signInfo!=null) {
+				for (int j = 0; j < prizes.size(); j++) {
+					prizes.get(j).setCreatorId(creatorId);
+					prizes.get(j).setSign(sign);
+				}
 				sign.setPrizes(prizes);
-				signDao.save(sign);
+				signs.add(sign);
+				signInfo.setSigns(signs);
+				signInfoDao.save(signInfo);
 			}
 			
 			//测试一个，跳出循环
 			//break;
+			if (i>5) {
+				break;	
+			}
 		}
 		Result signs = getSignAll(request);
 		return signs;
@@ -2115,28 +2163,66 @@ public class ElemeService {
 			return new Result(-1,"登录失效，请重新登录");
 		}
 		Long creatorId = sessionUser.getId();
-		List<Sign> signList = signDao.getAllByCreatorIdOrderByIdDesc(creatorId);
-		request.setAttribute("signs", signList);
-		return new Result(signList);
+		List<SignInfo> signInfos = signInfoDao.getAllByCreatorIdOrderByIdDesc(creatorId);
+		request.setAttribute("signInfos", signInfos);
+		return new Result(signInfos);
+	}
+	
+	public Result getSignAdd(HttpServletRequest request) {
+		SignInfo signInfo=new SignInfo();
+		List<Sign> signs=new ArrayList<>();
+		List<Prize> prizes1=new ArrayList<>();
+		List<Prize> prizes2=new ArrayList<>();
+		
+		Sign sign1=new Sign();
+		sign1.setSignInfo(signInfo);
+		sign1.setText("p1");
+		Sign sign2=new Sign();
+		sign2.setSignInfo(signInfo);
+		sign2.setText("p2");
+		signs.add(sign1);
+		signs.add(sign2);
+		
+		Prize prize1=new Prize();
+		prize1.setName("pz1");
+		prize1.setSign(sign1);
+		Prize prize11=new Prize();
+		prize11.setName("pz11");
+		prize11.setSign(sign1);
+		prizes1.add(prize1);
+		prizes1.add(prize11);
+		
+		Prize prize2=new Prize();
+		prize2.setName("pz2");
+		prize2.setSign(sign2);
+		Prize prize22=new Prize();
+		prize22.setName("pz22");
+		prize22.setSign(sign2);
+		prizes2.add(prize2);
+		prizes2.add(prize22);
+		
+		sign1.setPrizes(prizes1);
+		sign2.setPrizes(prizes2);
+		
+		signInfo.setSigns(signs);
+		SignInfo save = signInfoDao.save(signInfo);
+		
+		return new Result(save);
 	}
 	
 	public static void main(String[] args) throws InterruptedException {
-		Map<String, String> map=new HashMap<>();
-		map.put("cookie", "account=14797710725;perf_ssid=gbdk460rnag8ftf7gc6s0s5wev3q1t1g_2018-10-14; ubt_ssid=m98o9wvfagvg4hh6wh0vuexiwb7hqucg_2018-10-14; _utrace=32652d7a6cadb55781f194ac322378ff_2018-10-14; snsInfo[101204453]=%7B%22city%22%3A%22%22%2C%22constellation%22%3A%22%22%2C%22eleme_key%22%3A%226d46c313ae2f5e98221042c632cbb92d%22%2C%22figureurl%22%3A%22http%3A%2F%2Fqzapp.qlogo.cn%2Fqzapp%2F101204453%2FEBEA98D5ACF8C4A3DBF4764AF1E5C993%2F30%22%2C%22figureurl_1%22%3A%22http%3A%2F%2Fqzapp.qlogo.cn%2Fqzapp%2F101204453%2FEBEA98D5ACF8C4A3DBF4764AF1E5C993%2F50%22%2C%22figureurl_2%22%3A%22http%3A%2F%2Fqzapp.qlogo.cn%2Fqzapp%2F101204453%2FEBEA98D5ACF8C4A3DBF4764AF1E5C993%2F100%22%2C%22figureurl_qq_1%22%3A%22http%3A%2F%2Fthirdqq.qlogo.cn%2Fqqapp%2F101204453%2FEBEA98D5ACF8C4A3DBF4764AF1E5C993%2F40%22%2C%22figureurl_qq_2%22%3A%22http%3A%2F%2Fthirdqq.qlogo.cn%2Fqqapp%2F101204453%2FEBEA98D5ACF8C4A3DBF4764AF1E5C993%2F100%22%2C%22gender%22%3A%22%E7%94%B7%22%2C%22is_lost%22%3A0%2C%22is_yellow_vip%22%3A%220%22%2C%22is_yellow_year_vip%22%3A%220%22%2C%22level%22%3A%220%22%2C%22msg%22%3A%22%22%2C%22nickname%22%3A%22%E5%91%86%E8%90%8C%E7%9C%BC%22%2C%22openid%22%3A%22EBEA98D5ACF8C4A3DBF4764AF1E5C993%22%2C%22province%22%3A%22%22%2C%22ret%22%3A0%2C%22vip%22%3A%220%22%2C%22year%22%3A%220%22%2C%22yellow_vip_level%22%3A%220%22%2C%22name%22%3A%22%E5%91%86%E8%90%8C%E7%9C%BC%22%2C%22avatar%22%3A%22http%3A%2F%2Fthirdqq.qlogo.cn%2Fqqapp%2F101204453%2FEBEA98D5ACF8C4A3DBF4764AF1E5C993%2F40%22%7D; track_id=1539527860|698a9d4ca351b21a7738a22e8f1b19900493f516d347010349|dfb7adf25767496c682969a16fc37581; USERID=2230012994; SID=9h9RlOsZzOLUSPn6NCP7OUcCvcpqVPm9ucuQ");
-		map.put("USERID", "2230012994");
-		ElemeService elemeService = new ElemeService();
-		System.out.println(elemeService.signAbort(map));
-		System.out.println(elemeService.sign(map));
-		System.out.println(elemeService.getSignPrize(map));
-		boolean isShare = elemeService.signShareWechat(map);
-		if (isShare) {
-			Thread.sleep(3000);
-			System.out.println(elemeService.getSignPrize(map));
+		List<Sign> list =new ArrayList<>();
+		Sign sign1=new Sign(null,null,"第一个");
+		Sign sign2=new Sign(null,null,"第一个");
+		list.add(sign1);
+		list.add(sign2);
+		for (int i = 0; i <list.size(); i++) {
+			System.out.println(list.get(i).getText());
 		}
-//		System.out.println(elemeService.getSignInfo(map));
-		System.out.println(elemeService.getSignInfo(map));
-		System.out.println(elemeService.getAllCoupons(map));
-		System.out.println(elemeService.getAllShare(map));
+		list.get(0).setText("修改第一个");
+		for (int i = 0; i <list.size(); i++) {
+			System.out.println(list.get(i).getText());
+		}
 	}
 
 }
