@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.catalina.connector.Request;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -112,6 +113,10 @@ public class ElemeService {
 	public static final String url_sign_prize_v2 ="https://h5.ele.me/restapi/member/v2/users/USERID/sign_in/daily/prize";
 	public static final String url_sign_wechar ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/wechat";
 	public static final String url_sign_abort ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/abort";
+	
+	//限量
+	public static final String url_limit_check ="https://h5.ele.me/restapi/member/v1/sign_in/limit/hongbao/info?channel=app";
+	public static final String url_limit_receive ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/limit/hongbao";
 	
 	private static String url = null;
 
@@ -2209,20 +2214,130 @@ public class ElemeService {
 		
 		return new Result(save);
 	}
+
+	public Long checkLimitHongbao() {
+		String resp = HttpUtil2.getRequest(url_limit_check,"utf-8");
+		String body = resp;
+		if (body.contains("current_at")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return Long.valueOf(jsonObject.get("current_at").toString());
+		}
+		return (long) 0;
+	}
 	
+	public Result getLimitHongbao(HttpServletRequest request,String ck) {
+//		HttpSession session = request.getSession();
+//		User sessionUser = (User) session.getAttribute("user");
+//		if (sessionUser == null) {
+//			return new Result(-1,"重新登录系统");
+//		}
+		Map<String, String> headerMap =new HashMap<>();
+		headerMap.put("cookie", ck);
+		Map<String, String> paramMap =new HashMap<>();
+		paramMap.put("channel", "app");
+		paramMap.put("userId", "145998491");
+		String resp = HttpUtil2.postRequest(url_limit_receive.replace("USERID", "145998491"), headerMap, paramMap);
+		String body = resp;
+		if (body.contains("message")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return new Result(-1,resp);
+		}
+		System.out.println("ok");
+		return new Result(0,resp);
+	}
+	/**
+	 * 本地整点时间比对他服务器的时间，在10s内，返回true
+	 * @param serverTime
+	 * @return
+	 */
+	public boolean checkTime(Long serverTime) {
+		int[] times= {10,14,17,20};
+		Calendar cal=null;
+		Long receiveTime=null;
+		for (int i = 0; i < times.length; i++) {
+			cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY,times[i]);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			receiveTime=cal.getTimeInMillis()/1000;
+			if (receiveTime-serverTime<=1 && receiveTime-serverTime>=0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isCheck=true;
+	public static boolean isBegin=false;
+	public static int sleep=1000;
 	public static void main(String[] args) throws InterruptedException {
-		List<Sign> list =new ArrayList<>();
-		Sign sign1=new Sign(null,null,"第一个");
-		Sign sign2=new Sign(null,null,"第一个");
-		list.add(sign1);
-		list.add(sign2);
-		for (int i = 0; i <list.size(); i++) {
-			System.out.println(list.get(i).getText());
-		}
-		list.get(0).setText("修改第一个");
-		for (int i = 0; i <list.size(); i++) {
-			System.out.println(list.get(i).getText());
-		}
+		
+		ElemeService elemeService = new ElemeService();
+	    // 继承Thread类实现多线程
+	    new Thread() {
+	        public void run() {
+	            while (true) {
+	            	this.setName("111----");
+	            	try {
+						Thread.sleep(sleep);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+	            	if (isCheck) {
+	            		isBegin = elemeService.checkTime(System.currentTimeMillis()/1000);
+		            	System.out.println(this.getName()+isBegin+":"+System.currentTimeMillis()/1000);
+					}
+	            	if (isBegin) {
+	            		isCheck=false;
+	            		sleep=300;
+	            		Result limitHongbao = elemeService.getLimitHongbao(null, "ubt_ssid=pqb61wu4u50njfzpdv7fcxv1m6pdvsfl_2018-12-10; perf_ssid=m4ippwe9yrch9qsqiv4mqlw1vr2iecoi_2018-12-10; cna=L8SLFMkxiVcCAXeDdOFZnUUh; _utrace=269784fac6bc0dc37083fd372b5202de_2018-12-10; track_id=1544420161|d4f6e86787eef20bb869770c1341c0ba9bfaf39ca966c23232|b88f5be905463fb2da9a52dd255b4c62; USERID=145998491; SID=IaAZNx5Juy0bVFhvuW8XQPkaSrzBZ61l9zZg; isg=BPPzpAqrq5fPs2fDbynh77hcgvfdKIcA_D3Sm6WQFJJJpBJGLfkVOSs1WtRKBN_i");
+						if (limitHongbao.getCode()!=-1) {
+							this.interrupt();
+							break;
+						}
+					}
+	            }
+	        }
+	    }.start();
+	 // 继承Thread类实现多线程
+	    new Thread() {
+	        public void run() {
+	        	this.setName("222----");
+	            while (true) {
+	            	try {
+						Thread.sleep(sleep+100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+	            	if (isCheck) {
+	            		isBegin = elemeService.checkTime(System.currentTimeMillis()/1000);
+		            	System.out.println(this.getName()+isBegin+":"+System.currentTimeMillis()/1000);
+					}
+	            	if (isBegin) {
+	            		isCheck=false;
+	            		sleep=300;
+	            		Result limitHongbao = elemeService.getLimitHongbao(null, "ubt_ssid=pqb61wu4u50njfzpdv7fcxv1m6pdvsfl_2018-12-10; perf_ssid=m4ippwe9yrch9qsqiv4mqlw1vr2iecoi_2018-12-10; cna=L8SLFMkxiVcCAXeDdOFZnUUh; _utrace=269784fac6bc0dc37083fd372b5202de_2018-12-10; track_id=1544420161|d4f6e86787eef20bb869770c1341c0ba9bfaf39ca966c23232|b88f5be905463fb2da9a52dd255b4c62; USERID=145998491; SID=IaAZNx5Juy0bVFhvuW8XQPkaSrzBZ61l9zZg; isg=BPPzpAqrq5fPs2fDbynh77hcgvfdKIcA_D3Sm6WQFJJJpBJGLfkVOSs1WtRKBN_i");
+						if (limitHongbao.getCode()!=-1) {
+							this.interrupt();
+							break;
+						}
+					}
+	            }
+	        }
+	    }.start();
 	}
 
 }
