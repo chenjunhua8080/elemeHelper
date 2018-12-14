@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <title>39-15</title>
 <script type="text/javascript">
-function logout(){
+function logoutClick(){
 	var userName=$('#userName').val();
 	$.ajax({
 		async:false,
@@ -14,97 +14,112 @@ function logout(){
 	});
 }
 var a=0;
-function bwmClick(){
+function getCodeClick(){
 	if(a%2==0){
-		bwmLogin();	
+		getCodeLogin();	
 	}else{
-		bwmChange();
+		getCodeChange();
 	}
 }
-function bwmChange(){
+function getCodeChange(){
+/*
 	$.ajax({
 		type:"post",
-		url:"/bwmLogout",
+		url:"/getCodeLogout",
 		success:function(result){
 			console.log(result);
 		}
 	});
-	var bwmUser=$('#bwmUser');
-	var bwmPass=$('#bwmPass');
-	var bwmLogin=$('#bwmLogin');
-	bwmUser.removeAttr("disabled");
-	bwmPass.removeAttr("disabled");
-	bwmUser.val("");
-	bwmPass.val("");
-	bwmLogin.text("登录");
-	$('#bwmMsg').text("");
+*/
+	var name=$('#name_getCode');
+	var pass=$('#pass_getCode');
+	var btn=$('#btn_getCode');
+	name.removeAttr("disabled");
+	pass.removeAttr("disabled");
+	name.val("");
+	pass.val("");
+	btn.text("绑定");
 	a++;
 }
-function bwmLogin(){
-	var bwmUser=$('#bwmUser');
-	var bwmPass=$('#bwmPass');
-	var bwmLogin=$('#bwmLogin');
+function getCodeLogin(){
+	var platform=$('#platform_getCode').val();
+	var name=$('#name_getCode');
+	var pass=$('#pass_getCode');
+	var btn=$('#btn_getCode');
+	var url=null;
+	if(platform==1){
+		url="/bwmLogin";
+	}else if(platform==2){
+		url="/mgyLogin";
+	}else if(platform==3){
+		url="/ymLogin";
+	}
+	
 	$.ajax({
 		type:"post",
-		url:"/ymLogin",
-		data:{name:bwmUser.val(),pass:bwmPass.val()},
+		url:url,
+		data:{'name':name.val(),'pass':pass.val()},
 		success:function(result){
 			var data=null;
 			var code=result.code;
 			if(code==0){
 				data=result.data;
-				bwmUser.attr("disabled","disabled");
-				bwmPass.attr("disabled","disabled");
-				bwmLogin.text("切换账号");
+				name.attr("disabled","disabled");
+				pass.attr("disabled","disabled");
+				btn.text("切换账号");
 				a++;
 			}else{
 				data=result.msg;
 			}
-			var bwmMsg=$('#bwmMsg').text(data);
+			$.toptip(data);
 		}
 	});
 }
 var b=0;
-function lzClick(){
+function distinguishClick(){
 	if(b%2==0){
-		lzLogin();	
+		distinguishLogin();	
 	}else{
-		lzChange();
+		distinguishClick();
 	}
 }
-function lzChange(){
-	var lzUser=$('#lzUser');
-	var lzPass=$('#lzPass');
-	var lzLogin=$('#lzLogin');
-	lzUser.removeAttr("disabled");
-	lzPass.removeAttr("disabled");
-	lzUser.val("");
-	lzPass.val("");
-	lzLogin.text("登录");
-	$('#lzMsg').text("");
+function distinguishChange(){
+	var name=$('#name_distinguish');
+	var pass=$('#pass_distinguish');
+	var btn=$('#btn_distinguish');
+	name.removeAttr("disabled");
+	pass.removeAttr("disabled");
+	name.val("");
+	pass.val("");
+	btn.text("绑定");
 	b++;
 }
-function lzLogin(){
-	var lzUser=$('#lzUser');
-	var lzPass=$('#lzPass');
-	var lzLogin=$('#lzLogin');
+function distinguishLogin(){
+	var platform=$('#platform_distinguish').val();
+	var name=$('#name_distinguish');
+	var pass=$('#pass_distinguish');
+	var btn=$('#btn_distinguish');
+	var url=null;
+	if(platform==1){
+		url='/lzLogin';
+	}
 	$.ajax({
 		type:"post",
-		url:"/lzLogin",
-		data:{name:lzUser.val(),pass:lzPass.val()},
+		url:url,
+		data:{'name':name.val(),'pass':pass.val()},
 		success:function(result){
 			var data=null;
 			var code=result.code;
 			if(code==0){
 				data=result.data;
-				lzUser.attr("disabled","disabled");
-				lzPass.attr("disabled","disabled");
-				lzLogin.text("切换账号");
+				name.attr("disabled","disabled");
+				pass.attr("disabled","disabled");
+				btn.text("切换账号");
 				b++;
 			}else{
 				data=result.msg;
 			}
-			var lzMsg=$('#lzMsg').text(data);
+			$.toptip(data);
 		}
 	});
 }
@@ -121,57 +136,90 @@ function init(obj,user,info,i){
 	}
 }
 </script>
-
-<style type="text/css">
-*{margin: 0;padding: 0;}
-ul,li{list-style: none;}
-table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
-.bwmMsg{width: 300px;text-align: center;}
-.bwmInput{width: 100px;}
-.bwmLogin{width: 100%;}
-.lzMsg{width: 300px;text-align: center;}
-.lzInput{width: 100px;}
-.lzLogin{width: 100%;}
-</style>
 </head>
 <body>
-	<p>hello!<span id="userName" th:text="${session.user?.name}">name</span></p>
-	<p>
-		<span><a href="../page/index">首页</a></span>
-		<span><a href="../page/luck">拼手气</a></span>
-		<span><a href="../page/items">项目列表</a></span>
-	</p>
-	<span id="msg" th:text="${error?.msg}">msg</span>
-	<ul>
-		<li>
-			<table border="1" class="bwmTable">
-				<caption>百万码</caption>
-				<tr>
-					<td>用户名：</td><td><input id="bwmUser" class="bwmInput" /></td><td colspan="2" rowspan="3" class="bwmMsg" id="bwmMsg">信息</td>
-				</tr>
-				<tr>
-					<td>密码：</td><td><input id="bwmPass" type="password" class="bwmInput"/></td>
-				</tr>
-				<tr>
-					<td colspan="2"><button id="bwmLogin" class="bwmLogin" onclick="bwmClick()">登录</button></td>
-				</tr>
-			</table>
-		</li>
-		<li>
-			<table border="1" class="lzTable">
-				<caption>联众</caption>
-				<tr>
-					<td>用户名：</td><td><input id="lzUser" class="lzInput" /></td><td colspan="2" rowspan="3" class="lzMsg" id="lzMsg">信息</td>
-				</tr>
-				<tr>
-					<td>密码：</td><td><input id="lzPass" type="password" class="lzInput"/></td>
-				</tr>
-				<tr>
-					<td colspan="2"><button id="lzLogin" class="lzLogin" onclick="lzClick()">登录</button></td>
-				</tr>
-			</table>
-		</li>
-	</ul>
+	<div class="weui-cells__title">
+		<span id="userName" th:text="${session.user?.name}">用户名</span>
+		<a id="btn_logout" href="/logout">退出</a>
+	</div>
+
+	<!-- 接码平台 -->
+	<div>
+		<div class="weui-cells__title">接码平台绑定</div>
+		<div class="weui_cells weui-cells_form">
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">平台</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" id="platform_getCode">
+						<option value="1">百万码</option>
+						<option value="2">芒果云</option>
+						<option value="3">易码</option>
+					</select>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">账号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="text" id="name_getCode" placeholder="平台账号/平台API账号" class="weui-input" />
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">密码</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="password" id="pass_getCode" placeholder="平台密码" class="weui-input" />
+				</div>
+			</div>
+			<div class="weui-btn-area">
+				<button id="btn_getCode" class="weui-btn weui-btn_primary" onclick="getCodeClick()">绑定</button>
+				<!-- <button type="reset" class="weui-btn weui-btn-primary">重置</button> -->
+			</div>
+		</div>	
+	</div>
+	<!-- 接码平台 end-->
+	<!-- 识别平台 -->
+	<div>
+		<div class="weui-cells__title">识码平台绑定</div>
+		<div class="weui_cells weui-cells_form">
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">平台</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" id="platform_distinguish">
+						<option value="1">联众</option>
+					</select>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">账号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="text" id="name_distinguish" placeholder="平台账号/平台API账号" class="weui-input" />
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">密码</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input type="password" id="pass_distinguish" placeholder="平台密码" class="weui-input" />
+				</div>
+			</div>
+			<div class="weui-btn-area">
+				<button id="btn_distinguish" class="weui-btn weui-btn_primary" onclick="distinguishClick()">提交</button>
+				<!-- <button type="reset" class="weui-btn weui-btn-primary">重置</button> -->
+			</div>
+		</div>	
+	</div>
+	<!-- 识别平台 end -->
+	
 </body>
 </html>
 <script type="text/javascript" th:inline="javascript">
@@ -184,6 +232,6 @@ table{box-shadow:#ccc 5px 5px 5px;margin: 10px 0;}
    	var user=/*[[${session.lz?.name}]]*/;
    	var info=/*[[${session.lzMsg}]]*/;
     if(user!=null)
-    init('lz',user,info,'b');
+   // init('lz',user,info,'b');
     /*]]>*/
 </script>

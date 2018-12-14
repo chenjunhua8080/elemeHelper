@@ -5,10 +5,12 @@
 <title>index</title>
 <script type="text/javascript">
 	function run() {
+		var platform=$('#platform_getCode').val();
 		$.showLoading();
 		$.ajax({
 			type : "get",
 			url : "/run",
+			data:{'type':platform},
 			success : function(result) {
 				$.hideLoading();
 				$.alert(result.msg || (result.data.phone+'----'+result.data.msg));
@@ -32,7 +34,7 @@
 	                    <div class="weui-btn-area">
 							<input type="button" value="跑号" class="weui-btn weui-btn_primary" onclick="run()"/>
 						</div>
-						<div id="three">111</div>
+						<div id="three" class="">第三方账号</div>
                     </div>
                 </div>
 				<div class="weui-tabbar">

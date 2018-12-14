@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.elemeHelper.entity.User;
 import com.elemeHelper.result.PageResult;
 import com.elemeHelper.service.BwmService;
 import com.elemeHelper.service.ElemeService;
@@ -50,10 +51,14 @@ public class PageController {
 	
 	@GetMapping("/page/activity")
 	public String activity(HttpServletRequest request) {
-		ymService.autoLogin(request);
+//		ymService.autoLogin(request);
 //		mgyService.autoLogin(request);
 //		bwmService.autoLogin(request);
-		lzService.autoLogin(request);
+//		lzService.autoLogin(request);
+		User sessionUser = (User) request.getSession().getAttribute("user");
+		if (sessionUser == null) {
+			return PageUtil.redirect_login2;
+		}
 		return PageUtil.eleme_activity;
 	}
 	

@@ -39,8 +39,15 @@ public class ElemeController {
 	}
 	
 	@GetMapping("/run")
-	public Result run(HttpServletRequest request) {
-		Result result = elemeService.run3(request);
+	public Result run(HttpServletRequest request,int type) {
+		Result result=null;
+		if (type==1) {
+			result = elemeService.run(request);
+		}else if (type==2) {
+			result = elemeService.run2(request);
+		}else if (type==3) {
+			result = elemeService.run3(request);
+		}
 		return result;
 	}
 	
