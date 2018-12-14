@@ -44,6 +44,14 @@ public class Sign {
 		this.datalevel = 0;
 		this.text = text;
 	}
+	public Sign( Long creatorId, SignInfo signInfo,String text,String value) {
+		this.creatorId = creatorId;
+		this.signInfo = signInfo;
+		this.createDate = new Date();
+		this.datalevel = 0;
+		this.text = text;
+		this.value = value;
+	}
 	public Sign( Long creatorId, SignInfo signInfo) {
 		this.creatorId = creatorId;
 		this.signInfo = signInfo;

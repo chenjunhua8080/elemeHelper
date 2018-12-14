@@ -26,6 +26,8 @@ public class SignInfo {
 	private int count;
 	private boolean isAbort;
 	private boolean isFinish;
+	private Date beginDate;
+	private Date endDate;
 	
 	
 	@OneToMany(cascade=CascadeType.ALL,mappedBy="signInfo",fetch=FetchType.LAZY)
@@ -42,6 +44,17 @@ public class SignInfo {
 		this.count = 1;
 		this.isAbort = false;
 		this.isFinish = false;
+	}
+	public SignInfo(Long cookieId,Long creatorId,Date beginDate,Date endDate) {
+		this.cookieId=cookieId;
+		this.creatorId = creatorId;
+		this.createDate = new Date();
+		this.datalevel = 0;
+		this.count = 1;
+		this.isAbort = false;
+		this.isFinish = false;
+		this.beginDate = beginDate;
+		this.endDate = endDate;
 	}
 
 
@@ -105,6 +118,22 @@ public class SignInfo {
 
 	public void setFinish(boolean isFinish) {
 		this.isFinish = isFinish;
+	}
+
+	public Date getBeginDate() {
+		return beginDate;
+	}
+
+	public void setBeginDate(Date beginDate) {
+		this.beginDate = beginDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 	

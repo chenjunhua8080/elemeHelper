@@ -18,5 +18,5 @@ public interface SignInfoDao extends JpaRepository<SignInfo, Long>{
 			+ "order by id desc",nativeQuery=true)
 	List<SignInfo> getAllSigning(Long creatorId,Long cookieId);
 
-	List<SignInfo> getAllByCreatorIdOrderByIdDesc(Long creatorId);
+	List<SignInfo> getAllByCreatorIdOrderByCookieIdDesc(Long creatorId);
 }

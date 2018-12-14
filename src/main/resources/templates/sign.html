@@ -50,11 +50,25 @@
 		</div>
 		<!-- 有数据时显示 -->
 		<div class="weui-panel" th:each = "signInfo,signInfoStatus:${signInfos}">
-			<strong class="weui-panel__hd" th:text="${signInfo.cookieId}">cookieId</strong>
+			<strong class="weui-panel__hd">
+				<span th:text="${'cookieId : '+signInfo.cookieId}">cookieId</span>
+				<span 
+					th:if="${signInfo.beginDate!=null and signInfo.endDate!=null}"
+					th:text="${'('+#dates.format(signInfo.beginDate,'yyyy-MM-dd')+' ~ '+#dates.format(signInfo.endDate,'yyyy-MM-dd')+')'}"
+				>日期区间</span>
+			</strong>
 			<div class="weui-panel__bd">
 				<div class="weui-media-box weui-media-box_text"
 				th:each="sign,signStatus:${signInfo.signs}">
-					<h4 class="weui-media-box__title" th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}">日期</h4>
+					<h4 class="weui-media-box__title" 
+						th:if="${sign.text==null}"
+						th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}"
+					>日期</h4>
+					<!-- 特殊处理已签到的日期 -->
+					<h4 class="weui-media-box__title" 
+						th:if="${sign.text!=null and sign.value!=null}" 
+						th:text = "${sign.value}"
+					>日期</h4>
 					<p class="weui-media-box__desc" 
 						th:text = "${sign.text}" 
 						th:if="${sign.text!=null}">签到错误</p>

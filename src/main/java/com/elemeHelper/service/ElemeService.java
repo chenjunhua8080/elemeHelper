@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.connector.Request;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -2053,20 +2052,53 @@ public class ElemeService {
 				List<SignInfo> signInfoList = signInfoDao.getAllSigning(creatorId,cookie.getId());
 				int size=signInfoList.size();
 				if (signInfoList!=null && size>0) {
-					signInfo = signInfoList.get(size-1);
-					int count = signInfo.getCount();
-					signInfo.setCount(++count);
-					if (count==7) {
-						signInfo.setFinish(true);
+					boolean needNewSign=false;
+					//处理超过7天签到同一轮次的
+					for (int j = 0; j < signInfoList.size(); j++) {
+						SignInfo abort = signInfoList.get(j);
+						Calendar cal1 = Calendar.getInstance();
+						cal1.setTime(signInfoList.get(j).getEndDate());
+						Calendar cal2 = Calendar.getInstance();
+						int day1= cal1.get(Calendar.DAY_OF_YEAR);
+						int day2 = cal2.get(Calendar.DAY_OF_YEAR);
+						if (day2>day1) {
+							needNewSign=true;
+							abort.setAbort(true);
+							signInfoDao.save(abort);
+						}
+					}
+					if (needNewSign) {
+						//开始一轮新的签到
+						Calendar calendar = Calendar.getInstance();
+						calendar.add(Calendar.DAY_OF_YEAR, +6);
+						signInfo=new SignInfo(cookie.getId(), creatorId, new Date(), calendar.getTime());
+					}else {
+						//已有的签到记录，更新count
+						signInfo = signInfoList.get(size-1);
+						int count = signInfo.getCount();
+						signInfo.setCount(++count);
+						if (count==7) {
+							signInfo.setFinish(true);
+						}
 					}
 				}else {
-					//查询已有的签到记录，更新count
+					//查询服务的已有的签到记录，更新count,补流水
 					int signCount = getSignInfo(headerMap);
-					signInfo=new SignInfo(cookie.getId(),creatorId);
+					Calendar calendar1 = Calendar.getInstance();
+					calendar1.add(Calendar.DAY_OF_YEAR, -signCount);
+					Calendar calendar2 = Calendar.getInstance();
+					calendar2.add(Calendar.DAY_OF_YEAR, +6-signCount);
+					signInfo=new SignInfo(cookie.getId(),creatorId,calendar1.getTime(),calendar2.getTime());
 					if (signCount!=0) {
+						//加1？是包括今天？
 						signInfo.setCount(signCount+1);
+						Calendar calendar = Calendar.getInstance();
 						for (int j = 0; j < signCount; j++) {
-							signs.add(new Sign(creatorId,signInfo,"已签到：不在本系统签到"));
+							calendar.setTime(new Date());
+							calendar.add(Calendar.DAY_OF_YEAR, j+1);
+							SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+							String signDate = df.format(calendar.getTime());
+							signs.add(new Sign(creatorId,signInfo,"已签到：不在本系统签到",signDate));
 						}
 					}
 				}
@@ -2092,8 +2124,10 @@ public class ElemeService {
 				signInfo=new SignInfo(cookie.getId(),creatorId);
 				signInfo.setAbort(true);
 				signInfo.setCount(0);
-				//签到流水
-				sign=new Sign(creatorId, signInfo,"签到失败，cookie无效：未登录");
+				//设置签到流水
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				String signDate = df.format(new Date());
+				sign=new Sign(creatorId, signInfo,"签到失败，cookie无效：未登录",signDate);
 			}else if (signStatus==-2) {
 				//重复签到			
 			}else if (signStatus==-3) {
@@ -2154,7 +2188,7 @@ public class ElemeService {
 			
 			//测试一个，跳出循环
 			//break;
-			if (i>5) {
+			if (i>7) {
 				break;	
 			}
 		}
@@ -2168,7 +2202,7 @@ public class ElemeService {
 			return new Result(-1,"登录失效，请重新登录");
 		}
 		Long creatorId = sessionUser.getId();
-		List<SignInfo> signInfos = signInfoDao.getAllByCreatorIdOrderByIdDesc(creatorId);
+		List<SignInfo> signInfos = signInfoDao.getAllByCreatorIdOrderByCookieIdDesc(creatorId);
 		request.setAttribute("signInfos", signInfos);
 		return new Result(signInfos);
 	}
@@ -2293,32 +2327,6 @@ public class ElemeService {
 	            	this.setName("111----");
 	            	try {
 						Thread.sleep(sleep);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-	            	if (isCheck) {
-	            		isBegin = elemeService.checkTime(System.currentTimeMillis()/1000);
-		            	System.out.println(this.getName()+isBegin+":"+System.currentTimeMillis()/1000);
-					}
-	            	if (isBegin) {
-	            		isCheck=false;
-	            		sleep=300;
-	            		Result limitHongbao = elemeService.getLimitHongbao(null, "ubt_ssid=pqb61wu4u50njfzpdv7fcxv1m6pdvsfl_2018-12-10; perf_ssid=m4ippwe9yrch9qsqiv4mqlw1vr2iecoi_2018-12-10; cna=L8SLFMkxiVcCAXeDdOFZnUUh; _utrace=269784fac6bc0dc37083fd372b5202de_2018-12-10; track_id=1544420161|d4f6e86787eef20bb869770c1341c0ba9bfaf39ca966c23232|b88f5be905463fb2da9a52dd255b4c62; USERID=145998491; SID=IaAZNx5Juy0bVFhvuW8XQPkaSrzBZ61l9zZg; isg=BPPzpAqrq5fPs2fDbynh77hcgvfdKIcA_D3Sm6WQFJJJpBJGLfkVOSs1WtRKBN_i");
-						if (limitHongbao.getCode()!=-1) {
-							this.interrupt();
-							break;
-						}
-					}
-	            }
-	        }
-	    }.start();
-	 // 继承Thread类实现多线程
-	    new Thread() {
-	        public void run() {
-	        	this.setName("222----");
-	            while (true) {
-	            	try {
-						Thread.sleep(sleep+100);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
