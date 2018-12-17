@@ -2153,7 +2153,11 @@ public class ElemeService {
 				}
 				//重新签到
 				sign(headerMap);
-				signInfo=new SignInfo(cookie.getId(),creatorId);
+				
+				//记录一轮新的签到
+				Calendar calendar = Calendar.getInstance();
+				calendar.add(Calendar.DAY_OF_YEAR, +6);
+				signInfo=new SignInfo(cookie.getId(), creatorId, new Date(), calendar.getTime());
 				//签到流水
 				sign=new Sign(creatorId, signInfo);
 				//翻牌
