@@ -2057,7 +2057,7 @@ public class ElemeService {
 					for (int j = 0; j < signInfoList.size(); j++) {
 						SignInfo abort = signInfoList.get(j);
 						Calendar cal1 = Calendar.getInstance();
-						cal1.setTime(signInfoList.get(j).getEndDate());
+						cal1.setTime(signInfoList.get(j).getEndDate()==null?new Date():signInfoList.get(j).getEndDate());
 						Calendar cal2 = Calendar.getInstance();
 						int day1= cal1.get(Calendar.DAY_OF_YEAR);
 						int day2 = cal2.get(Calendar.DAY_OF_YEAR);
