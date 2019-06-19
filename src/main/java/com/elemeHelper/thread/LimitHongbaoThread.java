@@ -5,6 +5,8 @@ import com.elemeHelper.result.Result;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -45,7 +47,7 @@ public class LimitHongbaoThread extends Thread {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            Long currentAt = Long.valueOf(jsonObject.get("current_at").toString())*1000;
+            Long currentAt = Long.valueOf(jsonObject.get("current_at").toString()) * 1000;
             System.err.println("对方时间：" + currentAt);
             long delay = currentAt - startTime;
             System.err.println("延迟：" + delay);
@@ -60,8 +62,9 @@ public class LimitHongbaoThread extends Thread {
     public static boolean checkTime(Long delay) {
         int[] times = {10, 14, 18, 20};
         int minute = 0;
-        Calendar cal = null;
-        Long targetTime = null;
+        Calendar cal;
+        long targetTime;
+        long cha;
         for (int i = 0; i < times.length; i++) {
             cal = Calendar.getInstance();
             cal.set(Calendar.HOUR_OF_DAY, times[i]);
@@ -69,22 +72,23 @@ public class LimitHongbaoThread extends Thread {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             targetTime = cal.getTimeInMillis();
-            if (targetTime-System.currentTimeMillis()==delay) {
+            cha = targetTime - System.currentTimeMillis();
+            if (cha - delay < 700 && cha - delay > 0) {
                 return true;
             }
         }
         return false;
     }
 
-    public static Result getLimitHongbao(String ck) {
+    public static Result getLimitHongbao(String ck, String userId) {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("cookie", ck);
         headerMap.put("User-agent",
             "Mozilla/5.0 (Linux; Android 5.0; SM-N9100 Build/LRX21V) > AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 > Chrome/37.0.0.0 Mobile Safari/537.36 V1_AND_SQ_5.3.1_196_YYB_D > QQ/5.3.1.2335 NetType/WIFI");
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("channel", "app");
-        paramMap.put("userId", "145998491");
-        String resp = HttpUtil2.postRequest(url_limit_receive.replace("USERID", "4765838938"), headerMap, paramMap);
+        paramMap.put("userId", userId);
+        String resp = HttpUtil2.postRequest(url_limit_receive.replace("USERID", userId), headerMap, paramMap);
         String body = resp;
         if (body.contains("message")) {
             JSONParser parser = new JSONParser();
@@ -100,53 +104,36 @@ public class LimitHongbaoThread extends Thread {
         return new Result(0, resp);
     }
 
-    public static boolean isCheck = true;
-    public static boolean isBegin = false;
-    public static int sleep = 1000;
-
     @Override
     public void run() {
-        while (true) {
-            try {
-                Thread.sleep(sleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (isCheck) {
-                isBegin = checkTime(System.currentTimeMillis());
-                System.out.println(this.getName() + isBegin + ":" + System.currentTimeMillis());
-            }
-            if (isBegin) {
-                isCheck = false;
-                sleep = 600;
-                Result limitHongbao = getLimitHongbao(
-                    "SID=iIhNhN0A3Rh1qbtT6jHXtHCF7B2IQBIbH7Hw;USERID=4765838938;track_id=1543295210|e8a5f3b5ca53306fad9740177b3d99497afdc1ee3b746159c4|72f72fe14b683a44e3ef4d81776240b0;");
-                if (limitHongbao.getCode() != -1) {
-                    this.interrupt();
-                    break;
-                }
-            }
-        }
+        getLimitHongbao(
+            "ubt_ssid=2dc9h9cjnkcngj1aaekzeeol7pp9maau_2019-06-19; _utrace=e1f0c1c8a3571c3541890f9a6cd4f4c5_2019-06-19; perf_ssid=ue5yytkrqvena9mrto4rc5o2bnri4qk2_2019-06-19; cna=IP16EmZ0YmECAbcYjWohDOzd; _bl_uid=nbjtIx5m3245q3xRR2Ivz8v4RtmI; track_id=1560944326|5c9d17cde1f2ba8330b4f5436d4f3869ea2f5c6f9f8283db79|01566040367790e407a6f6920f53096e; USERID=145998491; UTUSER=145998491; SID=qFEQaJXHHAhtGg8zvdcnjS4zVscKuZgdBUYw; ZDS=1.0|1560944326|7rMwz66LJ4QpK77emRZHTLgX1Eofw0WK1ixcAGUiQfMmoO0cdXgyNmQ3gG0ZNMR+; tzyy=96f572671da1057585fe6e89c9e785d7; ut_ubt_ssid=pf0ppvdjsib3qf31b06lhq7r7y7r91h6_2019-06-19; isg=BPT0I614FS0VwoFhIBHTmz87xbLK3RmmFPLco45VJn8C-ZVDtt0dRnKre3GEGlAP",
+            "145998491");
     }
 
     public static void main(String[] args) {
         long sum = 0L;
         for (int i = 0; i < 10; i++) {
-            sum += Math.abs(checkLimitHongbao());
+            sum += checkLimitHongbao();
         }
         //10次请求，计算延时平均值
         long delay = sum / 10;
-        System.out.println("==========平均延迟："+delay+"============");
+        System.out.println("==========平均延迟：" + delay + "============");
 
-        while (!checkTime(delay)){
+        while (!checkTime(delay)) {
 
         }
-        System.out.println("开始。。。");
-        checkLimitHongbao();
-
-//        for (int i = 0; i < 1; i++) {
-//            new LimitHongbaoThread("T" + i + " : ").start();
-//        }
+        System.out.println("==================开始======================");
+        ExecutorService pool = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < 10; i++) {
+            pool.execute(() -> {
+                getLimitHongbao(
+                    "ubt_ssid=2dc9h9cjnkcngj1aaekzeeol7pp9maau_2019-06-19; _utrace=e1f0c1c8a3571c3541890f9a6cd4f4c5_2019-06-19; perf_ssid=ue5yytkrqvena9mrto4rc5o2bnri4qk2_2019-06-19; cna=IP16EmZ0YmECAbcYjWohDOzd; _bl_uid=nbjtIx5m3245q3xRR2Ivz8v4RtmI; track_id=1560944326|5c9d17cde1f2ba8330b4f5436d4f3869ea2f5c6f9f8283db79|01566040367790e407a6f6920f53096e; USERID=145998491; UTUSER=145998491; SID=qFEQaJXHHAhtGg8zvdcnjS4zVscKuZgdBUYw; ZDS=1.0|1560944326|7rMwz66LJ4QpK77emRZHTLgX1Eofw0WK1ixcAGUiQfMmoO0cdXgyNmQ3gG0ZNMR+; tzyy=96f572671da1057585fe6e89c9e785d7; ut_ubt_ssid=pf0ppvdjsib3qf31b06lhq7r7y7r91h6_2019-06-19; isg=BPT0I614FS0VwoFhIBHTmz87xbLK3RmmFPLco45VJn8C-ZVDtt0dRnKre3GEGlAP",
+                    "145998491");
+                checkLimitHongbao();
+            });
+        }
+        System.out.println("==================结束======================");
     }
 
 }
