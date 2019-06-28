@@ -20,7 +20,7 @@ public class YmService {
 //	private static final String url_ym_host = "http://www.mangopt.com:9000/doApi";
 	private static final String url_login = "http://api.fxhyd.cn/UserInterface.aspx?action=login&username=NAME&password=PASS";
 	private static final String url_get_info = "http://api.fxhyd.cn/UserInterface.aspx?action=getaccountinfo&token=TOKEN";
-	private static final String url_get_list_phone = "http://api.fxhyd.cn/UserInterface.aspx?action=getmobile&token=TOKEN&itemid=ITEMID";//&excludeno=170.171
+	private static final String url_get_list_phone = "http://api.fxhyd.cn/UserInterface.aspx?action=getmobile&token=TOKEN&itemid=ITEMID&excludeno=170.171.172.165.156";//&excludeno=170.171
 	private static final String url_get_that_phone = "http://api.fxhyd.cn/UserInterface.aspx?action=getmobile&token=TOKEN&itemid=ITEMID&mobile=PHONE";
 	private static final String url_message = "http://api.fxhyd.cn/UserInterface.aspx?action=getsms&token=TOKEN&itemid=ITEMID&mobile=PHONE&release=1";
 	private static final String url_release_phone = "http://api.fxhyd.cn/UserInterface.aspx?action=release&token=TOKEN&itemid=ITEMID&mobile=PHONE";

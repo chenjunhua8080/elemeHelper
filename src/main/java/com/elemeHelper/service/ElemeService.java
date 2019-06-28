@@ -58,52 +58,54 @@ public class ElemeService {
 	public static final String url_get_img_captchas = "https://h5.ele.me/restapi/eus/v3/captchas";
 	public static final String url_send_code = "https://h5.ele.me/restapi/eus/login/mobile_send_code";
 	public static final String url_login = "https://h5.ele.me/restapi/eus/login/login_by_mobile";
-	
+
 	// 检测
 	public static final String url_newuser = "http://ele.hongbao.show/webService/shopGatherController?m=elmNew";
 	public static final String url_newuser_prizecode ="http://ele.hongbao.show/webService/UserVisitController?m=getPrizeCode";
 	public static final String url_check_new_1104 ="http://stoneflying.cn/e/e.php?tel=PHONE";
 	public static final String url_check_new_1119 ="https://h5.ele.me/restapi/marketing/hongbao/h5/grab";
-	
+
 	// 拆包
 	public static final String url_get_redpacket = "https://h5.ele.me/restapi/traffic/redpacket/check";
 	public static final String url_open_redpacket = "https://h5.ele.me/restapi/traffic/redpacket/open";
-	
+
 	// 新客
 	public static final String url_new_platform = "https://h5.ele.me/restapi/marketing/promotion/refer/USERID";
 
 	// 抽会员
 	public static final String url_get_vip = "https://h5.ele.me/restapi/member/v1/users/USERID/supervip/growth/prize";
 	public static final String url_is_vip = "https://h5.ele.me/restapi/member/v1/users/USERID/supervip?latitude=23.09339&longitude=113.315966&source=3";
-	
+	public static final String url_can_open_vip = "https://h5.ele.me/restapi/member/v3/users/USERID/supervip/purchase";
+	public static final String url_get_open_vip_price = "https://h5.ele.me/restapi/member/v1/users/USERID/supervip/sale?latitude=31.22671614&longitude=121.47959025&channel=app&product_id=default";
+
 	//查询红包
 	public static final String url_get_share = "https://h5.ele.me/restapi/promotion/v3/users/USERID/hongbaos?offset=0&limit=20&cart_sub_channel=share";
 	public static final String url_get_coupons = "https://h5.ele.me/restapi/promotion/v1/users/USERID/coupons?cart_sub_channel=share";
-	
+
 	//29-13
 	public static final String url_check_29_13 = "https://newretail.ele.me/newretail/act/newguestwelfare?city_id=CITY&lat=LAT&lng=LNG&user_id=USERID";
 	public static final String url_get_29_13="https://newretail.ele.me/newretail/act/takewelfare?city_id=CITY&device_id=DEVICE&lat=LAT&lng=LNG&redbag_location=INDEX&user_id=USER";
-			
+
 	//1111
 	public static final String url_get_shoplist1="https://newretail.ele.me/newretail/main/shoplist?address=&cat_id=0&channel=fresh&device_id=DEVICE&fromalipay=0&pn=1&rn=20&rule_id=0&scene_id=0&scene_type=shop&type=1&user_type=newuser&lng=120.13185&lat=30.87806&city_id=CITY";
 	public static final String url_get_shoplist="https://newretail-huodong.ele.me/newretail/shuangshiyi/venue?address=&city_id=4&device_id=DEVICE&lat=LAT&lng=LNG&sub_id=&with_tb=0";
 	public static final String url_get_1111Au="https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=CITY&lat=LAT&lng=LNG&shop_id=SHOPID";
 	public static final String url_get_1111Au_sum="https://newretail-huodong.ele.me/newretail/shuangshiyi/giftcash?city_id=CITY&from=shop&lat=LAT&lng=LNG&shop_id=SHOPID";
-	
+
 	//收货地址
 	public static final String url_get_address = "https://h5.ele.me/restapi/member/v1/users/USERID/addresses";
-	
+
 	//订单
 	public static final String url_get_order = "https://h5.ele.me/restapi/bos/v2/users/USERID/orders?limit=20&offset=0";
-	
+
 	//统一图片资源
 	public static final String url_img_host ="https://fuss10.elemecdn.com/";
-	
+
 	//福袋
 	public static final String url_get_mission ="https://h5.ele.me/restapi/marketing/v1/users/USERID/new_user_mission/rewards?user_id=USERID&device_id=&latitude=LAT&longitude=LNG";
 	public static final String url_get_sudhana ="https://h5.ele.me/restapi/traffic/sudhana/send";
 	public static final String url_get_newusergift ="https:/h5.ele.me/marketing/v3/users/USERID/new_user_gifts?geohash=ws0e6ecy9uzx";
-	
+
 	//签到
 	public static final String url_sign_info ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/info";
 	public static final String url_sign ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in";
@@ -112,11 +114,11 @@ public class ElemeService {
 	public static final String url_sign_prize_v2 ="https://h5.ele.me/restapi/member/v2/users/USERID/sign_in/daily/prize";
 	public static final String url_sign_wechar ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/wechat";
 	public static final String url_sign_abort ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/abort";
-	
+
 	//限量
 	public static final String url_limit_check ="https://h5.ele.me/restapi/member/v1/sign_in/limit/hongbao/info?channel=app";
 	public static final String url_limit_receive ="https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/limit/hongbao";
-	
+
 	private static String url = null;
 
 	@Autowired
@@ -137,7 +139,7 @@ public class ElemeService {
 	private LzService lzService;
 	@Autowired
 	private TokenDao tokenDao;
-	
+
 	private String lng="113.327099";//经度
 	private String lat="23.102179";//纬度
 
@@ -363,7 +365,7 @@ public class ElemeService {
 		}
 		return null;
 	}
-	
+
 	public static String getValidata(String str) {
 		Pattern p = Pattern.compile("验证码是(\\d{6})");
 		Matcher m = p.matcher(str);
@@ -414,7 +416,7 @@ public class ElemeService {
 		}
 		return new Result("上传成功");
 	}
-	
+
 	public Result addCookie(Map<String, String> cookies,String phone, HttpServletRequest request) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		Cookie cookie=new Cookie();
@@ -455,7 +457,7 @@ public class ElemeService {
 		request.setAttribute("cookies", cookies);
 		return new PageResult(PageUtil.eleme_detail, null);
 	}
-	
+
 	public PageResult listCookie(HttpServletRequest request,int type) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser == null) {
@@ -478,6 +480,159 @@ public class ElemeService {
 		return new PageResult(PageUtil.eleme_luck, null);
 	}
 
+	public Result run33(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null) {
+			return new Result(-1,"重新登录系统");
+		}
+		User ymUser = (User) session.getAttribute("ym");
+		if (ymUser == null) {
+			return new Result(-1,"未登录易码");
+		}
+		User lz = (User) session.getAttribute("lz");
+		if (lz == null) {
+			return new Result(-1,"未登录联众");
+		}
+		Token token = tokenDao.getLastToken(6,ymUser.getId());
+
+		int count=0;
+//		String packetId="15432039863422899";
+		String packetId=null;
+		Map<String, String> result=new HashMap<>();
+		while (true) {
+			String phone ="";
+			boolean isNew=false;
+			while (true) {
+				try {
+					Thread.sleep(5000);
+					phone=ymService.getPhone(token.getToken());
+					if (phone==null) {
+						return new Result(-1,"获取号码失败");
+					}
+					List<Cookie> exist = cookieDao.getAllByDatalevelAndPhone(0, phone);
+					//数据库已有，但未拉黑
+					if (exist!=null&&exist.size()>0) {
+						continue;
+					}
+//					isNew=checkNew1119(phone);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+//				if (isNew||packetId!=null) {
+				if (!isNew) {
+					break;
+				}else {
+					System.out.println(phone+" : 已注册，拉黑号码");
+					ymService.blackPhone(token.getToken(),phone);
+				}
+			}
+			String validate_token = sendCode(phone);
+			if (validate_token==null) {
+				System.err.println("登录风险，需要识别验证码");
+				Map<String, String> captchas=null;
+				try {
+					captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
+				} catch (ParseException | IOException e) {
+					e.printStackTrace();
+				}
+				String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+				validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+				int a=0;
+				while (validate_token==null) {
+					try {
+						Thread.sleep(5000);
+						captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
+						captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+						validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+						if (validate_token!=null&&validate_token.contains("滑动")) {
+                            System.out.println("需要滑动验证拉黑~下一个");
+                            ymService.blackPhone(token.getToken(),phone);
+							continue;
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					a++;
+					if (a>2) {
+						break;
+					}
+				}
+				if (a>2) {
+					continue;
+				}
+			}
+			if (validate_token.contains("滑动")) {
+				System.out.println("需要滑动验证拉黑~下一个");
+                ymService.blackPhone(token.getToken(),phone);
+				continue;
+			}
+			String validate_code = null;
+
+			int b=0;
+			while (validate_code==null||!validate_code.contains("验证码")) {
+				try {
+					Thread.sleep(5000);
+					validate_code=ymService.getMessage(token.getToken(),phone);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				b++;
+				if (b>15) {
+					break;
+				}
+			}
+			if (b>15) {
+				continue;
+			}
+			validate_code = getValidata(validate_code);
+			Map<String, String> cookies = login(phone, validate_code, validate_token);
+			addCookie(cookies,phone,request);
+
+			if (packetId==null) {
+				packetId = getRedpacket(cookies);
+			}
+
+			String msg="";
+//			boolean isOpen = openRedpacket(cookies, packetId);
+//			if (isOpen) {
+//				count++;
+//			}
+//			msg+="帮拆:"+isOpen+";";
+//			boolean isNewPlatform = getNewPlatform(cookies, phone);
+//			msg+="新客:"+isNewPlatform+";";
+//
+//			getMission(cookies);
+//			getSudhana(cookies);
+//
+//			boolean getVip = getVip(cookies);
+//			msg+="抽会员:"+getVip+";";
+			boolean isVip = isVip(cookies);
+			msg+="是否会员:"+isVip+";";
+            String canOpenVip = canOpenVip(cookies);
+			msg+="能否开会员:"+canOpenVip+";";
+            int openVipPrice = getOpenVipPrice(cookies);
+			msg+="开会员:"+openVipPrice+"元;";
+			boolean get29_13 = get29_13(cookies, "1");
+			msg+="29-13:"+get29_13+";";
+			msg+="大额红包:";
+			List<String> shares = getShare(cookies);
+			for (int i = 0; i < shares.size(); i++) {
+				msg+=shares.get(i);
+			}
+			List<String> coupons = getCoupons(cookies);
+			for (int i = 0; i < coupons.size(); i++) {
+				msg+=coupons.get(i);
+			}
+			result.put("phone", phone);
+			result.put("msg", msg);
+			if (!canOpenVip.contains("安全")){
+			    break;
+            }
+		}
+		return new Result(result);
+	}
+
 	public Result run3(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -493,7 +648,7 @@ public class ElemeService {
 			return new Result(-1,"未登录联众");
 		}
 		Token token = tokenDao.getLastToken(6,ymUser.getId());
-		
+
 		int count=0;
 //		String packetId="15432039863422899";
 		String packetId=null;
@@ -562,7 +717,7 @@ public class ElemeService {
 				continue;
 			}
 			String validate_code = null;
-			
+
 			int b=0;
 			while (validate_code==null||!validate_code.contains("验证码")) {
 				try {
@@ -586,7 +741,7 @@ public class ElemeService {
 			if (packetId==null) {
 				packetId = getRedpacket(cookies);
 			}
-			
+
 			String msg="";
 			boolean isOpen = openRedpacket(cookies, packetId);
 			if (isOpen) {
@@ -595,10 +750,10 @@ public class ElemeService {
 			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
 			msg+="新客:"+isNewPlatform+";";
-			
+
 			getMission(cookies);
 			getSudhana(cookies);
-			
+
 			boolean getVip = getVip(cookies);
 			msg+="抽会员:"+getVip+";";
 			boolean isVip = isVip(cookies);
@@ -622,7 +777,7 @@ public class ElemeService {
 		}
 		return new Result(result);
 	}
-	
+
 	public Result run2(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -638,7 +793,7 @@ public class ElemeService {
 			return new Result(-1,"未登录联众");
 		}
 		Token token = tokenDao.getLastToken(5,mgyUser.getId());
-		
+
 		int count=0;
 //		String packetId="15432039863422899";
 		String packetId=null;
@@ -707,7 +862,7 @@ public class ElemeService {
 				continue;
 			}
 			String validate_code = null;
-			
+
 			int b=0;
 			while (validate_code==null||!validate_code.contains("验证码")) {
 				try {
@@ -731,7 +886,7 @@ public class ElemeService {
 			if (packetId==null) {
 				packetId = getRedpacket(cookies);
 			}
-			
+
 			String msg="";
 			boolean isOpen = openRedpacket(cookies, packetId);
 			if (isOpen) {
@@ -740,10 +895,10 @@ public class ElemeService {
 			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
 			msg+="新客:"+isNewPlatform+";";
-			
+
 			getMission(cookies);
 			getSudhana(cookies);
-			
+
 			boolean getVip = getVip(cookies);
 			msg+="抽会员:"+getVip+";";
 			boolean isVip = isVip(cookies);
@@ -767,7 +922,7 @@ public class ElemeService {
 		}
 		return new Result(result);
 	}
-	
+
 	public Result run(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -783,7 +938,7 @@ public class ElemeService {
 			return new Result(-1,"未登录联众");
 		}
 		Token token = tokenDao.getLastToken(1,bwmUser.getId());
-		
+
 		int count=0;
 		String packetId="15432828642028866";
 		Map<String, String> result=new HashMap<>();
@@ -851,7 +1006,7 @@ public class ElemeService {
 				}
 			}
 			String validate_code = bwmService.getMessage(phone, token.getToken());
-			
+
 			int b=0;
 			while (validate_code==null||!validate_code.contains("验证码")) {
 				try {
@@ -875,7 +1030,7 @@ public class ElemeService {
 			if (packetId==null) {
 				packetId = getRedpacket(cookies);
 			}
-			
+
 			String msg="";
 			boolean isOpen = openRedpacket(cookies, packetId);
 			if (isOpen) {
@@ -884,10 +1039,10 @@ public class ElemeService {
 			msg+="帮拆:"+isOpen+";";
 			boolean isNewPlatform = getNewPlatform(cookies, phone);
 			msg+="新客:"+isNewPlatform+";";
-			
+
 			getMission(cookies);
 			getSudhana(cookies);
-			
+
 			boolean getVip = getVip(cookies);
 			msg+="抽会员:"+getVip+";";
 			boolean isVip = isVip(cookies);
@@ -911,13 +1066,13 @@ public class ElemeService {
 		}
 		return new Result(result);
 	}
-	
-	
-	
+
+
+
 
 	/**
 	 * 通过领取红包返回，是否新用户
-	 * 
+	 *
 	 * @param param
 	 * @param cookie
 	 * @return
@@ -946,7 +1101,7 @@ public class ElemeService {
 
 	/**
 	 * 通过特殊接口，判断是否新用户
-	 * 
+	 *
 	 * @param phone
 	 * @return
 	 */
@@ -1042,7 +1197,7 @@ public class ElemeService {
 		result.put("captcha_base64", captcha_base64);
 		return result;
 	}
-	
+
 	public String sendCode(String phone,String captcha_hash,String captcha_value) {
 		Map<String, String> param = new HashMap<>();
 		param.put("mobile", phone);
@@ -1060,11 +1215,14 @@ public class ElemeService {
 			e.printStackTrace();
 		}
 		if (validate_token==null) {
+		    if (resp.contains("滑动")||resp.contains("冻结")){
+		        return "滑动";
+            }
 			return null;
 		}
 		return validate_token.toString();
 	}
-	
+
 	public String sendCode(String phone) {
 		Map<String, String> param = new HashMap<>();
 		param.put("mobile", phone);
@@ -1088,7 +1246,7 @@ public class ElemeService {
 		}
 		return validate_token;
 	}
-	
+
 	public Map<String, String> login(String phone,String validate_code,String validate_token) {
 		Map<String, String> cookies = new HashMap<>();
 //		cookies.put("perf_ssid", "ydy7x8ftlgz9le0fk6ifasbxaeyv7j69_2018-09-25");
@@ -1103,7 +1261,7 @@ public class ElemeService {
 		Map<String, String> resp = HttpUtil2.getCookieByPostRequest(url_login,cookies, param);
 		return resp;
 	}
-	
+
 	public String getRedpacket(Map<String, String> cookies) {
 		String packetId=null;
 		Map<String, String> param = new HashMap<>();
@@ -1132,7 +1290,7 @@ public class ElemeService {
 		}
 		return packetId;
 	}
-	
+
 	public boolean openRedpacket(Map<String, String> cookies,String packetId) {
 		Map<String, String> param = new HashMap<>();
 		param.put("user_id",cookies.get("USERID"));
@@ -1204,7 +1362,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public boolean getVip(Map<String, String> cookies) {
 		String userId=cookies.get("USERID");
 		String url=url_get_vip.replace("USERID", userId);
@@ -1230,7 +1388,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public List<String> getShare(Map<String, String> cookies) {
 		List<String> list=new ArrayList<>();
 		String userId=cookies.get("USERID");
@@ -1296,7 +1454,7 @@ public class ElemeService {
 		}
 		return jsonArray;
 	}
-	
+
 	public List<String> getCoupons(Map<String, String> cookies) {
 		List<String> list=new ArrayList<>();
 		String userId=cookies.get("USERID");
@@ -1330,7 +1488,63 @@ public class ElemeService {
 		}
 		return list;
 	}
-	
+
+	public String canOpenVip(Map<String, String> cookies) {
+		String userId=cookies.get("USERID");
+		String url=url_can_open_vip.replace("USERID", userId);
+        Map<String, String> data = new HashMap<>();
+        data.put("user_id", userId);
+        data.put("user_name", userId);
+        data.put("vip_type", "2");
+        data.put("pay_code", "ALI_PAY");
+        data.put("come_from", "5");
+        data.put("channel", "app");
+        data.put("rights_type", "2");
+        data.put("source", "1");
+        data.put("is_subscriber", "true");
+        data.put("isAliMiniApp", "false");
+        data.put("product_id", "default");
+        data.put("platform", "1");
+        data.put("bind_city_id", "4");
+        data.put("latitude", lat);
+        data.put("longitude", lng);
+        cookies.put("x-shard","loc=113.368438,22.980525");
+        cookies.put("Referer","https://h5.ele.me/supervip/");
+        cookies.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
+		String resp = HttpUtil2.postRequest(url, cookies,data);
+		String body=resp;
+		if (body.contains("message")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+                return jsonObject.get("message").toString();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return "OK";
+	}
+
+	public int getOpenVipPrice(Map<String, String> cookies) {
+		String userId=cookies.get("USERID");
+		String url=url_get_open_vip_price.replace("USERID", userId);
+		String resp = HttpUtil2.getRequest(url, cookies);
+		String body=resp;
+		if (body.contains("price")) {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = (JSONObject) parser.parse(body);
+				jsonObject = (JSONObject) jsonObject.get("product");
+				return Integer.parseInt(jsonObject.get("price").toString());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return 0;
+	}
+
 	public boolean isVip(Map<String, String> cookies) {
 		String userId=cookies.get("USERID");
 		String url=url_is_vip.replace("USERID", userId);
@@ -1351,7 +1565,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public boolean check29_13(Map<String, String> cookies) {
 		String userId=cookies.get("USERID");
 		String url=url_check_29_13
@@ -1389,7 +1603,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public boolean get29_13(Map<String, String> cookies,String index) {
 		boolean check29_13 = check29_13(cookies);
 		if (!check29_13) {
@@ -1424,7 +1638,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public List<String> getShoplist(Map<String, String> cookies) {
 		List<String> list=new ArrayList<>();
 		String url=url_get_shoplist
@@ -1459,7 +1673,7 @@ public class ElemeService {
 		}
 		return list;
 	}
-	
+
 	public boolean get1111AuCheck(Map<String, String> cookies) {
 		String url=url_get_1111Au_sum
 				.replace("CITY", "4")
@@ -1486,7 +1700,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public int get1111AuSum(Map<String, String> cookies) {
 		int sum=0;
 		String url=url_get_1111Au_sum
@@ -1510,7 +1724,7 @@ public class ElemeService {
 		}
 		return sum;
 	}
-	
+
 	public int get1111Au(Map<String, String> cookies,List<String> shops) {
 		int count = 0;
 		String url=url_get_1111Au
@@ -1542,7 +1756,7 @@ public class ElemeService {
 		}
 		return count;
 	}
-	
+
 	public Result get1111Au(Map<String, String> cookies) {
 		boolean get1111AuCheck = get1111AuCheck(cookies);
 		if (!get1111AuCheck) {
@@ -1561,13 +1775,13 @@ public class ElemeService {
 		}
 		return new Result(" 双十一金："+init +" 领取次数: "+count);
 	}
-	
+
 	public int get1111Au2(Map<String, String> cookies) {
 		List<String> shoplist = getShoplist(cookies);
 		get1111Au(cookies, shoplist);
 		return get1111AuSum(cookies);
 	}
-	
+
 	public Result get1111Au2ForDB(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -1592,7 +1806,7 @@ public class ElemeService {
 		}
 		return new Result(result);
 	}
-	
+
 	private Map<String, String> cookieStrToCookieMap(Cookie cookie) {
 		String str=cookie.getValue();
 		String[] split = str.split(";");
@@ -1603,7 +1817,7 @@ public class ElemeService {
 		}
 		return cookies;
 	}
-	
+
 	public Result getAddress(HttpServletRequest request,Long cookieId) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -1654,7 +1868,7 @@ public class ElemeService {
 		}
 		return new PageResult(PageUtil.eleme_address,null);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public PageResult getOrderToPage(HttpServletRequest request,Long cookieId) {
 		HttpSession session = request.getSession();
@@ -1698,7 +1912,7 @@ public class ElemeService {
 		}
 		return new PageResult(PageUtil.eleme_order,null);
 	}
-	
+
 	public PageResult getRedpackToPage(HttpServletRequest request,Long cookieId) {
 		HttpSession session = request.getSession();
 		User sessionUser = (User) session.getAttribute("user");
@@ -1725,7 +1939,7 @@ public class ElemeService {
 		}
 		return new PageResult(PageUtil.eleme_redpack,null);
 	}
-	
+
 	private String getImgUrl(String imgHash) {
 		String result="";
 		String a=imgHash.substring(0, 1);
@@ -1744,7 +1958,7 @@ public class ElemeService {
 		result=url_img_host+a+"/"+b+"/"+c+"."+d;
 		return result;
 	}
-	
+
 	public List<String> getMission(Map<String, String> headerMap) {
 		List<String> list=new ArrayList<>();
 		String userId=headerMap.get("USERID");
@@ -1786,7 +2000,7 @@ public class ElemeService {
 		}
 		return list;
 	}
-	
+
 	public boolean getSudhana(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
 		Map<String, String> data = new HashMap<>();
@@ -1822,7 +2036,7 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public int getSignInfo(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
 //		headerMap.put("Referer","https://h5.ele.me/utopia/?channel=alipay_eleshh");
@@ -1849,7 +2063,7 @@ public class ElemeService {
 		}
 		return 0;
 	}
-	
+
 	public PageResult toSignPage(HttpServletRequest request) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser == null) {
@@ -1938,7 +2152,7 @@ public class ElemeService {
 		}
 		return true;
 	}
-	
+
 	public String getSignCaptcha(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
 		String url=url_sign_captcha.replace("USERID", userId);
@@ -1956,7 +2170,7 @@ public class ElemeService {
 		}
 		return null;
 	}
-	
+
 	public List<Prize> getSignPrize(Map<String, String> headerMap) {
 		List<Prize> prizes=new ArrayList<>();
 		String userId=headerMap.get("USERID");
@@ -2001,7 +2215,7 @@ public class ElemeService {
 		}
 		return prizes;
 	}
-	
+
 	public boolean signShareWechat(Map<String, String> headerMap) {
 		String userId=headerMap.get("USERID");
 		Map<String, String> data = new HashMap<>();
@@ -2018,7 +2232,7 @@ public class ElemeService {
 		}
 		return true;
 	}
-	
+
 	public Result signAll(HttpServletRequest request) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser == null) {
@@ -2029,7 +2243,7 @@ public class ElemeService {
 		Cookie cookie=null;
 		Map<String, String> headerMap=new HashMap<>();
 		for (int i = 0; i < cookies.size(); i++) {
-			
+
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e1) {
@@ -2038,12 +2252,12 @@ public class ElemeService {
 			cookie= cookies.get(i);
 			headerMap.put("USERID", cookie.getUserId());
 			headerMap.put("cookie", cookie.getValue());
-		
+
 			SignInfo signInfo =null;
 			Sign sign =null;
 			List<Sign> signs=new ArrayList<>();
 			List<Prize> prizes=new ArrayList<>();
-			
+
 			getSignCaptcha(headerMap);
 			int signStatus = sign(headerMap);
 			if (signStatus==0) {
@@ -2129,7 +2343,7 @@ public class ElemeService {
 				String signDate = df.format(new Date());
 				sign=new Sign(creatorId, signInfo,"签到失败，cookie无效：未登录",signDate);
 			}else if (signStatus==-2) {
-				//重复签到			
+				//重复签到
 			}else if (signStatus==-3) {
 				//没有连续签到
 				//查询签到间隔一天以上，终止签到
@@ -2143,7 +2357,7 @@ public class ElemeService {
 						int day1= cal1.get(Calendar.DAY_OF_YEAR);
 						int day2 = cal2.get(Calendar.DAY_OF_YEAR);
 						if (day2-day1>1) {
-							signAbort(headerMap);		
+							signAbort(headerMap);
 							abort.setAbort(true);
 							signInfoDao.save(abort);
 						}
@@ -2153,7 +2367,7 @@ public class ElemeService {
 				}
 				//重新签到
 				sign(headerMap);
-				
+
 				//记录一轮新的签到
 				Calendar calendar = Calendar.getInstance();
 				calendar.add(Calendar.DAY_OF_YEAR, +6);
@@ -2177,7 +2391,7 @@ public class ElemeService {
 				}
 			}
 //			getSignInfo(headerMap);
-			
+
 			//保存数据
 			if (signInfo!=null) {
 				for (int j = 0; j < prizes.size(); j++) {
@@ -2189,17 +2403,17 @@ public class ElemeService {
 				signInfo.setSigns(signs);
 				signInfoDao.save(signInfo);
 			}
-			
+
 			//测试一个，跳出循环
 			//break;
 			if (i>7) {
-				break;	
+				break;
 			}
 		}
 		Result signs = getSignAll(request);
 		return signs;
 	}
-	
+
 	public Result getSignAll(HttpServletRequest request) {
 		User sessionUser = (User) request.getSession().getAttribute("user");
 		if (sessionUser == null) {
@@ -2210,13 +2424,13 @@ public class ElemeService {
 		request.setAttribute("signInfos", signInfos);
 		return new Result(signInfos);
 	}
-	
+
 	public Result getSignAdd(HttpServletRequest request) {
 		SignInfo signInfo=new SignInfo();
 		List<Sign> signs=new ArrayList<>();
 		List<Prize> prizes1=new ArrayList<>();
 		List<Prize> prizes2=new ArrayList<>();
-		
+
 		Sign sign1=new Sign();
 		sign1.setSignInfo(signInfo);
 		sign1.setText("p1");
@@ -2225,7 +2439,7 @@ public class ElemeService {
 		sign2.setText("p2");
 		signs.add(sign1);
 		signs.add(sign2);
-		
+
 		Prize prize1=new Prize();
 		prize1.setName("pz1");
 		prize1.setSign(sign1);
@@ -2234,7 +2448,7 @@ public class ElemeService {
 		prize11.setSign(sign1);
 		prizes1.add(prize1);
 		prizes1.add(prize11);
-		
+
 		Prize prize2=new Prize();
 		prize2.setName("pz2");
 		prize2.setSign(sign2);
@@ -2243,13 +2457,13 @@ public class ElemeService {
 		prize22.setSign(sign2);
 		prizes2.add(prize2);
 		prizes2.add(prize22);
-		
+
 		sign1.setPrizes(prizes1);
 		sign2.setPrizes(prizes2);
-		
+
 		signInfo.setSigns(signs);
 		SignInfo save = signInfoDao.save(signInfo);
-		
+
 		return new Result(save);
 	}
 
@@ -2268,7 +2482,7 @@ public class ElemeService {
 		}
 		return (long) 0;
 	}
-	
+
 	public Result getLimitHongbao(HttpServletRequest request,String ck) {
 //		HttpSession session = request.getSession();
 //		User sessionUser = (User) session.getAttribute("user");
@@ -2317,12 +2531,12 @@ public class ElemeService {
 		}
 		return false;
 	}
-	
+
 	public static boolean isCheck=true;
 	public static boolean isBegin=false;
 	public static int sleep=1000;
 	public static void main(String[] args) throws InterruptedException {
-		
+
 		ElemeService elemeService = new ElemeService();
 	    // 继承Thread类实现多线程
 	    new Thread() {

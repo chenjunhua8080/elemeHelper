@@ -73,7 +73,7 @@ public class LimitHongbaoThread extends Thread {
             cal.set(Calendar.MILLISECOND, 0);
             targetTime = cal.getTimeInMillis();
             cha = targetTime - System.currentTimeMillis();
-            if (cha - delay < 700 && cha - delay > 0) {
+            if (cha - delay < 300 && cha - delay > 0) {
                 return true;
             }
         }
@@ -125,11 +125,11 @@ public class LimitHongbaoThread extends Thread {
         }
         System.out.println("==================开始======================");
         ExecutorService pool = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             pool.execute(() -> {
                 getLimitHongbao(
-                    "ubt_ssid=2dc9h9cjnkcngj1aaekzeeol7pp9maau_2019-06-19; _utrace=e1f0c1c8a3571c3541890f9a6cd4f4c5_2019-06-19; perf_ssid=ue5yytkrqvena9mrto4rc5o2bnri4qk2_2019-06-19; cna=IP16EmZ0YmECAbcYjWohDOzd; _bl_uid=nbjtIx5m3245q3xRR2Ivz8v4RtmI; track_id=1560944326|5c9d17cde1f2ba8330b4f5436d4f3869ea2f5c6f9f8283db79|01566040367790e407a6f6920f53096e; USERID=145998491; UTUSER=145998491; SID=qFEQaJXHHAhtGg8zvdcnjS4zVscKuZgdBUYw; ZDS=1.0|1560944326|7rMwz66LJ4QpK77emRZHTLgX1Eofw0WK1ixcAGUiQfMmoO0cdXgyNmQ3gG0ZNMR+; tzyy=96f572671da1057585fe6e89c9e785d7; ut_ubt_ssid=pf0ppvdjsib3qf31b06lhq7r7y7r91h6_2019-06-19; isg=BPT0I614FS0VwoFhIBHTmz87xbLK3RmmFPLco45VJn8C-ZVDtt0dRnKre3GEGlAP",
-                    "145998491");
+                    "ubt_ssid=ed2toeyjnjwxz5s910zlpzs0ntzmpj7x_2019-06-20; perf_ssid=7m138ej9lbywz9c0rv7gp3o9awspqov4_2019-06-20; _bl_uid=1tjhbxg849n926jUbbgwrkR1qOze; cna=IPsMFRApvWoCAbcGOse9vc/i; _utrace=3cac16c330b3c0786b03fdf9f7199005_2019-06-20; track_id=1561010947|d6cfd1b7b6d3e66b457464942408a77a963d2150a14c732d54|6315b9a5c220b8aff54bb08813901361; USERID=5893951186; UTUSER=5893951186; SID=lSJf68EBhbVSIBS9M2KqRuazQ7qNJx3mQDIg; ZDS=1.0|1561010947|G6R+HOofw5vL3lBhDjl5K9RYCEQF2Z9q/II6Se6NmY/U7Eidl44tatK8W2hKDKzu; isg=BAkJYYugsLP0-ExHOazssEZQGDWj_vzm0LUXFKt-gfAv8i0E-6bHWb5jMBBhqpXA",
+                    "5893951186");
                 checkLimitHongbao();
             });
         }
