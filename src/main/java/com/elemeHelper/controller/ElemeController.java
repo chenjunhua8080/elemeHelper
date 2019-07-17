@@ -44,9 +44,9 @@ public class ElemeController {
 		if (type==1) {
 			result = elemeService.run(request);
 		}else if (type==2) {
-			result = elemeService.run2(request);
-		}else if (type==3) {
 			result = elemeService.run33(request);
+		}else if (type==3) {
+			result = elemeService.run3(request);
 		}
 		return result;
 	}

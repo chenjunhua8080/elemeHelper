@@ -486,15 +486,15 @@ public class ElemeService {
 		if (sessionUser == null) {
 			return new Result(-1,"重新登录系统");
 		}
-		User ymUser = (User) session.getAttribute("ym");
+		User ymUser = (User) session.getAttribute("mgy");
 		if (ymUser == null) {
-			return new Result(-1,"未登录易码");
+			return new Result(-1,"未登录接码");
 		}
 		User lz = (User) session.getAttribute("lz");
 		if (lz == null) {
 			return new Result(-1,"未登录联众");
 		}
-		Token token = tokenDao.getLastToken(6,ymUser.getId());
+		Token token = tokenDao.getLastToken(5,ymUser.getId());
 
 		int count=0;
 //		String packetId="15432039863422899";
@@ -506,7 +506,7 @@ public class ElemeService {
 			while (true) {
 				try {
 					Thread.sleep(5000);
-					phone=ymService.getPhone(token.getToken());
+					phone=mgyService.getPhone(token.getToken());
 					if (phone==null) {
 						return new Result(-1,"获取号码失败");
 					}
@@ -524,11 +524,19 @@ public class ElemeService {
 					break;
 				}else {
 					System.out.println(phone+" : 已注册，拉黑号码");
-					ymService.blackPhone(token.getToken(),phone);
+					mgyService.blackPhone(token.getToken(),phone);
 				}
 			}
 			String validate_token = sendCode(phone);
-			if (validate_token==null) {
+			if (validate_token.contains("滑动")) {
+				System.out.println("需要滑动验证拉黑~下一个");
+				mgyService.blackPhone(token.getToken(),phone);
+				continue;
+			}else if (validate_token.contains("冻结")) {
+				System.out.println("冻结拉黑~下一个");
+				mgyService.blackPhone(token.getToken(),phone);
+				continue;
+			}else if(validate_token.contains("图形验证码")) {
 				System.err.println("登录风险，需要识别验证码");
 				Map<String, String> captchas=null;
 				try {
@@ -547,7 +555,7 @@ public class ElemeService {
 						validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
 						if (validate_token!=null&&validate_token.contains("滑动")) {
                             System.out.println("需要滑动验证拉黑~下一个");
-                            ymService.blackPhone(token.getToken(),phone);
+							mgyService.blackPhone(token.getToken(),phone);
 							continue;
 						}
 					} catch (Exception e) {
@@ -561,10 +569,12 @@ public class ElemeService {
 				if (a>2) {
 					continue;
 				}
-			}
+			}else {
+			    continue;
+            }
 			if (validate_token.contains("滑动")) {
 				System.out.println("需要滑动验证拉黑~下一个");
-                ymService.blackPhone(token.getToken(),phone);
+				mgyService.blackPhone(token.getToken(),phone);
 				continue;
 			}
 			String validate_code = null;
@@ -573,7 +583,7 @@ public class ElemeService {
 			while (validate_code==null||!validate_code.contains("验证码")) {
 				try {
 					Thread.sleep(5000);
-					validate_code=ymService.getMessage(token.getToken(),phone);
+					validate_code=mgyService.getMessage(token.getToken(),phone);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -1240,6 +1250,12 @@ public class ElemeService {
 			if (resp.contains("滑动")) {
 				validate_token = "滑动";
 			}
+			if (resp.contains("冻结")) {
+				validate_token = "冻结";
+			}
+            if (resp.contains("图形验证码")) {
+                validate_token = "图形验证码";
+            }
 		} catch (ParseException e) {
 			System.err.println(jsonObj);
 			e.printStackTrace();

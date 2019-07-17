@@ -2,13 +2,17 @@ package com.elemeHelper.http;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Random;
+import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
@@ -28,15 +32,36 @@ import org.json.simple.JSONObject;
 
 public class HttpUtil {
 
-	public static void main(String[] args) {
-		Map<String, String> cookie = new HashMap<>();
-//		track_id=1541657649|b116b5dc68db9c5ede36495aa6e52163bca9c39ab86e08e530|53034cc45448b28a5dc8d0b472a32382;
-//		USERID=2029618961;
-//		SID=rffuFvQpJ6iZHHGgbVUjtIPjGpwFEpfLHQRA
-		cookie.put("track_id","1541657649|b116b5dc68db9c5ede36495aa6e52163bca9c39ab86e08e530|53034cc45448b28a5dc8d0b472a32382");
-		cookie.put("USERID", "2029618961");
-		cookie.put("SID", "rffuFvQpJ6iZHHGgbVUjtIPjGpwFEpfLHQRA");
-		setCookieByGetRequest("https://newretail-huodong.ele.me/newretail/shuangshiyi/signgiftcash?city_id=4&lat=113.321222&lng=23.021503&shop_id=2232965589", cookie);
+	public static void main(String[] args) throws Exception {
+		String[] names={"赵","钱","孙","李","周","吴","郑","王","冯","陈","褚","卫","蒋","沈","韩","杨","朱","秦","尤","许","何","吕","施","张","孔","曹","严","华","金","魏","陶","姜","戚"};
+		String name = names[(int) (Math.random() * names.length)]+"先生";
+		String phone ="1651000"+ (int) (Math.random() * 9999);
+		String text="越做越大!";
+		Map<String,String> map=new HashMap<>();
+		map.put("submitdata","1$"+name+"}2$2}3$1}4$"+phone+"}5$1}6$}7$3}8$}9$2}10$}11$3}12$}13$1}14$}15$2}16$}17$4}18$}19$3}20$}21$4}22$}23$2}24$}25$1|11|14|17}26$}27$2|4|5|9}28$}29$1}30$}31$3}32$暂无}33$}34$"+text);
+		String url="https://www.wjx.cn/joinnew/processjq.ashx?curid=42677459&starttime=2019%2F7%2F17%2015%3A47%3A14&source=directphone&submittype=1&ktimes=340&hlv=1&rn=3073433234.66648860&rname=%E5%B0%8F%E5%B9%B3%E5%A7%90%E5%A7%90&t=1563263429499&jqnonce=e657ee15-83d6-4e90-8ed2-1b520148e354&jqsign=d746dd04%2C92e7%2C5d81%2C9de3%2C0c431059d245";
+		String resp = postRequest(url, map);
+		System.err.println("*************"+resp);
+		assert resp != null;
+		if (resp.contains("JoinID")){
+			String id=resp.substring(resp.indexOf("&JoinID=")+"&JoinID=".length(),resp.indexOf("&jidx="));
+			url="https://www.wjx.cn/joinnew/userawardactivity.ashx?starttime=2019%2F7%2F16%2014%3A00%3A32&t=1563257013593&activity=42677459&joinactivity="+id+"&mob=1";
+			resp = postRequest(url, null);
+			System.err.println("*************"+resp);
+			if (resp.contains("_")){
+				Map<String,String> gift=new HashMap<>();
+				gift.put("184507","LED灯");
+				gift.put("184508","乐扣礼盒套装");
+				gift.put("184509","1元微信红包");
+				gift.put("184510","2元微信红包");
+				gift.put("184511","10元微信红包");
+				gift.put("184512","5元微信红包");
+				String giftId = resp.split("_")[0];
+				System.out.println("*************中奖啦--"+gift.get(giftId));
+				System.out.println("https://www.wjx.cn/mobile/getred.aspx?activity=42677459&joinactivity="+id+"&awardId="+giftId);
+			}
+		}
+
 	}
 
 	public static String getRequest(String url) {
@@ -107,7 +132,13 @@ public class HttpUtil {
 	public static String postRequest(String url,Map<String, String> param) {
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);
-		RequestConfig config = RequestConfig.custom().setConnectTimeout(5000).build();
+		HttpHost proxy = new HttpHost("47.107.94.125",22);
+		RequestConfig config = RequestConfig.custom()
+//			.setProxy(proxy)
+			.setConnectTimeout(10000)
+			.setSocketTimeout(10000)
+			.setConnectionRequestTimeout(3000)
+			.build();
 		post.setConfig(config);
 		post.setHeader("Accept", "text/plain;charset=utf-8");
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
@@ -121,7 +152,7 @@ public class HttpUtil {
 				paramList.add(paramItem);
 			}
 			try {
-				paramEntity=new UrlEncodedFormEntity(paramList);
+				paramEntity=new UrlEncodedFormEntity(paramList,"utf-8");
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
