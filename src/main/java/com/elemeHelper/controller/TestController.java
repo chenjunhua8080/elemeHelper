@@ -1,5 +1,6 @@
 package com.elemeHelper.controller;
 
+import com.elemeHelper.http.HttpUtil;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,11 @@ public class TestController {
         map.put("data",map2);
         return map;
 
+    }
+
+    @GetMapping("/getWXJ")
+    public String getWXJ() throws Exception {
+       return HttpUtil.wjx();
     }
 
 }
