@@ -21,7 +21,7 @@ public interface CookieDao extends JpaRepository<Cookie, Long>{
 	List<Cookie> getAllByDatalevelAndPhone(int datalevel,String phone);
 	
 	@Query(value="select t.* from cookie t "
-			+ "where t.creator_id=?1 "
+			+ "where t..creator_id=?1 "
 			+ "and t.type=?2 "
 			+ "and t.datalevel=0 "
 			+ "and t.user_id is not null "
@@ -31,11 +31,11 @@ public interface CookieDao extends JpaRepository<Cookie, Long>{
 	
 	@Transactional
 	@Modifying
-	@Query("update cookie c set c.datalevel=-1 where c.id=?1")
+	@Query("update Cookie c set c.datalevel=-1 where c.id=?1")
 	int del(Long id);
 	
 	@Transactional
 	@Modifying
-	@Query("update cookie c set c.count=c.count+1 where c.id=?1")
+	@Query("update Cookie c set c.account=c.count+1 where c.id=?1")
 	int use(Long id);
 }
