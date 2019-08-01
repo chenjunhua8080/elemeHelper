@@ -20,7 +20,7 @@ public class MgyService {
 //	private static final String url_mgy_host = "http://www.mangopt.com:9000/doApi";
 	private static final String url_login = "http://www.mangopt.com:9000/doApi/loginIn?name=NAME&password=PASS";
 	private static final String url_get_info = "http://www.mangopt.com:9000/doApi/getSummary?token=TOKEN";
-	private static final String url_get_list_phone = "http://www.mangopt.com:9000/doApi/getPhone?sid=ITEMID&token=TOKEN";
+	private static final String url_get_list_phone = "http://www.mangopt.com:9000/doApi/getPhone?sid=ITEMID&token=TOKEN&section=SECTION";
 	private static final String url_get_that_phone = "http://www.mangopt.com:9000/doApi/getPhone?sid=ITEMID&token=TOKEN&phone=PHONE";
 	private static final String url_release_phone = "http://www.mangopt.com:9000/doApi/cancelRecv?sid=ITEMID&phone=PHONE&token=TOKEN";
 	private static final String url_message = "http://www.mangopt.com:9000/doApi/getMessage?sid=ITEMID&phone=PHONE&token=TOKEN";
@@ -123,7 +123,8 @@ public class MgyService {
 	 * 一般调用参数：sid=项目id&token=登录时返回的令牌
 	 * 同时取两个以上的码，项目id之间用逗号(,)隔开，如sid=1000,1001。如果要获取指定号码，再在后面加一个phone=要指定获取的号码 
 	 * 返回值：1|手机号     
-	 * 当返回0|系统暂时没有可用号码，请过3秒再重新取号。 
+	 * SECTION --手机号段
+	 * 当返回0|系统暂时没有可用号码，请过3秒再重新取号。
 	 * 当返回0|余额不足，当前余额为0.00元。 存在余额不足的字眼，请停止软件运行。 
 	 * 当返回0|超出频率，请延时3秒再请求。 
 	 * 当返回0|请软件主动延时3秒再请求，对于没加任何延时的，平台监控到并发高的会封号处理。
@@ -131,7 +132,9 @@ public class MgyService {
 	 * @return
 	 */
 	public String getPhone(String token){
-		String url = url_get_list_phone.replace("ITEMID", itemId).replace("TOKEN", token);
+		String url = url_get_list_phone.replace("ITEMID", itemId)
+			.replace("TOKEN", token)
+			.replace("SECTION", "165");
 		String resp = HttpUtil2.getRequest(url,"utf-8");
 		if (resp!=null && resp.contains("1|")) {
 			return resp.substring(2, resp.length());
