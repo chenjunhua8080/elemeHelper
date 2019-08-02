@@ -779,7 +779,7 @@ public class ElemeService {
 			}
 			result.put("phone", phone);
 			result.put("msg", msg);
-			if (openVipPrice!=0){
+			if (openVipPrice<=6){
 				break;
 			}
 		}
