@@ -135,6 +135,7 @@ public class MgyService {
 		String url = url_get_list_phone.replace("ITEMID", itemId)
 			.replace("TOKEN", token)
 			.replace("SECTION", "165");
+//			.replace("section=SECTION", "");
 		String resp = HttpUtil2.getRequest(url,"utf-8");
 		if (resp!=null && resp.contains("1|")) {
 			return resp.substring(2, resp.length());

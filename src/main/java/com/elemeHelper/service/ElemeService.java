@@ -1,5 +1,6 @@
 package com.elemeHelper.service;
 
+import com.elemeHelper.http.HttpUtil;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -139,6 +140,8 @@ public class ElemeService {
 	private LzService lzService;
 	@Autowired
 	private TokenDao tokenDao;
+	@Autowired
+	private UserService userService;
 
 	private String lng="113.327099";//经度
 	private String lat="23.102179";//纬度
@@ -623,8 +626,6 @@ public class ElemeService {
 			msg+="能否开会员:"+canOpenVip+";";
             int openVipPrice = getOpenVipPrice(cookies);
 			msg+="开会员:"+openVipPrice+"元;";
-			boolean get29_13 = get29_13(cookies, "1");
-			msg+="29-13:"+get29_13+";";
 			msg+="大额红包:";
 			List<String> shares = getShare(cookies);
 			for (int i = 0; i < shares.size(); i++) {
@@ -636,9 +637,151 @@ public class ElemeService {
 			}
 			result.put("phone", phone);
 			result.put("msg", msg);
-			if (!canOpenVip.contains("安全")){
-			    break;
-            }
+			if (openVipPrice!=0){
+				break;
+			}
+		}
+		return new Result(result);
+	}
+
+	public Result runWX(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		User user=new User("123456aa","123456");
+		userService.login(user,request);
+		mgyService.autoLogin(request);
+		lzService.autoLogin(request);
+
+		User ymUser = (User) session.getAttribute("mgy");
+		if (ymUser == null) {
+			return new Result(-1,"未登录接码");
+		}
+		User lz = (User) session.getAttribute("lz");
+		if (lz == null) {
+			return new Result(-1,"未登录联众");
+		}
+		Token token = tokenDao.getLastToken(5,ymUser.getId());
+
+		Map<String, String> result=new HashMap<>();
+		while (true) {
+			String phone ="";
+			boolean isNew=false;
+			while (true) {
+				try {
+					Thread.sleep(5000);
+					phone=mgyService.getPhone(token.getToken());
+					if (phone==null) {
+						return new Result(-1,"获取号码失败");
+					}
+					List<Cookie> exist = cookieDao.getAllByDatalevelAndPhone(0, phone);
+					//数据库已有，但未拉黑
+					if (exist!=null&&exist.size()>0) {
+						continue;
+					}
+//					isNew=checkNew1119(phone);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+//				if (isNew||packetId!=null) {
+				if (!isNew) {
+					break;
+				}else {
+					System.out.println(phone+" : 已注册，拉黑号码");
+					mgyService.blackPhone(token.getToken(),phone);
+				}
+			}
+			String validate_token = sendCode(phone);
+			if (validate_token.contains("滑动")) {
+				System.out.println("需要滑动验证拉黑~下一个");
+				mgyService.blackPhone(token.getToken(),phone);
+				continue;
+			}else if (validate_token.contains("冻结")) {
+				System.out.println("冻结拉黑~下一个");
+				mgyService.blackPhone(token.getToken(),phone);
+				continue;
+			}else if(validate_token.contains("图形验证码")) {
+				System.err.println("登录风险，需要识别验证码");
+				Map<String, String> captchas=null;
+				try {
+					captchas = getCaptchas(phone, session.getServletContext().getRealPath(""));
+				} catch (ParseException | IOException e) {
+					e.printStackTrace();
+				}
+				String captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+				validate_token = sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+				int a=0;
+				while (validate_token==null) {
+					try {
+						Thread.sleep(5000);
+						captchas=getCaptchas(phone, session.getServletContext().getRealPath(""));
+						captcha_value = lzService.upload(captchas.get("captcha_base64"), request);
+						validate_token=sendCode(phone, captchas.get("captcha_hash"), captcha_value);
+						if (validate_token!=null&&validate_token.contains("滑动")) {
+							System.out.println("需要滑动验证拉黑~下一个");
+							mgyService.blackPhone(token.getToken(),phone);
+							continue;
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					a++;
+					if (a>2) {
+						break;
+					}
+				}
+				if (a>2) {
+					continue;
+				}
+			}else {
+				continue;
+			}
+			if (validate_token.contains("滑动")) {
+				System.out.println("需要滑动验证拉黑~下一个");
+				mgyService.blackPhone(token.getToken(),phone);
+				continue;
+			}
+			String validate_code = null;
+
+			int b=0;
+			while (validate_code==null||!validate_code.contains("验证码")) {
+				try {
+					Thread.sleep(5000);
+					validate_code=mgyService.getMessage(token.getToken(),phone);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				b++;
+				if (b>15) {
+					break;
+				}
+			}
+			if (b>15) {
+				continue;
+			}
+			validate_code = getValidata(validate_code);
+			Map<String, String> cookies = login(phone, validate_code, validate_token);
+			addCookie(cookies,phone,request);
+
+			String msg="";
+			boolean isVip = isVip(cookies);
+			msg+="是否会员:"+isVip+";\n";
+			String canOpenVip = canOpenVip(cookies);
+			msg+="能否开会员:"+canOpenVip+";\n";
+			int openVipPrice = getOpenVipPrice(cookies);
+			msg+="开会员:"+openVipPrice+"元;\n";
+			msg+="大额红包:\n";
+			List<String> shares = getShare(cookies);
+			for (int i = 0; i < shares.size(); i++) {
+				msg+=shares.get(i);
+			}
+			List<String> coupons = getCoupons(cookies);
+			for (int i = 0; i < coupons.size(); i++) {
+				msg+=coupons.get(i);
+			}
+			result.put("phone", phone);
+			result.put("msg", msg);
+			if (openVipPrice!=0){
+				break;
+			}
 		}
 		return new Result(result);
 	}
@@ -1213,7 +1356,9 @@ public class ElemeService {
 		param.put("mobile", phone);
 		param.put("captcha_hash", captcha_hash);
 		param.put("captcha_value", captcha_value);
-		String resp = HttpUtil2.postRequest(url_send_code, param);
+		param.put("scf", "ms");
+		//不用json会报已冻结--0801
+		String resp = HttpUtil.postJsonRequest(url_send_code, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObj = null;
 		Object validate_token=null;
@@ -1238,7 +1383,9 @@ public class ElemeService {
 		param.put("mobile", phone);
 		param.put("captcha_hash", "");
 		param.put("captcha_value", "");
-		String resp = HttpUtil2.postRequest(url_send_code, param);
+		param.put("scf", "ms");
+		//不用json会报已冻结--0801
+		String resp = HttpUtil.postJsonRequest(url_send_code, param);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObj = null;
 		String validate_token=null;
