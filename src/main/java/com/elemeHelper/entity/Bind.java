@@ -1,7 +1,6 @@
 package com.elemeHelper.entity;
 
 import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,64 +10,65 @@ import javax.persistence.Table;
 @Entity
 @Table
 public class Bind {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String account;
-	private int type;
-	private Date createDate;
-	private Long creatorId;
-	private int datalevel;
 
-	public Bind() {
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String account;
+    private int type;
+    private Date createDate;
+    private Long creatorId;
+    private int datalevel;
 
-	public Long getId() {
-		return id;
-	}
+    public Bind() {
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getAccount() {
-		return account;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setAccount(String account) {
-		this.account = account;
-	}
+    public String getAccount() {
+        return account;
+    }
 
-	public int getType() {
-		return type;
-	}
+    public void setAccount(String account) {
+        this.account = account;
+    }
 
-	public void setType(int type) {
-		this.type = type;
-	}
+    public int getType() {
+        return type;
+    }
 
-	public Date getCreateDate() {
-		return createDate;
-	}
+    public void setType(int type) {
+        this.type = type;
+    }
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
+    public Date getCreateDate() {
+        return createDate;
+    }
 
-	public Long getCreatorId() {
-		return creatorId;
-	}
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
 
-	public void setCreatorId(Long creatorId) {
-		this.creatorId = creatorId;
-	}
+    public Long getCreatorId() {
+        return creatorId;
+    }
 
-	public int getDatalevel() {
-		return datalevel;
-	}
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
 
-	public void setDatalevel(int datalevel) {
-		this.datalevel = datalevel;
-	}
+    public int getDatalevel() {
+        return datalevel;
+    }
+
+    public void setDatalevel(int datalevel) {
+        this.datalevel = datalevel;
+    }
 
 }

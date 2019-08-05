@@ -1,118 +1,119 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>cookie</title>
-<script type="text/javascript">
-	function del(id) {
-		$.ajax({
-			type : "post",
-			url : "/cookie/del",
-			data : {
-				cookieId : id
-			},
-			success : function(result) {
-				var data = null;
-				var code = result.code;
-				if (code == 0) {
-					data = result.data;
-					$('#cookie_' + id).toggle(500, function() {
-						$('#cookie_' + id).remove()
-					});
-				} else {
-					data = result.msg;
-					alert(data);
-				}
-			}
-		});
-	}
-	function popup(id){
-		//$('#popup_'+id).popup();
-	}
-</script>
+  <meta charset="UTF-8"/>
+  <title>cookie</title>
+  <script type="text/javascript">
+    function del(id) {
+      $.ajax({
+        type: "post",
+        url: "/cookie/del",
+        data: {
+          cookieId: id
+        },
+        success: function (result) {
+          var data = null;
+          var code = result.code;
+          if (code == 0) {
+            data = result.data;
+            $('#cookie_' + id).toggle(500, function () {
+              $('#cookie_' + id).remove()
+            });
+          } else {
+            data = result.msg;
+            alert(data);
+          }
+        }
+      });
+    }
+
+    function popup(id) {
+      //$('#popup_'+id).popup();
+    }
+  </script>
 </head>
 <body>
-	<!-- cookie列表 -->
-	<div>
-		<div class="weui-cells__title">我的cookie</div>
-		<div class="weui-cells">
-			<div class="weui-cell weui-cell_swiped open-popup" 
-				th:id="'cookie_'+${cookie.id}"
-				th:each="cookie,cookieStatus:${cookies}"
-				th:onclick="${'popup('+cookie.id+')'}" 
-				th:attr="data-target=${'#popup_'+cookie.id}">
-				<div class="weui-cell__bd">
-					<div class="weui-cell">
-						<div class="weui-cell__bd">
-							<p>
-								<span th:text="${cookieStatus.count+'、'}">序号</span>
-								<span th:text="${cookie.userId}">userid</span>
-							</p>
-							<!-- 
-							<p style="width: 300px;text-overflow: ellipsis;overflow:hidden;white-space:nowrap;"
-								th:text="${cookie.value}"
-								th:title="${cookie.value}">cookie</p>
-							 -->
-						</div>
-						<div class="weui-cell__ft">
-							<span  th:text="${'【'+#dates.format(cookie.createDate,'yyyy-MM-dd')+'】'}">上传时间</span>
-						</div>
-					</div>
-				</div>
-				<div class="weui-cell__ft">
-					<a class="weui-swiped-btn weui-swiped-btn_warn delete-swipeout"
-						href="javascript:"
-						th:onclick="'del('+${cookie.id}+')'">删除</a>
-				</div>
-				
-				<!-- cookie详情  -->
-				<div class="weui-popup__container"
-					th:id="'popup_'+${cookie.id}" >
-					<div class="weui-popup__overlay"></div>
-					<div class="weui-popup__modal">
-						<div>
-					    	<div class="weui-cells__title">cookie详情</div>
-							<div class="weui-cells">
-								<div class="weui-cell">
-									<div class="weui-cell__hd">饿了么ID：</div>
-								    <div class="weui-cell__bd">
-										<p th:text="${cookie.userId}">userid</p>
-									</div>
-								</div>
-								<div class="weui-cell">
-									<div class="weui-cell__hd">绑定手机：</div>
-									<div class="weui-cell__bd">
-										<p th:text="${cookie.phone}">手机号</p>
-									</div>
-								</div>
-								<div class="weui-cell">
-									<div class="weui-cell__hd">绑定qq/微信：</div>
-									<div class="weui-cell__bd">
-										<p th:text="${cookie.account}">qq/微信</p>
-									</div>
-								</div>
-								<div class="weui-cell">
-									<div class="weui-cell__hd">上传时间：</div>
-									<div class="weui-cell__bd">
-										<p th:text="${#dates.format(cookie.createDate,'yyyy-MM-dd')}">上传时间</p>
-									</div>
-								</div>
-								<div class="weui-cell">
-									<div class="weui-cell__bd">
-										<p>cookie：</p>
-										<p th:text="${cookie.value}">cookie</p>
-									</div>
-								</div>
-							</div>	
-						</div>
-					</div>
-				</div>
-				<!-- cookie详情 end -->
-			</div>
-		</div>
-	</div>
-	<!-- cookie列表 end -->
-	
-	<div th:replace="layuiInclud :: html"></div>
+<!-- cookie列表 -->
+<div>
+  <div class="weui-cells__title">我的cookie</div>
+  <div class="weui-cells">
+    <div class="weui-cell weui-cell_swiped open-popup"
+         th:attr="data-target=${'#popup_'+cookie.id}"
+         th:each="cookie,cookieStatus:${cookies}"
+         th:id="'cookie_'+${cookie.id}"
+         th:onclick="${'popup('+cookie.id+')'}">
+      <div class="weui-cell__bd">
+        <div class="weui-cell">
+          <div class="weui-cell__bd">
+            <p>
+              <span th:text="${cookieStatus.count+'、'}">序号</span>
+              <span th:text="${cookie.userId}">userid</span>
+            </p>
+            <!--
+            <p style="width: 300px;text-overflow: ellipsis;overflow:hidden;white-space:nowrap;"
+              th:text="${cookie.value}"
+              th:title="${cookie.value}">cookie</p>
+             -->
+          </div>
+          <div class="weui-cell__ft">
+            <span th:text="${'【'+#dates.format(cookie.createDate,'yyyy-MM-dd')+'】'}">上传时间</span>
+          </div>
+        </div>
+      </div>
+      <div class="weui-cell__ft">
+        <a class="weui-swiped-btn weui-swiped-btn_warn delete-swipeout"
+           href="javascript:"
+           th:onclick="'del('+${cookie.id}+')'">删除</a>
+      </div>
+
+      <!-- cookie详情  -->
+      <div class="weui-popup__container"
+           th:id="'popup_'+${cookie.id}">
+        <div class="weui-popup__overlay"></div>
+        <div class="weui-popup__modal">
+          <div>
+            <div class="weui-cells__title">cookie详情</div>
+            <div class="weui-cells">
+              <div class="weui-cell">
+                <div class="weui-cell__hd">饿了么ID：</div>
+                <div class="weui-cell__bd">
+                  <p th:text="${cookie.userId}">userid</p>
+                </div>
+              </div>
+              <div class="weui-cell">
+                <div class="weui-cell__hd">绑定手机：</div>
+                <div class="weui-cell__bd">
+                  <p th:text="${cookie.phone}">手机号</p>
+                </div>
+              </div>
+              <div class="weui-cell">
+                <div class="weui-cell__hd">绑定qq/微信：</div>
+                <div class="weui-cell__bd">
+                  <p th:text="${cookie.account}">qq/微信</p>
+                </div>
+              </div>
+              <div class="weui-cell">
+                <div class="weui-cell__hd">上传时间：</div>
+                <div class="weui-cell__bd">
+                  <p th:text="${#dates.format(cookie.createDate,'yyyy-MM-dd')}">上传时间</p>
+                </div>
+              </div>
+              <div class="weui-cell">
+                <div class="weui-cell__bd">
+                  <p>cookie：</p>
+                  <p th:text="${cookie.value}">cookie</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- cookie详情 end -->
+    </div>
+  </div>
+</div>
+<!-- cookie列表 end -->
+
+<div th:replace="layuiInclud :: html"></div>
 </body>
 </html>

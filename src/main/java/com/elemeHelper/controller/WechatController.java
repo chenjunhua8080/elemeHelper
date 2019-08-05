@@ -39,7 +39,7 @@ public class WechatController {
         }
         Token token = tokenDao.getLastToken(5, mgyUser.getId());
         String getPhone = mgyService.getPhone(token.getToken(), phone);
-        if (getPhone==null){
+        if (getPhone == null) {
             return "获取号码失败";
         }
         String code = null;
@@ -47,7 +47,7 @@ public class WechatController {
         while (code == null) {
             try {
                 Thread.sleep(5000);
-                System.out.println("第"+(b+1)+"次获取验证码");
+                System.out.println("第" + (b + 1) + "次获取验证码");
                 code = mgyService.getMessage(token.getToken(), phone);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -57,7 +57,7 @@ public class WechatController {
                 break;
             }
         }
-        if (code==null){
+        if (code == null) {
             return "获取验证码失败";
         }
         return code;

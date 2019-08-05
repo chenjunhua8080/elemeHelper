@@ -15,20 +15,20 @@ public class TestController {
     }
 
     @GetMapping("/getDate")
-    public Map<String,Object> getDate() {
-        Map<String,Object> map=new HashMap<>();
-        map.put("received",System.currentTimeMillis());
-        map.put("msg","成功");
-        Map<String,Object> map2=new HashMap<>();
-        map2.put("t",System.currentTimeMillis());
-        map.put("data",map2);
+    public Map<String, Object> getDate() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("received", System.currentTimeMillis());
+        map.put("msg", "成功");
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("t", System.currentTimeMillis());
+        map.put("data", map2);
         return map;
 
     }
 
     @GetMapping("/getWXJ")
     public String getWXJ() throws Exception {
-       return HttpUtil.wjx();
+        return HttpUtil.wjx();
     }
 
 }

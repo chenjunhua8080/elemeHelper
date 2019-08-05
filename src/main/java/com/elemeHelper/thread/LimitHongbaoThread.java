@@ -13,6 +13,11 @@ import org.json.simple.parser.ParseException;
 
 public class LimitHongbaoThread extends Thread {
 
+    //限量
+    public static final String url_limit_check = "https://h5.ele.me/restapi/member/v1/sign_in/limit/hongbao/info?channel=app";
+    public static final String url_limit_receive = "https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/limit/hongbao";
+    //苏宁校时
+    public static final String url_sn_check = "http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp";
     public LimitHongbaoThread() {
         // TODO Auto-generated constructor stub
     }
@@ -20,14 +25,6 @@ public class LimitHongbaoThread extends Thread {
     public LimitHongbaoThread(String name) {
         this.setName(name);
     }
-
-    //限量
-    public static final String url_limit_check = "https://h5.ele.me/restapi/member/v1/sign_in/limit/hongbao/info?channel=app";
-    public static final String url_limit_receive = "https://h5.ele.me/restapi/member/v1/users/USERID/sign_in/limit/hongbao";
-
-    //苏宁校时
-    public static final String url_sn_check = "http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp";
-
 
     public static Long checkLimitHongbao() {
         long startTime = System.currentTimeMillis();
@@ -104,13 +101,6 @@ public class LimitHongbaoThread extends Thread {
         return new Result(0, resp);
     }
 
-    @Override
-    public void run() {
-        getLimitHongbao(
-            "ubt_ssid=2dc9h9cjnkcngj1aaekzeeol7pp9maau_2019-06-19; _utrace=e1f0c1c8a3571c3541890f9a6cd4f4c5_2019-06-19; perf_ssid=ue5yytkrqvena9mrto4rc5o2bnri4qk2_2019-06-19; cna=IP16EmZ0YmECAbcYjWohDOzd; _bl_uid=nbjtIx5m3245q3xRR2Ivz8v4RtmI; track_id=1560944326|5c9d17cde1f2ba8330b4f5436d4f3869ea2f5c6f9f8283db79|01566040367790e407a6f6920f53096e; USERID=145998491; UTUSER=145998491; SID=qFEQaJXHHAhtGg8zvdcnjS4zVscKuZgdBUYw; ZDS=1.0|1560944326|7rMwz66LJ4QpK77emRZHTLgX1Eofw0WK1ixcAGUiQfMmoO0cdXgyNmQ3gG0ZNMR+; tzyy=96f572671da1057585fe6e89c9e785d7; ut_ubt_ssid=pf0ppvdjsib3qf31b06lhq7r7y7r91h6_2019-06-19; isg=BPT0I614FS0VwoFhIBHTmz87xbLK3RmmFPLco45VJn8C-ZVDtt0dRnKre3GEGlAP",
-            "145998491");
-    }
-
     public static void main(String[] args) {
         long sum = 0L;
         for (int i = 0; i < 10; i++) {
@@ -134,6 +124,13 @@ public class LimitHongbaoThread extends Thread {
             });
         }
         System.out.println("==================结束======================");
+    }
+
+    @Override
+    public void run() {
+        getLimitHongbao(
+            "ubt_ssid=2dc9h9cjnkcngj1aaekzeeol7pp9maau_2019-06-19; _utrace=e1f0c1c8a3571c3541890f9a6cd4f4c5_2019-06-19; perf_ssid=ue5yytkrqvena9mrto4rc5o2bnri4qk2_2019-06-19; cna=IP16EmZ0YmECAbcYjWohDOzd; _bl_uid=nbjtIx5m3245q3xRR2Ivz8v4RtmI; track_id=1560944326|5c9d17cde1f2ba8330b4f5436d4f3869ea2f5c6f9f8283db79|01566040367790e407a6f6920f53096e; USERID=145998491; UTUSER=145998491; SID=qFEQaJXHHAhtGg8zvdcnjS4zVscKuZgdBUYw; ZDS=1.0|1560944326|7rMwz66LJ4QpK77emRZHTLgX1Eofw0WK1ixcAGUiQfMmoO0cdXgyNmQ3gG0ZNMR+; tzyy=96f572671da1057585fe6e89c9e785d7; ut_ubt_ssid=pf0ppvdjsib3qf31b06lhq7r7y7r91h6_2019-06-19; isg=BPT0I614FS0VwoFhIBHTmz87xbLK3RmmFPLco45VJn8C-ZVDtt0dRnKre3GEGlAP",
+            "145998491");
     }
 
 }

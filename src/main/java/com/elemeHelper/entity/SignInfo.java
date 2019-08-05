@@ -2,7 +2,6 @@ package com.elemeHelper.entity;
 
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,125 +15,137 @@ import javax.persistence.Table;
 @Entity
 @Table
 public class SignInfo {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private Long cookieId;
-	private Date createDate;
-	private Long creatorId;
-	private int datalevel;
-	private int count;
-	private boolean isAbort;
-	private boolean isFinish;
-	private Date beginDate;
-	private Date endDate;
-	
-	
-	@OneToMany(cascade=CascadeType.ALL,mappedBy="signInfo",fetch=FetchType.LAZY)
-	private List<Sign> signs;
-	
-	public SignInfo() {
-	}
 
-	public SignInfo(Long cookieId,Long creatorId) {
-		this.cookieId=cookieId;
-		this.creatorId = creatorId;
-		this.createDate = new Date();
-		this.datalevel = 0;
-		this.count = 1;
-		this.isAbort = false;
-		this.isFinish = false;
-	}
-	public SignInfo(Long cookieId,Long creatorId,Date beginDate,Date endDate) {
-		this.cookieId=cookieId;
-		this.creatorId = creatorId;
-		this.createDate = new Date();
-		this.datalevel = 0;
-		this.count = 1;
-		this.isAbort = false;
-		this.isFinish = false;
-		this.beginDate = beginDate;
-		this.endDate = endDate;
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Long cookieId;
+    private Date createDate;
+    private Long creatorId;
+    private int datalevel;
+    private int count;
+    private boolean isAbort;
+    private boolean isFinish;
+    private Date beginDate;
+    private Date endDate;
 
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "signInfo", fetch = FetchType.LAZY)
+    private List<Sign> signs;
 
-	public List<Sign> getSigns() {
-		return signs;
-	}
+    public SignInfo() {
+    }
 
-	public void setSigns(List<Sign> signs) {
-		this.signs = signs;
-	}
+    public SignInfo(Long cookieId, Long creatorId) {
+        this.cookieId = cookieId;
+        this.creatorId = creatorId;
+        this.createDate = new Date();
+        this.datalevel = 0;
+        this.count = 1;
+        this.isAbort = false;
+        this.isFinish = false;
+    }
 
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public SignInfo(Long cookieId, Long creatorId, Date beginDate, Date endDate) {
+        this.cookieId = cookieId;
+        this.creatorId = creatorId;
+        this.createDate = new Date();
+        this.datalevel = 0;
+        this.count = 1;
+        this.isAbort = false;
+        this.isFinish = false;
+        this.beginDate = beginDate;
+        this.endDate = endDate;
+    }
 
-	public Long getCookieId() {
-		return cookieId;
-	}
 
-	public void setCookieId(Long cookieId) {
-		this.cookieId = cookieId;
-	}
+    public List<Sign> getSigns() {
+        return signs;
+    }
 
-	public Date getCreateDate() {
-		return createDate;
-	}
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-	public Long getCreatorId() {
-		return creatorId;
-	}
-	public void setCreatorId(Long creatorId) {
-		this.creatorId = creatorId;
-	}
-	public int getDatalevel() {
-		return datalevel;
-	}
-	public void setDatalevel(int datalevel) {
-		this.datalevel = datalevel;
-	}
-	public int getCount() {
-		return count;
-	}
-	public void setCount(int count) {
-		this.count = count;
-	}
-	public boolean isFinish() {
-		return isFinish;
-	}
-	public boolean isAbort() {
-		return isAbort;
-	}
-	public void setAbort(boolean isAbort) {
-		this.isAbort = isAbort;
-	}
+    public void setSigns(List<Sign> signs) {
+        this.signs = signs;
+    }
 
-	public void setFinish(boolean isFinish) {
-		this.isFinish = isFinish;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Date getBeginDate() {
-		return beginDate;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setBeginDate(Date beginDate) {
-		this.beginDate = beginDate;
-	}
+    public Long getCookieId() {
+        return cookieId;
+    }
 
-	public Date getEndDate() {
-		return endDate;
-	}
+    public void setCookieId(Long cookieId) {
+        this.cookieId = cookieId;
+    }
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+    public Date getCreateDate() {
+        return createDate;
+    }
 
-	
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public int getDatalevel() {
+        return datalevel;
+    }
+
+    public void setDatalevel(int datalevel) {
+        this.datalevel = datalevel;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public boolean isFinish() {
+        return isFinish;
+    }
+
+    public void setFinish(boolean isFinish) {
+        this.isFinish = isFinish;
+    }
+
+    public boolean isAbort() {
+        return isAbort;
+    }
+
+    public void setAbort(boolean isAbort) {
+        this.isAbort = isAbort;
+    }
+
+    public Date getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(Date beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+
 }

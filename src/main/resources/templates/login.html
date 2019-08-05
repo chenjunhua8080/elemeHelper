@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>登录</title>
+  <meta charset="UTF-8"/>
+  <title>登录</title>
 </head>
 <body>
-	<div class="page">
-		<div class="weui-cells__title"><h2>登录</h2></div>
-		<div class="weui-block" style="text-align: center;margin-bottom: 10px;">
-			<span id="msg" th:if="${error!=null}" th:text="${error?.msg}"
-				class="weui-btn weui-btn_disabled weui-btn_warn">msg</span>
-		</div>
-		<form action="/login" method="POST" class="weui-cells weui-cells_form">
-			<div class="weui-cell">
-				<div class="weui-cell__hd">
-					<label class="weui-label">用户名</label>
-				</div>
-				<div class="weui-cell__bd">
-					<input type="text" name="name" placeholder="请输入用户名"
-						lay-verify="required" autocomplete="off"
-						class="weui-input" />
-				</div>
-			</div>
-			<div class="weui-cell">
-				<div class="weui-cell__hd">
-					<label class="weui-label">密码</label>
-				</div>
-				<div class="weui-cell__bd">
-					<input type="password" name="pass" placeholder="请输入密码"
-						lay-verify="required" class="weui-input" />
-				</div>
-			</div>
-			<div class="weui-btn-area">
-				<input type="submit" value="登录" class="weui-btn weui-btn_primary" />
-				<!-- <button type="reset" class="weui-btn weui-btn-primary">重置</button> -->
-			</div>
-		</form>
-		<!-- 注册入口 -->
-	    <div class="weui-cells__title" style="text-align: right;">
-	   		<p>没有账号？<a href="../page/register">前往注册</a></p>
-	   	</div>
-	   	<!-- 注册入口 -->
-	</div>
+<div class="page">
+  <div class="weui-cells__title"><h2>登录</h2></div>
+  <div class="weui-block" style="text-align: center;margin-bottom: 10px;">
+			<span class="weui-btn weui-btn_disabled weui-btn_warn" id="msg" th:if="${error!=null}"
+            th:text="${error?.msg}">msg</span>
+  </div>
+  <form action="/login" class="weui-cells weui-cells_form" method="POST">
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <label class="weui-label">用户名</label>
+      </div>
+      <div class="weui-cell__bd">
+        <input autocomplete="off" class="weui-input" lay-verify="required"
+               name="name" placeholder="请输入用户名"
+               type="text"/>
+      </div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <label class="weui-label">密码</label>
+      </div>
+      <div class="weui-cell__bd">
+        <input class="weui-input" lay-verify="required" name="pass"
+               placeholder="请输入密码" type="password"/>
+      </div>
+    </div>
+    <div class="weui-btn-area">
+      <input class="weui-btn weui-btn_primary" type="submit" value="登录"/>
+      <!-- <button type="reset" class="weui-btn weui-btn-primary">重置</button> -->
+    </div>
+  </form>
+  <!-- 注册入口 -->
+  <div class="weui-cells__title" style="text-align: right;">
+    <p>没有账号？<a href="../page/register">前往注册</a></p>
+  </div>
+  <!-- 注册入口 -->
+</div>
 </body>
 <div th:replace="layuiInclud :: html"></div>
 </html>

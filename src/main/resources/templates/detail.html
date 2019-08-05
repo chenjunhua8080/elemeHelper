@@ -1,77 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>账号状况</title>
-<script type="text/javascript">
-function questClick(){
-	var id=$('#list').val();
-	/*$.ajax({
-		type:"get",
-		url:"/address",
-		data:{"cookieId":id},
-		success:function(result){
-			var data=null;
-			var code=result.code;
-			if(code==0){
-				$('#address').html(result.data);
-			}else{
-				$.alert(result.msg);
-			}
-		}
-	});*/
-	$('#redpack').load("../../page/redpack?cookieId="+id);
-	$('#order').load("../../page/order?cookieId="+id);
-	$('#address').load("../../page/address?cookieId="+id);
-}
-</script>
+  <meta charset="UTF-8"/>
+  <title>账号状况</title>
+  <script type="text/javascript">
+    function questClick() {
+      var id = $('#list').val();
+      /*$.ajax({
+        type:"get",
+        url:"/address",
+        data:{"cookieId":id},
+        success:function(result){
+          var data=null;
+          var code=result.code;
+          if(code==0){
+            $('#address').html(result.data);
+          }else{
+            $.alert(result.msg);
+          }
+        }
+      });*/
+      $('#redpack').load("../../page/redpack?cookieId=" + id);
+      $('#order').load("../../page/order?cookieId=" + id);
+      $('#address').load("../../page/address?cookieId=" + id);
+    }
+  </script>
 </head>
 <body>
-	<!-- 账号列表 -->
-	<div>
-		<div class="weui-cells__title">账号列表</div>
-		<div class="weui_cells">
-			<div class="weui-cell">
-				<div class="weui-cell__hd">
-					<label class="weui-label" style="width: 75px;">选择账号</label>
-				</div>
-				<div class="weui-cell__bd">
-					<select class="weui-select" id="list">
-						<option th:each = "user,userStat:${cookies}" th:text="${user.phone}" th:value="${user.id}">微信号</option>
-					</select>
-				</div>
-				<div class="weui-cell__ft">
-					<button id="quest" class="weui-vcode-btn" onclick="questClick()">查询</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- 账号列表 end -->
-	<!-- 账号详情 -->
-	<div class="weui-tab">
-      <div class="weui-navbar">
-        <a class="weui-navbar__item weui-bar__item--on" href="#tab1">
-       		红包
-        </a>
-        <a class="weui-navbar__item" href="#tab2">
-          	订单
-        </a>
-        <a class="weui-navbar__item" href="#tab3">
-          	收货地址
-        </a>
+<!-- 账号列表 -->
+<div>
+  <div class="weui-cells__title">账号列表</div>
+  <div class="weui_cells">
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <label class="weui-label" style="width: 75px;">选择账号</label>
       </div>
-      <div class="weui-tab__bd">
-        <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
-        	<div id="redpack"></div>	
-        </div>
-        <div id="tab2" class="weui-tab__bd-item">
-          	<div id="order"></div>	
-        </div>
-        <div id="tab3" class="weui-tab__bd-item">
-        	<div id="address"></div>
-        </div>
+      <div class="weui-cell__bd">
+        <select class="weui-select" id="list">
+          <option th:each="user,userStat:${cookies}" th:text="${user.phone}" th:value="${user.id}">微信号</option>
+        </select>
+      </div>
+      <div class="weui-cell__ft">
+        <button class="weui-vcode-btn" id="quest" onclick="questClick()">查询</button>
       </div>
     </div>
-	<!-- 账号详情 -->
+  </div>
+</div>
+<!-- 账号列表 end -->
+<!-- 账号详情 -->
+<div class="weui-tab">
+  <div class="weui-navbar">
+    <a class="weui-navbar__item weui-bar__item--on" href="#tab1">
+      红包
+    </a>
+    <a class="weui-navbar__item" href="#tab2">
+      订单
+    </a>
+    <a class="weui-navbar__item" href="#tab3">
+      收货地址
+    </a>
+  </div>
+  <div class="weui-tab__bd">
+    <div class="weui-tab__bd-item weui-tab__bd-item--active" id="tab1">
+      <div id="redpack"></div>
+    </div>
+    <div class="weui-tab__bd-item" id="tab2">
+      <div id="order"></div>
+    </div>
+    <div class="weui-tab__bd-item" id="tab3">
+      <div id="address"></div>
+    </div>
+  </div>
+</div>
+<!-- 账号详情 -->
 </body>
 </html>

@@ -1,9 +1,8 @@
 package com.elemeHelper.dao;
 
+import com.elemeHelper.entity.Sign;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.elemeHelper.entity.Sign;
-
-public interface SignPrizeDao extends JpaRepository<Sign, Long>{
+public interface SignPrizeDao extends JpaRepository<Sign, Long> {
 
 }

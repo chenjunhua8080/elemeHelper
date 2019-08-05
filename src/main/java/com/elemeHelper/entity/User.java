@@ -1,7 +1,6 @@
 package com.elemeHelper.entity;
 
 import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,97 +10,98 @@ import javax.persistence.Table;
 @Entity
 @Table
 public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String name;
-	private String pass;
-	private int type;
-	private Date createDate;
-	private Long creatorId;
-	private int datalevel;
 
-	public User() {
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String pass;
+    private int type;
+    private Date createDate;
+    private Long creatorId;
+    private int datalevel;
 
-	public User(String name, String pass) {
-		this.name = name;
-		this.pass = pass;
-	}
+    public User() {
+    }
 
-	public User(Long id, String name, String pass) {
-		this.id = id;
-		this.name = name;
-		this.pass = pass;
-	}
+    public User(String name, String pass) {
+        this.name = name;
+        this.pass = pass;
+    }
 
-	public User(String name, String pass, int type) {
-		this.name = name;
-		this.pass = pass;
-		this.type = type;
-	}
+    public User(Long id, String name, String pass) {
+        this.id = id;
+        this.name = name;
+        this.pass = pass;
+    }
 
-	public User(Long id, String name, String pass, int type) {
-		this.id = id;
-		this.name = name;
-		this.pass = pass;
-		this.type = type;
-	}
+    public User(String name, String pass, int type) {
+        this.name = name;
+        this.pass = pass;
+        this.type = type;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public User(Long id, String name, String pass, int type) {
+        this.id = id;
+        this.name = name;
+        this.pass = pass;
+        this.type = type;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getPass() {
-		return pass;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setPass(String pass) {
-		this.pass = pass;
-	}
+    public String getPass() {
+        return pass;
+    }
 
-	public int getType() {
-		return type;
-	}
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
 
-	public void setType(int type) {
-		this.type = type;
-	}
+    public int getType() {
+        return type;
+    }
 
-	public Date getCreateDate() {
-		return createDate;
-	}
+    public void setType(int type) {
+        this.type = type;
+    }
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
+    public Date getCreateDate() {
+        return createDate;
+    }
 
-	public Long getCreatorId() {
-		return creatorId;
-	}
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
 
-	public void setCreatorId(Long creatorId) {
-		this.creatorId = creatorId;
-	}
+    public Long getCreatorId() {
+        return creatorId;
+    }
 
-	public int getDatalevel() {
-		return datalevel;
-	}
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
 
-	public void setDatalevel(int datalevel) {
-		this.datalevel = datalevel;
-	}
+    public int getDatalevel() {
+        return datalevel;
+    }
+
+    public void setDatalevel(int datalevel) {
+        this.datalevel = datalevel;
+    }
 
 }

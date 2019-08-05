@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-<meta charset="UTF-8" />
-<title>注册</title>
-<style type="text/css">
-i {
-	color: red;
-}
-</style>
+  <meta charset="UTF-8"/>
+  <title>注册</title>
+  <style type="text/css">
+    i {
+      color: red;
+    }
+  </style>
 </head>
 <body>
-	<h1>注册</h1>
-	<form action="/register" method="POST">
-		<i>*</i>用户名：<input type="text" name="name" placeholder="6-11位数字或字母" pattern="[A-z,0-9]{6,11}" required="required"/><br />
-		<i>*</i>密码：<input type="text" name="pass" placeholder="6位数字" pattern="[0-9]{6}" required="required"/><br /> <i>*</i>邮箱：<input
-			type="text" name="email" placeholder="用于找回密码(仅QQ邮箱 )" pattern="[0-9]{6,10}@qq.com" required="required"/><br /> <input
-			type="submit" value="注册" />
-	</form>
+<h1>注册</h1>
+<form action="/register" method="POST">
+  <i>*</i>用户名：<input name="name" pattern="[A-z,0-9]{6,11}" placeholder="6-11位数字或字母" required="required"
+                     type="text"/><br/>
+  <i>*</i>密码：<input name="pass" pattern="[0-9]{6}" placeholder="6位数字" required="required" type="text"/><br/> <i>*</i>邮箱：<input
+    name="email" pattern="[0-9]{6,10}@qq.com" placeholder="用于找回密码(仅QQ邮箱 )" required="required" type="text"/><br/> <input
+    type="submit" value="注册"/>
+</form>
 </body>
 </html>

@@ -2,48 +2,48 @@ package com.elemeHelper.result;
 
 public class PageResult {
 
-	private String page;
+    private String page;
 
-	private String msg;
-	
-	private Object data;
+    private String msg;
 
-	public PageResult() {
-	}
+    private Object data;
 
-	public PageResult(String page, Object data) {
-		this.page = page;
-		this.data = data;
-	}
+    public PageResult() {
+    }
 
-	public PageResult(String page, String msg) {
-		this.page = page;
-		this.msg = msg;
-	}
+    public PageResult(String page, Object data) {
+        this.page = page;
+        this.data = data;
+    }
 
-	public String getPage() {
-		return page;
-	}
+    public PageResult(String page, String msg) {
+        this.page = page;
+        this.msg = msg;
+    }
 
-	public void setPage(String page) {
-		this.page = page;
-	}
+    public String getPage() {
+        return page;
+    }
 
-	public Object getData() {
-		return data;
-	}
+    public void setPage(String page) {
+        this.page = page;
+    }
 
-	public void setData(Object data) {
-		this.data = data;
-	}
+    public Object getData() {
+        return data;
+    }
 
-	public String getMsg() {
-		return msg;
-	}
+    public void setData(Object data) {
+        this.data = data;
+    }
 
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
-	
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
 
 }

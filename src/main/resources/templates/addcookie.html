@@ -1,76 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8"/>
-<title>cookie</title>
-<script type="text/javascript">
-function cookieClick(){
-	var cookie=$('#cookie').val();
-	if(cookie==null || cookie==""){
-		$.toptip("cookie 不能为空~");
-		return;		
-	}
-	var account=$('#account').val();
-	var phone=$('#phone').val();
-	$.ajax({
-		type:"post",
-		url:"/cookie/add",
-		data:{'account':account,'phone':phone,'value':cookie},
-		success:function(result){
-			var data=null;
-			var code=result.code;
-			if(code==0){
-				data=result.data;
-			}else{
-				data=result.msg;
-			}
-			$.toptip(data);
-		}
-	});
-}
-</script>
+  <meta charset="UTF-8"/>
+  <title>cookie</title>
+  <script type="text/javascript">
+    function cookieClick() {
+      var cookie = $('#cookie').val();
+      if (cookie == null || cookie == "") {
+        $.toptip("cookie 不能为空~");
+        return;
+      }
+      var account = $('#account').val();
+      var phone = $('#phone').val();
+      $.ajax({
+        type: "post",
+        url: "/cookie/add",
+        data: {'account': account, 'phone': phone, 'value': cookie},
+        success: function (result) {
+          var data = null;
+          var code = result.code;
+          if (code == 0) {
+            data = result.data;
+          } else {
+            data = result.msg;
+          }
+          $.toptip(data);
+        }
+      });
+    }
+  </script>
 </head>
 <body>
-	
-	<!-- 上传cookie -->
-	<div>
-		<div class="weui-cells__title">上传cookie</div>
-		<div class="weui_cells weui-cells_form">
-			<div class="weui-cell">
-				<div class="weui-cell__hd">
-					<label class="weui-label">cookie<i style="color: red;font-weight: bold;margin: 5px;font-size: 20px;">*</i></label>
-				</div>
-				<div class="weui-cell__bd">
-					<input type="text" id="cookie" placeholder="是一大串的cookie" class="weui-input" />
-				</div>
-			</div>
-			<div class="weui-cell">
-				<div class="weui-cell__hd">
-					<label class="weui-label">qq/微信</label>
-				</div>
-				<div class="weui-cell__bd">
-					<input type="text" id="account" placeholder="绑定cookie的qq/微信号" class="weui-input" />
-				</div>
-			</div>
-			<div class="weui-cell">
-				<div class="weui-cell__hd">
-					<label class="weui-label">手机号</label>
-				</div>
-				<div class="weui-cell__bd">
-					<input type="text" id="phone" placeholder="绑定cookie的手机号" class="weui-input" />
-				</div>
-			</div>
-			<div class="weui-btn-area">
-				<button id="cookieUpload" class="weui-btn weui-btn_primary" onclick="cookieClick()">上传</button>
-				<!-- <button type="reset" class="weui-btn weui-btn-primary">重置</button> -->
-			</div>
-		</div>
-	</div>
-	<!-- 上传cookie end -->
-	<div class="weui-cells__title">
-   		<a href="../cookie">查看我的cookie</a>
-   	</div>
-	
-	<div th:replace="layuiInclud :: html"></div>
+
+<!-- 上传cookie -->
+<div>
+  <div class="weui-cells__title">上传cookie</div>
+  <div class="weui_cells weui-cells_form">
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <label class="weui-label">cookie<i
+            style="color: red;font-weight: bold;margin: 5px;font-size: 20px;">*</i></label>
+      </div>
+      <div class="weui-cell__bd">
+        <input class="weui-input" id="cookie" placeholder="是一大串的cookie" type="text"/>
+      </div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <label class="weui-label">qq/微信</label>
+      </div>
+      <div class="weui-cell__bd">
+        <input class="weui-input" id="account" placeholder="绑定cookie的qq/微信号" type="text"/>
+      </div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <label class="weui-label">手机号</label>
+      </div>
+      <div class="weui-cell__bd">
+        <input class="weui-input" id="phone" placeholder="绑定cookie的手机号" type="text"/>
+      </div>
+    </div>
+    <div class="weui-btn-area">
+      <button class="weui-btn weui-btn_primary" id="cookieUpload" onclick="cookieClick()">上传</button>
+      <!-- <button type="reset" class="weui-btn weui-btn-primary">重置</button> -->
+    </div>
+  </div>
+</div>
+<!-- 上传cookie end -->
+<div class="weui-cells__title">
+  <a href="../cookie">查看我的cookie</a>
+</div>
+
+<div th:replace="layuiInclud :: html"></div>
 </body>
 </html>

@@ -1,86 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>index</title>
-<script type="text/javascript">
-	function run() {
-		var platform=$('#platform_getCode').val();
-		$.showLoading();
-		$.ajax({
-			type : "get",
-			url : "/run",
-			data:{'type':platform},
-			success : function(result) {
-				$.hideLoading();
-				$.alert(result.msg || (result.data.phone+'----'+result.data.msg));
-			}
-		});
-	}
-</script>	
+  <meta charset="UTF-8"/>
+  <title>index</title>
+  <script type="text/javascript">
+    function run() {
+      var platform = $('#platform_getCode').val();
+      $.showLoading();
+      $.ajax({
+        type: "get",
+        url: "/run",
+        data: {'type': platform},
+        success: function (result) {
+          $.hideLoading();
+          $.alert(result.msg || (result.data.phone + '----' + result.data.msg));
+        }
+      });
+    }
+  </script>
 </head>
 <body>
-	<div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0;">
-		<div style="height: 100%;">
-			<div class="weui-tab">
-				<div class="weui-tab__panel">
-                    <div class="weui-tab__panel__item" data-page="1">
-                    </div>
-                    <div class="weui-tab__panel__item" style="display: none;" data-page="2">
-                    </div>
-                    <div class="weui-tab__panel__item" style="display: none;" data-page="3">
-                    </div>
-                    <div class="weui-tab__panel__item" style="display: none;" data-page="4">
-	                    <div class="weui-btn-area">
-							<input type="button" value="跑号" class="weui-btn weui-btn_primary" onclick="run()"/>
-						</div>
-						<div id="three" class="">第三方账号</div>
-                    </div>
-                </div>
-				<div class="weui-tabbar">
-					<a class="weui-tabbar__item weui-bar__item_on" href="javascript:;">
-						<img src="../../img/redpack.png" alt="" class="weui-tabbar__icon" />
-						<p class="weui-tabbar__label">拼手气</p>
-					</a> <a class="weui-tabbar__item" href="javascript:;"> <img
-						src="../../img/redpack.png" alt="" class="weui-tabbar__icon" />
-						<p class="weui-tabbar__label">eleme</p>
-					</a> <a class="weui-tabbar__item" href="javascript:;"> <img
-						src="../../img/redpack.png" alt="" class="weui-tabbar__icon" />
-						<p class="weui-tabbar__label">签到</p>
-					</a> <a class="weui-tabbar__item" href="javascript:;"> <img
-						src="../../img/redpack.png" alt="" class="weui-tabbar__icon" />
-						<p class="weui-tabbar__label">我</p>
-					</a>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div th:replace="layuiInclud :: html"></div>
+<div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0;">
+  <div style="height: 100%;">
+    <div class="weui-tab">
+      <div class="weui-tab__panel">
+        <div class="weui-tab__panel__item" data-page="1">
+        </div>
+        <div class="weui-tab__panel__item" data-page="2" style="display: none;">
+        </div>
+        <div class="weui-tab__panel__item" data-page="3" style="display: none;">
+        </div>
+        <div class="weui-tab__panel__item" data-page="4" style="display: none;">
+          <div class="weui-btn-area">
+            <input class="weui-btn weui-btn_primary" onclick="run()" type="button" value="跑号"/>
+          </div>
+          <div class="" id="three">第三方账号</div>
+        </div>
+      </div>
+      <div class="weui-tabbar">
+        <a class="weui-tabbar__item weui-bar__item_on" href="javascript:;">
+          <img alt="" class="weui-tabbar__icon" src="../../img/redpack.png"/>
+          <p class="weui-tabbar__label">拼手气</p>
+        </a> <a class="weui-tabbar__item" href="javascript:;"> <img
+          alt="" class="weui-tabbar__icon" src="../../img/redpack.png"/>
+        <p class="weui-tabbar__label">eleme</p>
+      </a> <a class="weui-tabbar__item" href="javascript:;"> <img
+          alt="" class="weui-tabbar__icon" src="../../img/redpack.png"/>
+        <p class="weui-tabbar__label">签到</p>
+      </a> <a class="weui-tabbar__item" href="javascript:;"> <img
+          alt="" class="weui-tabbar__icon" src="../../img/redpack.png"/>
+        <p class="weui-tabbar__label">我</p>
+      </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:replace="layuiInclud :: html"></div>
 </body>
 <script type="text/javascript">
-	$(function(){
-		//----初始化拼手气
-		var page=$('.weui-tab__panel .weui-tab__panel__item').eq(0);
-		page.load('../page/luck');
-		//----tab切换    
-		var aLi = $('.weui-tabbar__item');
-	  	aLi.on('click', function () {
-	      $(this).addClass('weui-bar__item_on').siblings('.weui-bar__item_on').removeClass('weui-bar__item_on');
-	      var index = $(this).index();
-	      var page=$('.weui-tab__panel .weui-tab__panel__item').eq(index);
-	      var pageId=page[0].dataset.page;
-	      if(pageId==1){
-	    	  page.load('../page/luck');
-	      }else if(pageId==2){
-	    	  page.load('../page/detail');
-	      }else if(pageId==3){
-	    	  //page.load('../page/activity'); 
-	    	  page.load('../page/sign'); 	
-  		  }else if(pageId==4){
-			  $('#three').load('../page/activity');
-		  }
-	      page.show().siblings('.weui-tab__panel__item').hide();
-	  });
-	});
+  $(function () {
+    //----初始化拼手气
+    var page = $('.weui-tab__panel .weui-tab__panel__item').eq(0);
+    page.load('../page/luck');
+    //----tab切换
+    var aLi = $('.weui-tabbar__item');
+    aLi.on('click', function () {
+      $(this).addClass('weui-bar__item_on').siblings('.weui-bar__item_on').removeClass('weui-bar__item_on');
+      var index = $(this).index();
+      var page = $('.weui-tab__panel .weui-tab__panel__item').eq(index);
+      var pageId = page[0].dataset.page;
+      if (pageId == 1) {
+        page.load('../page/luck');
+      } else if (pageId == 2) {
+        page.load('../page/detail');
+      } else if (pageId == 3) {
+        //page.load('../page/activity');
+        page.load('../page/sign');
+      } else if (pageId == 4) {
+        $('#three').load('../page/activity');
+      }
+      page.show().siblings('.weui-tab__panel__item').hide();
+    });
+  });
 </script>
 </html>

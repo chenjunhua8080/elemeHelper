@@ -1,9 +1,8 @@
 package com.elemeHelper.dao;
 
+import com.elemeHelper.entity.Bind;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.elemeHelper.entity.Bind;
-
-public interface BindDao extends JpaRepository<Bind, Long>{
+public interface BindDao extends JpaRepository<Bind, Long> {
 
 }

@@ -1,89 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>签到页面</title>
-<script type="text/javascript">
-	function signAll(){
-		$.showLoading();
-		$.ajax({
-			type:"get",
-			url:"/signAll",
-			success:function(result){
-				$.hideLoading();
-				var data=null;
-				var code=result.code;
-				if(code==0){
-					//$('#signList').html(result.data);
-					$.alert("签到成功！");
-				}else{
-					$.alert(result.msg);
-				}
-			},
-			error:function(result){
-				$.hideLoading();
-				$.alert(result);
-			}
-		});
-	}
-</script>
+  <meta charset="UTF-8"/>
+  <title>签到页面</title>
+  <script type="text/javascript">
+    function signAll() {
+      $.showLoading();
+      $.ajax({
+        type: "get",
+        url: "/signAll",
+        success: function (result) {
+          $.hideLoading();
+          var data = null;
+          var code = result.code;
+          if (code == 0) {
+            //$('#signList').html(result.data);
+            $.alert("签到成功！");
+          } else {
+            $.alert(result.msg);
+          }
+        },
+        error: function (result) {
+          $.hideLoading();
+          $.alert(result);
+        }
+      });
+    }
+  </script>
 </head>
 <body>
-	<div class="weui-btn-area">
-		<input type="button" value="一键签到" class="weui-btn weui-btn_primary" onclick="signAll()"/>
-	</div>
-	<!-- 签到列表 -->
-	<div id="signList">
-		<!-- 错误时显示 -->
-		<div class="weui-form-preview" th:if="${error!=null}">
-			<div class="weui-form-preview__hd">
-				<div class="weui-form-preview__item">
-					<label class="weui-form-preview__label" th:text="${error}">error</label>
-				</div>
-			</div>
-		</div>
-		<!-- 无数据时显示 -->
-		<div th:if="${error==null and (signInfos==null or signInfos.size()==0)}">
-			<div class="weui-loadmore weui-loadmore_line">
-		        <span class="weui-loadmore__tips">暂无数据</span>
-		    </div>
-		</div>
-		<!-- 有数据时显示 -->
-		<div class="weui-panel" th:each = "signInfo,signInfoStatus:${signInfos}">
-			<strong class="weui-panel__hd">
-				<span th:text="${'cookieId : '+signInfo.cookieId}">cookieId</span>
-				<span 
-					th:if="${signInfo.beginDate!=null and signInfo.endDate!=null}"
-					th:text="${'('+#dates.format(signInfo.beginDate,'yyyy-MM-dd')+' ~ '+#dates.format(signInfo.endDate,'yyyy-MM-dd')+')'}"
-				>日期区间</span>
-			</strong>
-			<div class="weui-panel__bd">
-				<div class="weui-media-box weui-media-box_text"
-				th:each="sign,signStatus:${signInfo.signs}">
-					<h4 class="weui-media-box__title" 
-						th:if="${sign.text==null}"
-						th:text = "${#dates.format(sign.createDate,'yyyy-MM-dd')}"
-					>日期</h4>
-					<!-- 特殊处理已签到的日期 -->
-					<h4 class="weui-media-box__title" 
-						th:if="${sign.text!=null and sign.value!=null}" 
-						th:text = "${sign.value}"
-					>日期</h4>
-					<p class="weui-media-box__desc" 
-						th:text = "${sign.text}" 
-						th:if="${sign.text!=null}">签到错误</p>
-					<p class="weui-media-box__desc" 
-						th:each = "prize,prizeStat:${sign.prizes}" 
-						th:text = "${prize.name+':'+prize.amount}" 
-						th:if="${sign.text==null and prize.sum_condition==0}">金币</p>	
-					<p class="weui-media-box__desc" 
-						th:each = "prize,prizeStat:${sign.prizes}" 
-						th:text = "${prize.name+' : '+prize.sum_condition+'-'+prize.amount}" 
-						th:if="${sign.text==null and prize.sum_condition!=0}">抵扣</p>	
-				</div>
-			</div>
-		</div>		
-	</div>	
-	<!-- 签到列表 end-->
+<div class="weui-btn-area">
+  <input class="weui-btn weui-btn_primary" onclick="signAll()" type="button" value="一键签到"/>
+</div>
+<!-- 签到列表 -->
+<div id="signList">
+  <!-- 错误时显示 -->
+  <div class="weui-form-preview" th:if="${error!=null}">
+    <div class="weui-form-preview__hd">
+      <div class="weui-form-preview__item">
+        <label class="weui-form-preview__label" th:text="${error}">error</label>
+      </div>
+    </div>
+  </div>
+  <!-- 无数据时显示 -->
+  <div th:if="${error==null and (signInfos==null or signInfos.size()==0)}">
+    <div class="weui-loadmore weui-loadmore_line">
+      <span class="weui-loadmore__tips">暂无数据</span>
+    </div>
+  </div>
+  <!-- 有数据时显示 -->
+  <div class="weui-panel" th:each="signInfo,signInfoStatus:${signInfos}">
+    <strong class="weui-panel__hd">
+      <span th:text="${'cookieId : '+signInfo.cookieId}">cookieId</span>
+      <span
+          th:if="${signInfo.beginDate!=null and signInfo.endDate!=null}"
+          th:text="${'('+#dates.format(signInfo.beginDate,'yyyy-MM-dd')+' ~ '+#dates.format(signInfo.endDate,'yyyy-MM-dd')+')'}"
+      >日期区间</span>
+    </strong>
+    <div class="weui-panel__bd">
+      <div class="weui-media-box weui-media-box_text"
+           th:each="sign,signStatus:${signInfo.signs}">
+        <h4 class="weui-media-box__title"
+            th:if="${sign.text==null}"
+            th:text="${#dates.format(sign.createDate,'yyyy-MM-dd')}"
+        >日期</h4>
+        <!-- 特殊处理已签到的日期 -->
+        <h4 class="weui-media-box__title"
+            th:if="${sign.text!=null and sign.value!=null}"
+            th:text="${sign.value}"
+        >日期</h4>
+        <p class="weui-media-box__desc"
+           th:if="${sign.text!=null}"
+           th:text="${sign.text}">签到错误</p>
+        <p class="weui-media-box__desc"
+           th:each="prize,prizeStat:${sign.prizes}"
+           th:if="${sign.text==null and prize.sum_condition==0}"
+           th:text="${prize.name+':'+prize.amount}">金币</p>
+        <p class="weui-media-box__desc"
+           th:each="prize,prizeStat:${sign.prizes}"
+           th:if="${sign.text==null and prize.sum_condition!=0}"
+           th:text="${prize.name+' : '+prize.sum_condition+'-'+prize.amount}">抵扣</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 签到列表 end-->
 </body>
 </html>

@@ -1,57 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>订单列表</title>
+  <meta charset="UTF-8"/>
+  <title>订单列表</title>
 </head>
 <body>
 <!-- 订单列表 -->
-	<div id="order">
-		<!-- 错误时显示 -->
-		<div class="weui-form-preview" th:if="${error!=null}">
-			<div class="weui-form-preview__hd">
-				<div class="weui-form-preview__item">
-					<label class="weui-form-preview__label" th:text="${error}">error</label>
-				</div>
-			</div>
-		</div>
-		<!-- 无数据时显示 -->
-		<div th:if="${error==null and (orders==null or orders.size()==0)}">
-			<div class="weui-loadmore weui-loadmore_line">
-		        <span class="weui-loadmore__tips">暂无数据</span>
-		    </div>
-		</div>
-		<!-- 有数据时显示 -->
-		<div class="weui-form-preview" th:each = "order,orderStat:${orders}">
-	      <div class="weui-form-preview__hd">
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">
-	          	<img class="weui-icon" width="64px" th:src="${order.imgUrl}" />
-	          </label>
-	          <label class="weui-form-preview__value" style="font-size: 1em;" th:text="${order.restaurant_name}">店铺</label>
-	        </div>
-	      </div>
-	      <div class="weui-form-preview__bd">
-	        <div class="weui-form-preview__item" th:each = "menu,menuStat:${order.basket.group}">
-	          <label class="weui-form-preview__label">菜单</label>
-	          <span class="weui-form-preview__value" 
-		            th:each = "item,itemStat:${menu}" 
-		            th:text="${item.name}"
-	          >菜单</span>
-	        </div>
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">金额</label>
-	          <span class="weui-form-preview__value" style="color: red;" th:text="${order.total_amount}">金额</span>
-	        </div>
-	        <div class="weui-form-preview__item">
-	          <label class="weui-form-preview__label">订单状态</label>
-	          <span class="weui-form-preview__value" style="color: red;" th:text="${order.status_bar.title}">订单状态</span>
-	        </div>
-	      </div>
-	      <div class="weui-form-preview__ft"></div>
-	      <br/>
-	    </div>
-	</div>	
+<div id="order">
+  <!-- 错误时显示 -->
+  <div class="weui-form-preview" th:if="${error!=null}">
+    <div class="weui-form-preview__hd">
+      <div class="weui-form-preview__item">
+        <label class="weui-form-preview__label" th:text="${error}">error</label>
+      </div>
+    </div>
+  </div>
+  <!-- 无数据时显示 -->
+  <div th:if="${error==null and (orders==null or orders.size()==0)}">
+    <div class="weui-loadmore weui-loadmore_line">
+      <span class="weui-loadmore__tips">暂无数据</span>
+    </div>
+  </div>
+  <!-- 有数据时显示 -->
+  <div class="weui-form-preview" th:each="order,orderStat:${orders}">
+    <div class="weui-form-preview__hd">
+      <div class="weui-form-preview__item">
+        <label class="weui-form-preview__label">
+          <img class="weui-icon" th:src="${order.imgUrl}" width="64px"/>
+        </label>
+        <label class="weui-form-preview__value" style="font-size: 1em;" th:text="${order.restaurant_name}">店铺</label>
+      </div>
+    </div>
+    <div class="weui-form-preview__bd">
+      <div class="weui-form-preview__item" th:each="menu,menuStat:${order.basket.group}">
+        <label class="weui-form-preview__label">菜单</label>
+        <span class="weui-form-preview__value"
+              th:each="item,itemStat:${menu}"
+              th:text="${item.name}"
+        >菜单</span>
+      </div>
+      <div class="weui-form-preview__item">
+        <label class="weui-form-preview__label">金额</label>
+        <span class="weui-form-preview__value" style="color: red;" th:text="${order.total_amount}">金额</span>
+      </div>
+      <div class="weui-form-preview__item">
+        <label class="weui-form-preview__label">订单状态</label>
+        <span class="weui-form-preview__value" style="color: red;" th:text="${order.status_bar.title}">订单状态</span>
+      </div>
+    </div>
+    <div class="weui-form-preview__ft"></div>
+    <br/>
+  </div>
+</div>
 <!-- 订单列表 end-->
 </body>
 </html>

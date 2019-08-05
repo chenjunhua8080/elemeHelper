@@ -1,6 +1,6 @@
 package com.elemeHelper.dao;
 
 
-public interface BwmDao{
+public interface BwmDao {
 
 }
