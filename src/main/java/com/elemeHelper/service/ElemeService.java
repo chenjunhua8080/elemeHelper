@@ -765,6 +765,8 @@ public class ElemeService {
 			validate_code = getValidata(validate_code);
 			Map<String, String> cookies = login(phone, validate_code, validate_token);
 			addCookie(cookies,phone,request);
+			//领取新人
+			getNewPlatform(cookies,phone);
 
 			String msg="";
 			boolean isVip = isVip(cookies);
@@ -1505,8 +1507,8 @@ public class ElemeService {
 		data.put("longitude", lng);
 		data.put("platform", "3");
 		data.put("refer_channel_code", "1");
-		data.put("refer_channel_type", "2");
-		cookies.put("Referer","https://h5.ele.me/fire/water/");
+		data.put("refer_channel_type", "3");
+		cookies.put("Referer","https://h5.ele.me/fire/water/?refer_id=145998491&refer_code=bbc9baf3f6a3bf8e8697d6fdf58bcb59&refer_channel_code=1&refer_channel_type=3");
 		cookies.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134");
 		String resp = HttpUtil2.postRequest(url, cookies, data);
 		String body = resp;
