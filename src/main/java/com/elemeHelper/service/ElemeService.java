@@ -51,6 +51,11 @@ import sun.misc.BASE64Decoder;
 @Service
 public class ElemeService {
 
+    //开会员城市
+    private static final String supervip_info="https://shadow.elemecdn.com/crayfish/h5.ele.me/supervip";
+    //开团价格
+    private static final String supervip_purchase="https://h5.ele.me/restapi/member/v3/users/5893951186/supervip/purchase?latitude=22.980525&longitude=113.368438&city_id=92&channel=app&product_id=default";
+
 	// 拼手气
 	private static final String url_open_luck_redpacket = "https://h5.ele.me/restapi/marketing/promotion/weixin/OPENID";
 	private static final String url_get_lucky_number = "https://h5.ele.me/restapi/marketing/themes/3289/group_sns/REDPACKETID";

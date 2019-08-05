@@ -38,7 +38,10 @@ public class WechatController {
             return "获取失败";
         }
         Token token = tokenDao.getLastToken(5, mgyUser.getId());
-        mgyService.getPhone(token.getToken(), phone);
+        String getPhone = mgyService.getPhone(token.getToken(), phone);
+        if (getPhone==null){
+            return "获取号码失败";
+        }
         String code = null;
         int b = 0;
         while (code == null) {
