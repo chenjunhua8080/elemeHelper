@@ -51,6 +51,7 @@ public class WechatController {
                 code = mgyService.getMessage(token.getToken(), phone);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                return "获取验证码失败";
             }
             b++;
             if (b > 15) {
